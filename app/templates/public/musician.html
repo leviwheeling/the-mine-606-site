@@ -1,0 +1,54 @@
+{% extends "layout/base.html" %}
+{% block title %}Musicians — The Mine 606{% endblock %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Play at The Mine</h1>
+    <p class="text-white/70 mt-2">Send us your details and we’ll get back quickly.</p>
+  </header>
+
+  <form id="musicianForm" class="card p-5 space-y-4">
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"> <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Email</span>
+        <input type="email" name="email" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Phone</span>
+        <input name="phone" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Genre</span>
+        <input name="genre" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block sm:col-span-2"> <span class="text-sm text-white/70">Music Link (YouTube/IG/TikTok)</span>
+        <input name="link" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="https://">
+      </label>
+    </div>
+    <label class="block"> <span class="text-sm text-white/70">Message</span>
+      <textarea name="message" rows="4" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold"></textarea>
+    </label>
+
+    <!-- If you upgrade Formspree to support files, we can enable this -->
+    <!-- <label class="block">
+      <span class="text-sm text-white/70">Press Kit (PDF/Images)</span>
+      <input type="file" name="presskit" class="mt-1 block w-full text-sm text-white/70" />
+    </label> -->
+
+    <button class="btn-primary">Submit Application</button>
+    <p id="musicianMsg" class="text-white/70 text-sm mt-2"></p>
+  </form>
+</section>
+
+{% block body_scripts %}
+<script src="/static/js/forms.js"></script>
+<script>
+setupAjaxForm({
+  formId: 'musicianForm',
+  endpoint: '/api/musician',
+  successText: 'Thanks! Your application has been sent.',
+  errorText: 'Oops — something went wrong. Please try again in a moment.'
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "layout/base.html" %}
+{% block title %}Edit {{ item.name }} — Admin • Menu{% endblock %}
+
+{% block content %}
+<section class="admin max-w-4xl mx-auto px-4 pt-10 pb-24 space-y-8">
+
+  <header class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="font-serif text-3xl">Edit Menu Item</h1>
+      <p class="text-white/60 mt-1">{{ item.name }}</p>
+    </div>
+    <div class="flex gap-3">
+      <a href="/admin/menu" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Back to Menu</a>
+      <form action="/admin/logout" method="get">
+        <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Edit Form -->
+  <div class="card p-5">
+    <form method="post" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-6">
+      
+      <!-- Left Column -->
+      <div class="space-y-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Name</span>
+          <input name="name" value="{{ item.name }}" required class="input w-full mt-1">
+        </label>
+        
+        <label class="block">
+          <span class="text-sm text-white/70">Price</span>
+          <input name="price" type="number" step="0.01" value="{{ item.price }}" required class="input w-full mt-1">
+        </label>
+
+        <label class="block">
+          <span class="text-sm text-white/70">Category</span>
+          <select name="category_id" class="input w-full mt-1">
+            {% for c in categories %}
+              <option value="{{ c.id }}" {% if c.id == item.category_id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="block">
+          <span class="text-sm text-white/70">Featured Rank (0 = not featured)</span>
+          <input name="featured_rank" type="number" min="0" max="9" value="{{ item.featured_rank or 0 }}" class="input w-full mt-1">
+        </label>
+
+        <label class="flex items-center gap-2">
+          <input type="checkbox" name="available" {% if item.available %}checked{% endif %} class="h-4 w-4">
+          <span class="text-sm text-white/80">Available / Visible</span>
+        </label>
+      </div>
+
+      <!-- Right Column -->
+      <div class="space-y-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Description</span>
+          <textarea name="description" rows="4" class="input w-full mt-1">{{ item.description or '' }}</textarea>
+        </label>
+
+        <label class="block">
+          <span class="text-sm text-white/70">Image</span>
+          <input type="file" name="image" accept="image/*" class="input w-full mt-1">
+          {% if item.image_url %}
+            <div class="mt-2">
+              <span class="text-sm text-white/60">Current image:</span>
+              <img src="{{ item.image_url }}" class="w-20 h-20 object-cover rounded-lg mt-1" alt="{{ item.name }}">
+            </div>
+          {% endif %}
+        </label>
+
+        <div class="block">
+          <span class="text-sm text-white/70 mb-2 block">Dietary Tags</span>
+          <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+            {% for t in tags %}
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                <input type="checkbox" name="tag_ids" value="{{ t.id }}" 
+                       {% if t.id in current_tag_ids %}checked{% endif %} class="h-4 w-4">
+                <span class="text-sm">{{ t.name }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Width Actions -->
+      <div class="md:col-span-2 flex gap-4 pt-4 border-t border-white/10">
+        <button type="submit" class="btn-primary">Update Item</button>
+        <a href="/admin/menu" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</section>
+{% endblock %}

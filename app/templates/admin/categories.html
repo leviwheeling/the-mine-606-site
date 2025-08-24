@@ -1,0 +1,153 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Categories — The Mine 606{% endblock %}
+
+{% block content %}
+<section class="admin max-w-6xl mx-auto px-4 pt-10 pb-24 space-y-8">
+
+  <header class="flex items-center justify-between gap-4">
+    <h1 class="font-serif text-3xl">Category Manager</h1>
+    <div class="flex gap-3">
+      <a href="/admin/menu" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Back to Menu</a>
+      <form action="/admin/logout" method="get">
+        <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Create Category -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-4">Create New Category</h2>
+    <form method="post" action="/admin/categories/create" class="grid md:grid-cols-3 gap-4">
+      <label class="block">
+        <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="input w-full mt-1" placeholder="e.g., Appetizers">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Slug</span>
+        <input name="slug" required class="input w-full mt-1" placeholder="e.g., appetizers">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Sort Order</span>
+        <input name="sort_order" type="number" value="0" class="input w-full mt-1">
+      </label>
+      <div class="md:col-span-3">
+        <button class="btn-primary">Create Category</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Categories Table -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-4">All Categories</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-white/60">
+          <tr>
+            <th class="text-left py-2 pr-3">Name</th>
+            <th class="text-left py-2 pr-3">Slug</th>
+            <th class="text-left py-2 pr-3">Sort Order</th>
+            <th class="text-left py-2 pr-3">Usage</th>
+            <th class="text-left py-2 pr-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for category in categories %}
+            <tr class="border-t border-white/10">
+              <td class="py-2 pr-3">
+                <div class="font-medium">{{ category.name }}</div>
+              </td>
+              <td class="py-2 pr-3">
+                <code class="text-xs bg-white/5 px-2 py-1 rounded">{{ category.slug }}</code>
+              </td>
+              <td class="py-2 pr-3">
+                <span class="px-2 py-1 rounded-full text-xs bg-white/5 border border-white/10">{{ category.sort_order }}</span>
+              </td>
+              <td class="py-2 pr-3">
+                <!-- This would need to be calculated in the route -->
+                <span class="text-white/60">—</span>
+              </td>
+              <td class="py-2 pr-3">
+                <div class="flex gap-2">
+                  <button class="edit-category-btn px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white"
+                          data-id="{{ category.id }}"
+                          data-name="{{ category.name }}"
+                          data-slug="{{ category.slug }}"
+                          data-sort-order="{{ category.sort_order }}">Edit</button>
+                  <form method="post" action="/admin/categories/delete/{{ category.id }}" onsubmit="return confirm('Delete category {{ category.name }}?');">
+                    <button class="px-3 py-1 rounded-lg bg-red-600/80 hover:bg-red-600">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 border border-white/10 rounded-xl p-6 max-w-md w-full mx-4">
+      <h3 class="font-semibold mb-4">Edit Category</h3>
+      <form id="edit-form" method="post" class="space-y-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Name</span>
+          <input name="name" id="edit-name" required class="input w-full mt-1">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Slug</span>
+          <input name="slug" id="edit-slug" required class="input w-full mt-1">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Sort Order</span>
+          <input name="sort_order" id="edit-sort-order" type="number" class="input w-full mt-1">
+        </label>
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="btn-primary flex-1">Update Category</button>
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Event delegation for edit buttons
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('edit-category-btn')) {
+        const btn = e.target;
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const slug = btn.dataset.slug;
+        const sortOrder = btn.dataset.sortOrder;
+        
+        editCategory(id, name, slug, sortOrder);
+      }
+    });
+    
+    function editCategory(id, name, slug, sortOrder) {
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-slug').value = slug;
+      document.getElementById('edit-sort-order').value = sortOrder;
+      
+      const form = document.getElementById('edit-form');
+      form.action = `/admin/categories/edit/${id}`;
+      
+      document.getElementById('edit-modal').classList.remove('hidden');
+      document.getElementById('edit-modal').classList.add('flex');
+    }
+    
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+      document.getElementById('edit-modal').classList.remove('flex');
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditModal();
+      }
+    });
+  </script>
+
+</section>
+{% endblock %}

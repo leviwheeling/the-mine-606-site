@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}The Mine 606 — What's Mine is Yours{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Modern rustic bar & kitchen across from Appalachian Wireless Arena. Live music, great food, better vibes.{% endblock %}" />
+  <meta name="theme-color" content="#0A0A0A" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{% block og_title %}The Mine 606{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}What's Mine is Yours — events, menu, and more.{% endblock %}">
+  <meta property="og:image" content="{{ request.url_for('assets', path='images/og-card.jpg') }}">
+  <meta property="og:type" content="website">
+
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'mine-gold': '#C8A349',
+            'rustic-black': '#0A0A0A',
+            'stone-gray': '#2F2F2F',
+            'earth-brown': '#5C4033',
+            'parchment': '#F2E6D0'
+          },
+          fontFamily: {
+            serif: ['"Bodoni Moda"', 'serif'],
+            sans: ['Inter', 'ui-sans-serif', 'system-ui']
+          },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.35)' }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap">
+  </noscript>
+
+  <!-- Custom overrides -->
+  <link rel="stylesheet" href="/static/css/custom.css" />
+
+  <style>
+    /* Admin / input styling (CDN-safe) */
+    :root{--gold:#d4af37;--border:rgba(255,255,255,.12);--bg:rgba(255,255,255,.06);
+      --bg-strong:rgba(0,0,0,.4);--text:#fff;--ring:rgba(212,175,55,.28);--radius:12px;}
+    .input,.admin form input[type="text"],.admin form input[type="number"],.admin form input[type="email"],
+    .admin form input[type="password"],.admin form input[type="file"],.admin form select,.admin form textarea{
+      display:block;width:100%;background:var(--bg-strong);color:var(--text);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 12px;line-height:1.4;transition:border-color .2s,box-shadow .2s,background .2s;}
+    .admin form textarea{min-height:120px;resize:vertical}
+    .input:focus,.admin form input:focus,.admin form select:focus,.admin form textarea:focus{
+      outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--ring);background:var(--bg)}
+    .admin form input[type="file"]::-webkit-file-upload-button,
+    .admin form input[type="file"]::file-selector-button{
+      background:var(--bg);color:var(--text);border:none;border-right:1px solid var(--border);
+      padding:8px 12px;margin-right:12px;border-radius: var(--radius) 0 0 var(--radius);cursor:pointer}
+    .admin form input[type="checkbox"]{width:18px;height:18px;accent-color:var(--gold)}
+    .admin table th,.admin table td{vertical-align:top}
+
+    /* Navbar gradient + contrast */
+    .navbar-gradient{
+      background:linear-gradient(
+        to right,
+        rgba(26,20,6,.98) 0%,
+        rgba(212,175,55,.92) 12%,
+        rgba(0,0,0,.90) 75%,
+        rgba(0,0,0,1) 100%
+      );
+      backdrop-filter: blur(4px);
+    }
+    .navbar-gradient .nav-link{ text-shadow:0 1px 2px rgba(0,0,0,.6); }
+    .navbar-gradient .nav-link:hover{ text-shadow:0 1px 3px rgba(0,0,0,.85); }
+
+    /* Modern wordmark: gold gradient text with subtle shadow */
+    .brand-wordmark{
+      font-family: "Bodoni Moda", serif;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1;
+      background: linear-gradient(90deg,#f5e7b6 0%, #d4af37 30%, #c0952a 60%, #e4c96b 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 1px 1px rgba(0,0,0,.45);
+      white-space: nowrap;
+    }
+  </style>
+
+  {% block head_extra %}{% endblock %}
+</head>
+
+<body class="bg-rustic-black text-white font-sans antialiased selection:bg-mine-gold/30">
+  <!-- Top border accent -->
+  <div class="h-1 bg-gradient-to-r from-mine-gold via-yellow-500 to-mine-gold"></div>
+
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 navbar-gradient border-b border-white/10">
+    <nav class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between">
+      <!-- Brand wordmark only (responsive) -->
+      <a href="/" class="shrink-0">
+        <span class="brand-wordmark block text-2xl sm:text-3xl md:text-4xl tracking-wide">
+          The&nbsp;Mine&nbsp;606
+        </span>
+      </a>
+
+      <!-- Mobile toggle -->
+      <button id="navToggle" class="md:hidden p-3 rounded-lg hover:bg-white/10" aria-label="Open menu">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+
+      <!-- Desktop menu -->
+      <ul id="navMenu" class="hidden md:flex items-center gap-8 text-[16px]">
+        <li><a class="nav-link hover:text-mine-gold/90" href="/">Home</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/menu">Menu</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/ordering">Ordering</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/shopify">Shop</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/rentals">Venue</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/musician">Musicians</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/reviews">Reviews</a></li>
+        <li><a class="nav-link hover:text-mine-gold/90" href="/location">Location</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div id="navDrawer" class="md:hidden fixed inset-0 bg-black/70 hidden">
+    <div class="absolute right-0 top-0 w-80 h-full navbar-gradient border-l border-white/10 p-6 space-y-4">
+      <button id="navClose" class="p-3 rounded-lg hover:bg-white/10 float-right" aria-label="Close menu">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="mt-10 flex flex-col gap-4 text-base">
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/">Home</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/menu">Menu</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/ordering">Ordering</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/shopify">Shop</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/rentals">Venue</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/musician">Musicians</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/reviews">Reviews</a>
+        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/location">Location</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/10 mt-28">
+    <div class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="font-serif text-2xl text-mine-gold">What’s Mine is Yours</div>
+        <p class="text-white/70 mt-2">Across from Appalachian Wireless Arena.</p>
+      </div>
+      <div>
+        <div class="uppercase text-white/60 text-sm tracking-wide">Hours</div>
+        <div class="mt-2 text-white/80">
+          {% if template_globals(request).get('HOURS_HTML') %}
+            {{ template_globals(request).get('HOURS_HTML')|safe }}
+          {% else %}
+            Tue–Thu 11am–10pm • Fri–Sat 11am–12am • Sun 11am–9pm
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="uppercase text-white/60 text-sm tracking-wide">Find Us</div>
+        <div class="mt-2 text-white/80">
+          <div>Mine 606, Pikeville, KY</div>
+          <a class="underline underline-offset-4 hover:text-mine-gold" href="/location">Get directions</a>
+        </div>
+        <div class="mt-3">
+          {% if template_globals(request).get('SITE_OBJ') %}
+            {% set site = template_globals(request).get('SITE_OBJ') %}
+            {% include "layout/components/socials.html" %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="text-center text-white/50 text-sm py-4 border-t border-white/10">
+      © {{ template_globals(request).CURRENT_YEAR }} The Mine 606. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="/static/js/main.js" defer></script>
+  <script src="/static/js/animations.js" defer></script>
+  {% block body_scripts %}{% endblock %}
+</body>
+</html>

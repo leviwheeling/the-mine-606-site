@@ -1,0 +1,114 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Events — The Mine 606{% endblock %}
+
+{% block head_extra %}
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-12 pb-20 admin">
+  <h1 class="font-serif text-4xl mb-6">Events</h1>
+
+  <div class="grid lg:grid-cols-2 gap-8">
+    <!-- Create/Edit -->
+    <div class="space-y-6">
+      <div class="card p-5">
+        <h2 class="font-semibold mb-4">Create Event</h2>
+        <form action="/admin/events/create" method="post" class="space-y-4">
+          <label class="block">
+            <span class="text-sm text-white/70">Title</span>
+            <input name="title" required class="input mt-1" placeholder="Band Night on the Deck">
+          </label>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-sm text-white/70">Start</span>
+              <input type="datetime-local" name="start" required class="input mt-1">
+            </label>
+            <label class="block">
+              <span class="text-sm text-white/70">End (optional)</span>
+              <input type="datetime-local" name="end" class="input mt-1">
+            </label>
+          </div>
+                  <label class="block">
+          <span class="text-sm text-white/70">Event Image (optional)</span>
+          <input type="file" name="image" accept="image/*" class="input mt-1" onchange="previewImage(this)">
+          <div id="image-preview" class="mt-2 hidden">
+            <img id="preview-img" src="" alt="Preview" class="w-32 h-24 object-cover rounded-lg border border-white/20">
+          </div>
+        </label>
+          <label class="block">
+            <span class="text-sm text-white/70">Description</span>
+            <textarea name="description" class="input mt-1" rows="3" placeholder="Short blurb…"></textarea>
+          </label>
+          <button class="btn-primary">Add Event</button>
+        </form>
+      </div>
+
+      <div class="card p-5">
+        <h2 class="font-semibold mb-4">All Events</h2>
+        {% if events and events|length %}
+          <div class="space-y-3">
+            {% for e in events %}
+                      <form action="/admin/events/delete" method="post" class="flex items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-xl p-3">
+          <div class="text-sm flex-1">
+            <div class="font-medium">{{ e.title }}</div>
+            <div class="text-white/60">
+              {{ e.start.strftime('%b %d, %Y %I:%M %p') }}
+              {% if e.end %} – {{ e.end.strftime('%I:%M %p') }}{% endif %}
+            </div>
+            {% if e.image_url %}
+            <div class="mt-2">
+              <img src="{{ e.image_url }}" alt="Event image" class="w-16 h-12 object-cover rounded border border-white/20">
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex gap-2">
+            <a href="/admin/events/edit/{{ e.id }}" class="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500">Edit</a>
+            <input type="hidden" name="event_id" value="{{ e.id }}">
+            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500">Delete</button>
+          </div>
+        </form>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-white/60 text-sm">No events yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Calendar Preview -->
+    <div>
+      <div class="card p-5">
+        <h2 class="font-semibold mb-4">Calendar Preview</h2>
+        <div id="calendar" data-endpoint="/api/events/data" class="bg-white/5 border border-white/10 rounded-xl p-3"></div>
+        <div id="event-description" class="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg hidden">
+          <div class="text-mine-gold font-medium mb-1">Event Details</div>
+          <div id="event-desc-text" class="text-white/80 text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+  {% block body_scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="/static/js/calendar.js"></script>
+  <script>
+    function previewImage(input) {
+      const preview = document.getElementById('image-preview');
+      const previewImg = document.getElementById('preview-img');
+      
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+  </script>
+  {% endblock %}

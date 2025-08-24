@@ -1,0 +1,77 @@
+{% extends "layout/base.html" %}
+{% block title %}Location — The Mine 606{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Find Us</h1>
+    <p class="text-white/70 mt-2">Across from Appalachian Wireless Arena.</p>
+  </header>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card overflow-hidden">
+      {% set lat = site.lat if site else None %}
+      {% set lng = site.lng if site else None %}
+      {% if GOOGLE_MAPS_API_KEY and lat and lng %}
+        <!-- JS map could be added later; for now, embed with coords -->
+        <iframe
+          title="Map"
+          class="w-full h-80"
+          loading="lazy"
+          src="https://www.google.com/maps/embed/v1/view?key={{ GOOGLE_MAPS_API_KEY }}&center={{ lat }},{{ lng }}&zoom=16&maptype=roadmap">
+        </iframe>
+      {% else %}
+        <!-- Fallback: arena-based search -->
+        <iframe
+          title="Map"
+          class="w-full h-80"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=Appalachian%20Wireless%20Arena%2C%20Pikeville%2C%20KY&output=embed">
+        </iframe>
+      {% endif %}
+    </div>
+
+    <div class="card p-5">
+      <div class="font-semibold">Hours</div>
+      <ul class="mt-2 text-white/80 text-sm space-y-1">
+        <li>Tue–Thu 11:00–22:00</li>
+        <li>Fri–Sat 11:00–00:00</li>
+        <li>Sun 11:00–21:00</li>
+        <li>Mon Closed</li>
+      </ul>
+
+      <div class="mt-6 font-semibold">Contact</div>
+      <div class="text-white/80 text-sm">
+        {{ site.email if site and site.email else 'mine606@example.com' }}
+        •
+        {{ site.phone if site and site.phone else '(555) 555-0606' }}
+      </div>
+      {% if site and site.address %}
+      <div class="text-white/80 text-sm mt-2">
+        {{ site.address }}{% if site.city %}, {{ site.city }}{% endif %}{% if site.state %}, {{ site.state }}{% endif %}{% if site.zip %} {{ site.zip }}{% endif %}
+      </div>
+      {% endif %}
+
+      <form id="contactForm" class="mt-6 space-y-3">
+        <input name="name" placeholder="Your name" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" required>
+        <input type="email" name="email" placeholder="you@example.com" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" required>
+        <textarea name="message" placeholder="Message" rows="4" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" required></textarea>
+        <button class="btn-secondary">Send</button>
+        <div id="contactMsg" class="text-white/70 text-sm"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% block body_scripts %}
+<script src="/static/js/forms.js"></script>
+<script>
+setupAjaxForm({
+  formId: 'contactForm',
+  endpoint: '/api/contact',
+  successText: 'Thanks! We’ll get back to you soon.',
+  errorText: 'Message failed — please try again.'
+});
+</script>
+{% endblock %}
+{% endblock %}

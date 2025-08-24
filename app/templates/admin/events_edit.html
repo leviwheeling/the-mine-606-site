@@ -1,0 +1,97 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Edit Event — The Mine 606{% endblock %}
+
+{% block head_extra %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 pt-12 pb-20 admin">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-4xl">Edit Event</h1>
+    <a href="/admin/events" class="btn-secondary">← Back to Events</a>
+  </div>
+
+  <div class="card p-6">
+    <form action="/admin/events/edit/{{ event.id }}" method="post" enctype="multipart/form-data" class="space-y-6">
+      <div class="grid sm:grid-cols-2 gap-6">
+        <label class="block">
+          <span class="text-sm text-white/70">Event Title</span>
+          <input name="title" required class="input mt-1" value="{{ event.title }}" placeholder="Band Night on the Deck">
+        </label>
+        
+        <label class="block">
+          <span class="text-sm text-white/70">Venue Area</span>
+          <select name="venue_area" class="input mt-1">
+            <option value="Deck" {% if event.venue_area == "Deck" %}selected{% endif %}>Deck</option>
+            <option value="Indoors" {% if event.venue_area == "Indoors" %}selected{% endif %}>Indoors</option>
+            <option value="Patio" {% if event.venue_area == "Patio" %}selected{% endif %}>Patio</option>
+            <option value="Bar" {% if event.venue_area == "Bar" %}selected{% endif %}>Bar</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6">
+        <label class="block">
+          <span class="text-sm text-white/70">Start Date & Time</span>
+          <input type="datetime-local" name="start" required class="input mt-1" 
+                 value="{{ event.start.strftime('%Y-%m-%dT%H:%M') }}">
+        </label>
+        
+        <label class="block">
+          <span class="text-sm text-white/70">End Date & Time (optional)</span>
+          <input type="datetime-local" name="end" class="input mt-1" 
+                 value="{{ event.end.strftime('%Y-%m-%dT%H:%M') if event.end else '' }}">
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Description</span>
+        <textarea name="description" class="input mt-1" rows="3" placeholder="Short blurb about the event...">{{ event.description or '' }}</textarea>
+      </label>
+
+      <div class="space-y-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Event Image</span>
+          {% if event.image_url %}
+          <div class="mt-2 mb-3">
+            <img src="{{ event.image_url }}" alt="Current event image" class="w-32 h-24 object-cover rounded-lg border border-white/20">
+            <div class="text-xs text-white/60 mt-1">Current image</div>
+          </div>
+          {% endif %}
+          <input type="file" name="image" accept="image/*" class="input mt-1" onchange="previewImage(this)">
+          <div id="image-preview" class="mt-2 hidden">
+            <img id="preview-img" src="" alt="Preview" class="w-32 h-24 object-cover rounded-lg border border-white/20">
+            <div class="text-xs text-white/60 mt-1">New image preview</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="flex gap-4 pt-4">
+        <button type="submit" class="btn-primary">Update Event</button>
+        <a href="/admin/events" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+  function previewImage(input) {
+    const preview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        preview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      preview.classList.add('hidden');
+    }
+  }
+</script>
+{% endblock %}

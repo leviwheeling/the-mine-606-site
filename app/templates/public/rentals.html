@@ -1,0 +1,61 @@
+{% extends "layout/base.html" %}
+{% block title %}Venue — The Mine 606{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Venue & Rentals</h1>
+    <p class="text-white/70 mt-2">Book the deck across from the arena — perfect for pre- and post-show vibes.</p>
+  </header>
+
+  <div class="grid lg:grid-cols-2 gap-6 mb-10">
+    <img src="{{ request.url_for('assets', path='images/placeholders/event.jpg') }}" class="rounded-2xl border border-white/10 w-full h-72 object-cover" alt="Venue photo"/>
+    <div class="card p-5 space-y-2">
+      <div class="font-semibold">Packages</div>
+      <ul class="list-disc list-inside text-white/80 text-sm">
+        <li>Deck Rental (Evening)</li>
+        <li>Private Party Add-ons</li>
+        <li>Live Band Coordination</li>
+      </ul>
+      <div class="text-white/60 text-xs">All packages are customizable.</div>
+    </div>
+  </div>
+
+  <form id="rentalForm" class="card p-5 space-y-4 max-w-3xl">
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"> <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Email</span>
+        <input type="email" name="email" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Phone</span>
+        <input name="phone" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block"> <span class="text-sm text-white/70">Target Date</span>
+        <input type="date" name="date" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
+      </label>
+      <label class="block sm:col-span-2"> <span class="text-sm text-white/70">Party Size</span>
+        <input name="party_size" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="e.g., 40">
+      </label>
+    </div>
+    <label class="block"> <span class="text-sm text-white/70">Message</span>
+      <textarea name="message" rows="4" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold"></textarea>
+    </label>
+
+    <button class="btn-primary">Request Booking</button>
+    <p id="rentalMsg" class="text-white/70 text-sm mt-2"></p>
+  </form>
+</section>
+
+{% block body_scripts %}
+<script src="/static/js/forms.js"></script>
+<script>
+setupAjaxForm({
+  formId: 'rentalForm',
+  endpoint: '/api/rental',
+  successText: 'Thanks! We received your request and will reply soon.',
+  errorText: 'Couldn’t send right now — please try again.'
+});
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Dashboard — The Mine 606{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-12 pb-20 space-y-8">
+  <h1 class="font-serif text-4xl">Admin Dashboard</h1>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <a href="/admin/menu" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Menu Manager</div>
+      <div class="text-white/60 text-sm">Add items, tags, featured carousel</div>
+    </a>
+    <a href="/admin/events" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Events</div>
+      <div class="text-white/60 text-sm">Create & publish upcoming events</div>
+    </a>
+    <a href="/admin/site" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Site Settings</div>
+      <div class="text-white/60 text-sm">Hours, hero, socials, map</div>
+    </a>
+    <a href="/admin/musician" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Musician Applications</div>
+      <div class="text-white/60 text-sm">Review & update status</div>
+    </a>
+    <a href="/admin/rentals" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Venue Inquiries</div>
+      <div class="text-white/60 text-sm">Manage rental requests</div>
+    </a>
+    <a href="/admin/reviews" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
+      <div class="font-semibold">Reviews</div>
+      <div class="text-white/60 text-sm">Curate featured & embeds</div>
+    </a>
+  </div>
+</section>
+{% endblock %}

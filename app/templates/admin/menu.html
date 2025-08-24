@@ -1,0 +1,204 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Menu — The Mine 606{% endblock %}
+
+{% block content %}
+<section class="admin max-w-6xl mx-auto px-4 pt-10 pb-24 space-y-8">
+
+  <header class="flex items-center justify-between gap-4">
+    <h1 class="font-serif text-3xl">Menu Manager</h1>
+    <div class="flex gap-3">
+      <a href="/admin/tags" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Manage Tags</a>
+      <a href="/admin/categories" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Manage Categories</a>
+      <form action="/admin/logout" method="get">
+        <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Featured (carousel picks) -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-3">Featured Carousel (top 9 by rank)</h2>
+    <form method="post" action="/admin/menu/feature">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {% for it in items %}
+          <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+            <input type="number" name="rank_{{ it.id }}" value="{{ it.featured_rank or 0 }}" class="w-16 px-2 py-1 rounded bg-black/40 border border-white/15" min="0" max="9">
+            <img src="{{ it.image_url or request.url_for('assets', path='images/placeholders/dish-1.jpg') }}" class="w-12 h-12 object-cover rounded-lg" alt="">
+            <div class="text-sm">
+              <div class="font-medium">{{ it.name }}</div>
+              <div class="text-white/60">${{ '%.2f'|format(it.price) }}</div>
+            </div>
+          </label>
+        {% endfor %}
+      </div>
+      <div class="mt-4">
+        <button class="btn-primary">Save Featured Ranks</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Create / Edit item -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-4">Add New Item</h2>
+    <form method="post" action="/admin/menu/create" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-4">
+      <label class="block">
+        <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="input w-full mt-1">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Price</span>
+        <input name="price" type="number" step="0.01" required class="input w-full mt-1">
+      </label>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Category</span>
+        <select name="category_id" class="input w-full mt-1">
+          {% for c in categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Featured Rank (0 = not featured)</span>
+        <input name="featured_rank" type="number" min="0" max="9" value="0" class="input w-full mt-1">
+      </label>
+
+      <label class="md:col-span-2 block">
+        <span class="text-sm text-white/70">Description</span>
+        <textarea name="description" rows="3" class="input w-full mt-1"></textarea>
+      </label>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Image (optional)</span>
+        <input type="file" name="image" accept="image/*" class="input w-full mt-1" onchange="previewImage(this)">
+        <div id="image-preview" class="mt-2 hidden">
+          <img id="preview-img" class="w-20 h-20 object-cover rounded-lg" alt="Preview">
+        </div>
+      </label>
+
+      <label class="flex items-center gap-2">
+        <input type="checkbox" name="available" checked class="h-4 w-4">
+        <span class="text-sm text-white/80">Available / Visible</span>
+      </label>
+
+      <div class="md:col-span-2">
+        <div class="text-sm text-white/70 mb-2">Dietary Tags</div>
+        <div class="flex flex-wrap gap-2">
+          {% for t in tags %}
+            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+              <input type="checkbox" name="tag_ids" value="{{ t.id }}" class="h-4 w-4">
+              <span class="text-sm">{{ t.name }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <button class="btn-primary">Create Item</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Image preview functionality
+    function previewImage(input) {
+      const preview = document.getElementById('image-preview');
+      const previewImg = document.getElementById('preview-img');
+      
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+
+    // Enhanced search with debouncing
+    let searchTimeout;
+    const searchInput = document.querySelector('input[name="q"]');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const query = this.value.trim();
+          if (query.length >= 2 || query.length === 0) {
+            window.location.href = `/admin/menu?q=${encodeURIComponent(query)}`;
+          }
+        }, 300);
+      });
+    }
+  </script>
+
+  <!-- Items table -->
+  <div class="card p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">All Items</h2>
+      <form method="get" action="" class="flex items-center gap-2">
+        <input name="q" placeholder="Search name…" value="{{ request.query_params.get('q','') }}" class="input">
+        <button class="px-3 py-2 rounded-xl bg-white/10 border border-white/10">Filter</button>
+      </form>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-white/60">
+          <tr>
+            <th class="text-left py-2 pr-3">Item</th>
+            <th class="text-left py-2 pr-3">Category</th>
+            <th class="text-left py-2 pr-3">Price</th>
+            <th class="text-left py-2 pr-3">Avail</th>
+            <th class="text-left py-2 pr-3">Feat</th>
+            <th class="text-left py-2 pr-3">Tags</th>
+            <th class="text-left py-2 pr-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for it in items %}
+            <tr class="border-t border-white/10">
+              <td class="py-2 pr-3">
+                <div class="font-medium">{{ it.name }}</div>
+                {% if it.description %}<div class="text-white/60">{{ it.description }}</div>{% endif %}
+              </td>
+              <td class="py-2 pr-3">
+                {{ it.category_rel.name if it.category_rel else it.category or '—' }}
+              </td>
+              <td class="py-2 pr-3">${{ '%.2f'|format(it.price) }}</td>
+              <td class="py-2 pr-3">{{ 'Yes' if it.available else 'No' }}</td>
+              <td class="py-2 pr-3">{{ it.featured_rank or 0 }}</td>
+              <td class="py-2 pr-3">
+                {% if it.tags %}
+                  <div class="flex flex-wrap gap-1">
+                    {% for t in it.tags %}
+                      <span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10">{{ t.name }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="py-2 pr-3">
+                <div class="flex gap-2">
+                  <a href="/admin/menu/edit/{{ it.id }}" class="px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white">Edit</a>
+                  <form method="post" action="/admin/menu/toggle/{{ it.id }}">
+                    <button class="px-3 py-1 rounded-lg bg-white/10 border border-white/10">{{ 'Hide' if it.available else 'Show' }}</button>
+                  </form>
+                  <form method="post" action="/admin/menu/delete/{{ it.id }}" onsubmit="return confirm('Delete {{ it.name }}?');">
+                    <button class="px-3 py-1 rounded-lg bg-red-600/80 hover:bg-red-600">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+{% endblock %}

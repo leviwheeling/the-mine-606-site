@@ -1,0 +1,132 @@
+{% extends "layout/base.html" %}
+{% block title %}Menu — The Mine 606{% endblock %}
+
+{% block content %}
+<section class="max-w-7xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Our Menu</h1>
+    <p class="text-white/70 mt-2">Filter by category and dietary tags.</p>
+  </header>
+
+  <!-- Filters -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <!-- Categories -->
+    <div class="flex flex-wrap items-center gap-2" id="catTabs">
+      <button data-cat="all" class="cat-tab active">All</button>
+      {% for c in categories %}
+        <button data-cat="{{ c.id }}" class="cat-tab">{{ c.name }}</button>
+      {% endfor %}
+    </div>
+
+    <!-- Tag filter -->
+    <div class="w-full md:w-96">
+      <div class="relative">
+        <select id="tagFilter" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white/90 focus:outline-none focus:border-mine-gold">
+          <option value="">DIETARY (any)</option>
+          {% for t in tags %}
+            <option value="{{ t }}">{{ t|replace('-', ' ')|title }}</option>
+          {% endfor %}
+        </select>
+        <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Grid -->
+  {% set count = items|length if items is defined else 0 %}
+  <div id="menuGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for it in items %}
+      <article
+        class="card overflow-hidden group transition hover:-translate-y-0.5"
+        data-cat="{{ it.category }}"
+        data-tags="{{ (it.tags|join(',')) if it.tags else '' }}"
+      >
+        <div class="h-40 w-full overflow-hidden">
+          {% if it.img %}
+            <img 
+              src="{{ it.img }}" 
+              alt="{{ it.name }}" 
+              class="w-full h-full object-cover group-hover:scale-[1.03] transition"
+              onerror="this.onerror=null; this.src='/static/media/menu/placeholder.webp';"
+            >
+          {% else %}
+            <img 
+              src="/static/media/menu/placeholder.webp" 
+              alt="{{ it.name }}" 
+              class="w-full h-full object-cover"
+            >
+          {% endif %}
+        </div>
+        <div class="p-5 space-y-2">
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="font-semibold leading-tight">{{ it.name }}</h3>
+            <div class="text-mine-gold font-semibold shrink-0">${{ '%.2f'|format(it.price) }}</div>
+          </div>
+          {% if it.description %}
+            <p class="text-white/70 text-sm">{{ it.description }}</p>
+          {% endif %}
+
+          {% if it.tags and it.tags|length > 0 %}
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              {% for tag in it.tags %}
+                <span class="px-2 py-0.5 rounded-full text-xs border border-white/10 text-white/70">{{ tag|replace('-', ' ') }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  {% if count == 0 %}
+    <div class="text-white/60 mt-10">No menu items yet. Add items in <a class="underline underline-offset-4 text-mine-gold" href="/admin/menu">Admin → Menu</a>.</div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+<script>
+  // basic filter logic
+  (function(){
+    const grid = document.getElementById('menuGrid');
+    if (!grid) return;
+
+    const tabs = Array.from(document.querySelectorAll('.cat-tab'));
+    const select = document.getElementById('tagFilter');
+
+    function applyFilters() {
+      const activeTab = tabs.find(t => t.classList.contains('active'));
+      const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+      const tag = (select && select.value) ? select.value : '';
+
+      const cards = Array.from(grid.children);
+      cards.forEach(card => {
+        const cardCat = card.getAttribute('data-cat') || 'other';
+        const cardTags = (card.getAttribute('data-tags') || '').split(',').filter(Boolean);
+
+        const catOK = (cat === 'all') || (cardCat === cat);
+        const tagOK = (!tag) || cardTags.includes(tag);
+
+        card.style.display = (catOK && tagOK) ? '' : 'none';
+      });
+    }
+
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+      });
+    });
+
+    if (select) select.addEventListener('change', applyFilters);
+
+    // initial render
+    applyFilters();
+  })();
+</script>
+<style>
+  .cat-tab { @apply px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80 hover:text-mine-gold hover:border-mine-gold transition; }
+  .cat-tab.active { @apply bg-mine-gold text-black border-mine-gold; }
+</style>
+{% endblock %}

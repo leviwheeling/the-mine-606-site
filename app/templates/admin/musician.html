@@ -1,0 +1,36 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Musicians — The Mine 606{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-12 pb-20">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-serif text-4xl">Musician Applications</h1>
+    <a href="/admin" class="text-white/70 hover:text-mine-gold">Dashboard</a>
+  </div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for m in apps %}
+    <article class="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
+      <div class="flex items-center justify-between">
+        <div class="font-semibold">{{ m.name }}</div>
+        <div class="text-white/60 text-xs">{{ m.submitted_at.strftime('%Y-%m-%d %H:%M') if m.submitted_at else '' }}</div>
+      </div>
+      <div class="text-white/80 text-sm">{{ m.email }}{% if m.phone %} • {{ m.phone }}{% endif %}</div>
+      {% if m.genre %}<div class="text-white/70 text-sm">Genre: {{ m.genre }}</div>{% endif %}
+      {% if m.link %}<a href="{{ m.link }}" target="_blank" class="text-mine-gold text-sm underline underline-offset-4">Listen/See</a>{% endif %}
+      {% if m.message %}<p class="text-white/80 text-sm">{{ m.message }}</p>{% endif %}
+      <form method="post" action="/admin/musician/status" class="flex items-center gap-2">
+        <input type="hidden" name="id" value="{{ m.id }}">
+        <select name="status" class="input">
+          {% for s in ['new','contacted','booked','closed'] %}
+          <option value="{{ s }}" {% if m.status==s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn-secondary">Update</button>
+      </form>
+    </article>
+    {% else %}
+    <div class="text-white/60">No applications yet.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

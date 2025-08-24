@@ -1,0 +1,178 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Tags — The Mine 606{% endblock %}
+
+{% block content %}
+<section class="admin max-w-6xl mx-auto px-4 pt-10 pb-24 space-y-8">
+
+  <header class="flex items-center justify-between gap-4">
+    <h1 class="font-serif text-3xl">Tag Manager</h1>
+    <div class="flex gap-3">
+      <a href="/admin/menu" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Back to Menu</a>
+      <form action="/admin/logout" method="get">
+        <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Logout</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Create Tag -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-4">Create New Tag</h2>
+    <form method="post" action="/admin/tags/create" class="grid md:grid-cols-4 gap-4">
+      <label class="block">
+        <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="input w-full mt-1" placeholder="e.g., Vegetarian">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Slug</span>
+        <input name="slug" required class="input w-full mt-1" placeholder="e.g., vegetarian">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Type</span>
+        <select name="type" class="input w-full mt-1">
+          <option value="dietary">Dietary</option>
+          <option value="allergen">Allergen</option>
+          <option value="spice">Spice Level</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Icon (optional)</span>
+        <input name="icon" class="input w-full mt-1" placeholder="e.g., 🌱">
+      </label>
+      <div class="md:col-span-4">
+        <button class="btn-primary">Create Tag</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tags Table -->
+  <div class="card p-5">
+    <h2 class="font-semibold mb-4">All Tags</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-white/60">
+          <tr>
+            <th class="text-left py-2 pr-3">Name</th>
+            <th class="text-left py-2 pr-3">Slug</th>
+            <th class="text-left py-2 pr-3">Type</th>
+            <th class="text-left py-2 pr-3">Icon</th>
+            <th class="text-left py-2 pr-3">Usage</th>
+            <th class="text-left py-2 pr-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tag in tags %}
+            <tr class="border-t border-white/10">
+              <td class="py-2 pr-3">
+                <div class="font-medium">{{ tag.name }}</div>
+              </td>
+              <td class="py-2 pr-3">
+                <code class="text-xs bg-white/5 px-2 py-1 rounded">{{ tag.slug }}</code>
+              </td>
+              <td class="py-2 pr-3">
+                <span class="px-2 py-1 rounded-full text-xs bg-white/5 border border-white/10">{{ tag.type }}</span>
+              </td>
+              <td class="py-2 pr-3">
+                {% if tag.icon %}{{ tag.icon }}{% else %}—{% endif %}
+              </td>
+              <td class="py-2 pr-3">
+                <!-- This would need to be calculated in the route -->
+                <span class="text-white/60">—</span>
+              </td>
+              <td class="py-2 pr-3">
+                <div class="flex gap-2">
+                  <button class="edit-tag-btn px-3 py-1 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white"
+                          data-id="{{ tag.id }}"
+                          data-name="{{ tag.name }}"
+                          data-slug="{{ tag.slug }}"
+                          data-type="{{ tag.type }}"
+                          data-icon="{{ tag.icon or '' }}">Edit</button>
+                  <form method="post" action="/admin/tags/delete/{{ tag.id }}" onsubmit="return confirm('Delete tag {{ tag.name }}?');">
+                    <button class="px-3 py-1 rounded-lg bg-red-600/80 hover:bg-red-600">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-gray-900 border border-white/10 rounded-xl p-6 max-w-md w-full mx-4">
+      <h3 class="font-semibold mb-4">Edit Tag</h3>
+      <form id="edit-form" method="post" class="space-y-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Name</span>
+          <input name="name" id="edit-name" required class="input w-full mt-1">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Slug</span>
+          <input name="slug" id="edit-slug" required class="input w-full mt-1">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Type</span>
+          <select name="type" id="edit-type" class="input w-full mt-1">
+            <option value="dietary">Dietary</option>
+            <option value="allergen">Allergen</option>
+            <option value="spice">Spice Level</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Icon (optional)</span>
+          <input name="icon" id="edit-icon" class="input w-full mt-1">
+        </label>
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="btn-primary flex-1">Update Tag</button>
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Event delegation for edit buttons
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('edit-tag-btn')) {
+        const btn = e.target;
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const slug = btn.dataset.slug;
+        const type = btn.dataset.type;
+        const icon = btn.dataset.icon;
+        
+        editTag(id, name, slug, type, icon);
+      }
+    });
+    
+    function editTag(id, name, slug, type, icon) {
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-slug').value = slug;
+      document.getElementById('edit-type').value = type;
+      document.getElementById('edit-icon').value = icon;
+      
+      const form = document.getElementById('edit-form');
+      form.action = `/admin/tags/edit/${id}`;
+      
+      document.getElementById('edit-modal').classList.remove('hidden');
+      document.getElementById('edit-modal').classList.add('flex');
+    }
+    
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+      document.getElementById('edit-modal').classList.remove('flex');
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditModal();
+      }
+    });
+  </script>
+
+</section>
+{% endblock %}

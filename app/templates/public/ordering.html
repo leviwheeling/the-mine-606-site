@@ -1,0 +1,22 @@
+{% extends "layout/base.html" %}
+{% block title %}Ordering — The Mine 606{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Order Online</h1>
+    <p class="text-white/70 mt-2">Fast, easy pickup or delivery from our partners.</p>
+  </header>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    <a class="btn-primary justify-center" href="#" target="_blank" rel="noopener">Order on DoorDash</a>
+    <a class="btn-secondary justify-center" href="#" target="_blank" rel="noopener">Order on Uber Eats</a>
+  </div>
+
+  <div class="mt-8 p-4 rounded-2xl border border-white/10 bg-white/5">
+    <div class="text-white/80">
+      Pro tip: Check today’s specials on our <a href="/menu" class="underline underline-offset-4 text-mine-gold">menu</a>.
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin • Site Settings — The Mine 606{% endblock %}
+{% block content %}
+<section class="admin max-w-6xl mx-auto px-4 pt-12 pb-20 space-y-10">
+  <div class="flex items-center justify-between">
+    <h1 class="font-serif text-4xl">Site Settings</h1>
+    <a href="/admin" class="text-white/70 hover:text-mine-gold">Dashboard</a>
+  </div>
+
+  <!-- Basic Info -->
+  <div class="card p-5">
+    <div class="font-semibold mb-3">Basics & Hero</div>
+    <form method="post" action="/admin/site/basic" class="grid md:grid-cols-2 gap-4">
+      <input name="site_name" class="input" placeholder="Site Name" value="{{ s.site_name }}">
+      <input name="phone" class="input" placeholder="Phone" value="{{ s.phone }}">
+      <input name="email" class="input" placeholder="Email" value="{{ s.email }}">
+      <input name="address" class="input" placeholder="Address" value="{{ s.address }}">
+      <input name="city" class="input" placeholder="City" value="{{ s.city }}">
+      <input name="state" class="input" placeholder="State" value="{{ s.state }}">
+      <input name="zip" class="input" placeholder="ZIP" value="{{ s.zip }}">
+
+      <input name="hero_title" class="input md:col-span-2" placeholder="Hero Title" value="{{ s.hero_title }}">
+      <input name="hero_sub" class="input md:col-span-2" placeholder="Hero Subtitle" value="{{ s.hero_sub }}">
+
+      <label class="flex items-center gap-2 text-sm text-white/80 md:col-span-2">
+        <input type="checkbox" name="show_weather" {% if s.show_weather %}checked{% endif %}> Show weather widget
+      </label>
+
+      <input name="facebook" class="input" placeholder="Facebook URL" value="{{ s.facebook }}">
+      <input name="instagram" class="input" placeholder="Instagram URL" value="{{ s.instagram }}">
+      <input name="tiktok" class="input" placeholder="TikTok URL" value="{{ s.tiktok }}">
+      <input name="youtube" class="input" placeholder="YouTube URL" value="{{ s.youtube }}">
+
+      <div class="md:col-span-2 flex justify-end">
+        <button class="btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Weekly Hours -->
+  <div class="card p-5">
+    <div class="font-semibold mb-3">Weekly Hours</div>
+    <div class="grid md:grid-cols-2 gap-4">
+      {% for dow in ['mon','tue','wed','thu','fri','sat','sun'] %}
+      {% set h = (hours | selectattr('dow','equalto',dow) | list | first) %}
+      <form method="post" action="/admin/site/hours" class="grid grid-cols-5 gap-2 items-end">
+        <input type="hidden" name="dow" value="{{ dow }}">
+        <div class="col-span-1 capitalize text-white/80">{{ dow }}</div>
+        <input name="open" class="input col-span-1" placeholder="open" value="{{ h.open if h else '' }}">
+        <input name="close" class="input col-span-1" placeholder="close" value="{{ h.close if h else '' }}">
+        <label class="col-span-1 flex items-center gap-2 text-sm text-white/80">
+          <input type="checkbox" name="closed" {% if h and h.closed %}checked{% endif %}> Closed
+        </label>
+        <button class="btn-secondary col-span-1">Save</button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Holiday Overrides -->
+  <div class="card p-5">
+    <div class="font-semibold mb-3">Holiday Overrides</div>
+    <form method="post" action="/admin/site/holiday" class="grid md:grid-cols-5 gap-2 items-end">
+      <input type="date" name="date" class="input col-span-2" required>
+      <input name="open" class="input" placeholder="open">
+      <input name="close" class="input" placeholder="close">
+      <label class="flex items-center gap-2 text-sm text-white/80">
+        <input type="checkbox" name="closed"> Closed
+      </label>
+      <button class="btn-secondary">Add/Update</button>
+    </form>
+
+    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {% for h in holidays %}
+      <div class="p-3 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between">
+        <div>
+          <div class="font-medium">{{ h.date }}</div>
+          <div class="text-white/60 text-sm">{{ 'Closed' if h.closed else (h.open ~ '–' ~ h.close) }}</div>
+        </div>
+        <form method="post" action="/admin/site/holiday/delete">
+          <input type="hidden" name="date" value="{{ h.date }}">
+          <button class="inline-flex items-center gap-2 rounded-full bg-red-600/80 hover:bg-red-600 px-3 py-1.5 text-sm">Delete</button>
+        </form>
+      </div>
+      {% else %}
+      <div class="text-white/60">No overrides yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
