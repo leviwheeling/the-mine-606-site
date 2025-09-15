@@ -148,9 +148,9 @@
       padding: 6px 12px !important;
     }
     
-    /* Force visibility on mobile */
-    #menuGrid article,
-    .menu-card {
+    /* Only force visibility if emergency fallback is active */
+    .emergency-fallback #menuGrid article,
+    .emergency-fallback .menu-card {
       display: block !important;
       visibility: visible !important;
       opacity: 1 !important;

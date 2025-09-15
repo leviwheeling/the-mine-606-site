@@ -1,7 +1,7 @@
 {% extends "layout/htmx_base.html" %}
 
 {% block content %}
-<section class="max-w-7xl mx-auto px-4 pt-14 pb-24">
+<section class="max-w-7xl mx-auto px-4 pt-20 pb-24">
   <header class="mb-8">
     <h1 class="font-serif text-4xl md:text-5xl">Our Menu</h1>
     <p class="text-white/70 mt-2">Filter by category and dietary tags.</p>
@@ -114,6 +114,8 @@
       const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
       const tag = select ? select.value : '';
 
+      console.log('HTMX Filtering - Active category:', cat, 'Tag:', tag); // Debug
+
       const cards = grid.querySelectorAll('article[data-cat], .menu-card');
       let visibleCount = 0;
       
@@ -125,6 +127,8 @@
       cards.forEach(card => {
         const cardCat = card.getAttribute('data-cat') || '';
         const cardTags = card.getAttribute('data-tags') || '';
+        
+        console.log('HTMX Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Tags:', cardTags); // Debug
         
         const catMatch = cat === 'all' || cardCat === cat;
         const tagMatch = !tag || cardTags.includes(tag);
@@ -158,11 +162,15 @@
           e.preventDefault();
           e.stopPropagation();
           
+          console.log('HTMX Tab clicked:', this.getAttribute('data-cat'), this.textContent); // Debug
+          
           // Remove active class from all tabs
           tabs.forEach(t => t.classList.remove('active'));
           
           // Add active class to clicked tab
           this.classList.add('active');
+          
+          console.log('HTMX Active tab now:', this.getAttribute('data-cat')); // Debug
           
           // Apply filters
           applyFilters();
@@ -187,65 +195,33 @@
     return true;
   }
 
-  // Multiple initialization strategies for reliability
-  function attemptInitialization() {
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    function tryInit() {
-      attempts++;
-      console.log(`HTMX menu init attempt ${attempts}`);
+  // Simple, direct initialization for HTMX
+  console.log('HTMX menu: Initializing immediately...');
+  
+  setTimeout(function() {
+    if (initMenuFilters()) {
+      console.log('✅ HTMX menu filters initialized successfully');
+    } else {
+      console.log('⚠️ HTMX menu initialization failed');
       
-      if (initMenuFilters()) {
-        console.log('HTMX menu filters initialized successfully');
-        return;
-      }
+      // Ensure visibility as fallback
+      const grid = document.getElementById('menuGrid');
+      const tabs = document.querySelectorAll('.cat-tab');
       
-      if (attempts < maxAttempts) {
-        setTimeout(tryInit, 200 * attempts);
-      } else {
-        console.error('Failed to initialize HTMX menu filters after', maxAttempts, 'attempts');
-        // Last resort: ensure basic visibility
-        const grid = document.getElementById('menuGrid');
-        const tabs = document.querySelectorAll('.cat-tab');
-        if (grid) {
-          const cards = grid.querySelectorAll('article, .menu-card');
-          cards.forEach(card => {
-            card.style.display = '';
-            card.style.visibility = 'visible';
-            card.style.opacity = '1';
-          });
-        }
-        tabs.forEach(tab => {
-          tab.style.display = 'inline-flex';
-          tab.style.visibility = 'visible';
+      if (grid) {
+        const cards = grid.querySelectorAll('article, .menu-card');
+        cards.forEach(card => {
+          card.style.display = '';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
         });
       }
-    }
-    
-    tryInit();
-  }
-
-  // Initialize immediately
-  attemptInitialization();
-  
-  // Additional safety net
-  setTimeout(function() {
-    const grid = document.getElementById('menuGrid');
-    const tabs = document.querySelectorAll('.cat-tab');
-    
-    if (grid) {
-      const cards = grid.querySelectorAll('article, .menu-card');
-      cards.forEach(card => {
-        card.style.visibility = 'visible';
-        card.style.opacity = '1';
+      
+      tabs.forEach(tab => {
+        tab.style.display = 'inline-flex';
+        tab.style.visibility = 'visible';
       });
     }
-    
-    tabs.forEach(tab => {
-      tab.style.visibility = 'visible';
-      tab.style.display = 'inline-flex';
-    });
-  }, 100);
+  }, 200);
 </script>
 {% endblock %}

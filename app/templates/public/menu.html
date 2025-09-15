@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="max-w-7xl mx-auto px-4 pt-14 pb-24">
+<section class="max-w-7xl mx-auto px-4 pt-20 pb-24">
   <header class="mb-6 sm:mb-8">
     <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl">Our Menu</h1>
     <p class="text-white/70 mt-2 text-sm sm:text-base">Filter by category and dietary tags.</p>
@@ -138,6 +138,8 @@
       const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
       const tag = select ? select.value : '';
 
+      console.log('Filtering - Active category:', cat, 'Tag:', tag); // Debug
+
       const cards = grid.querySelectorAll('article[data-cat]');
       let visibleCount = 0;
       
@@ -149,6 +151,8 @@
       cards.forEach(card => {
         const cardCat = card.getAttribute('data-cat') || '';
         const cardTags = card.getAttribute('data-tags') || '';
+        
+        console.log('Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Tags:', cardTags); // Debug
         
         const catMatch = cat === 'all' || cardCat === cat;
         const tagMatch = !tag || cardTags.includes(tag);
@@ -186,24 +190,41 @@
     }
 
     // Robust event handlers with error handling
-    tabs.forEach(tab => {
+    console.log('Setting up click handlers for', tabs.length, 'tabs'); // Debug
+    
+    tabs.forEach((tab, index) => {
+      console.log(`Tab ${index}:`, tab.textContent, 'data-cat:', tab.getAttribute('data-cat')); // Debug
+      
       tab.addEventListener('click', function(e) {
         try {
           e.preventDefault();
           e.stopPropagation();
           
+          console.log('🔥 TAB CLICKED:', this.getAttribute('data-cat'), this.textContent); // Debug
+          
           // Remove active class from all tabs
-          tabs.forEach(t => t.classList.remove('active'));
+          tabs.forEach(t => {
+            t.classList.remove('active');
+            console.log('Removed active from:', t.textContent); // Debug
+          });
           
           // Add active class to clicked tab
           this.classList.add('active');
+          console.log('Added active to:', this.textContent); // Debug
           
           // Apply filters
+          console.log('About to apply filters...'); // Debug
           applyFilters();
         } catch (error) {
           console.error('Error handling tab click:', error);
         }
       });
+      
+      // Also add a simple test click handler
+      tab.style.cursor = 'pointer';
+      tab.onclick = function() {
+        console.log('🚨 ONCLICK FIRED:', this.textContent);
+      };
     });
 
     // Handle tag filter with error handling
@@ -221,80 +242,37 @@
     return true;
   }
 
-  // Multiple initialization strategies for reliability
-  function attemptInitialization() {
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    function tryInit() {
-      attempts++;
-      console.log(`Menu init attempt ${attempts}`);
-      
-      if (initMenuFilters()) {
-        console.log('Menu filters initialized successfully');
-        return;
-      }
-      
-      if (attempts < maxAttempts) {
-        setTimeout(tryInit, 200 * attempts); // Progressive delay
-      } else {
-        console.error('Failed to initialize menu filters after', maxAttempts, 'attempts');
-        // Last resort: ensure basic visibility
-        const grid = document.getElementById('menuGrid');
-        const tabs = document.querySelectorAll('.cat-tab');
-        if (grid) {
-          const cards = grid.querySelectorAll('article');
-          cards.forEach(card => {
-            card.style.display = '';
-            card.style.visibility = 'visible';
-            card.style.opacity = '1';
-          });
-        }
-        tabs.forEach(tab => {
-          tab.style.display = 'inline-flex';
-          tab.style.visibility = 'visible';
-        });
-      }
+  // Single, reliable initialization
+  let menuFiltersInitialized = false;
+  
+  function initializeMenuOnce() {
+    if (menuFiltersInitialized) {
+      console.log('Menu filters already initialized, skipping');
+      return;
     }
     
-    tryInit();
+    console.log('Attempting to initialize menu filters...');
+    
+    if (initMenuFilters()) {
+      menuFiltersInitialized = true;
+      console.log('✅ Menu filters initialized successfully');
+    } else {
+      console.log('⚠️ Menu initialization failed, will retry');
+      setTimeout(initializeMenuOnce, 500);
+    }
   }
 
-  // Initialize immediately if DOM is ready
+  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attemptInitialization);
+    document.addEventListener('DOMContentLoaded', initializeMenuOnce);
   } else {
-    attemptInitialization();
+    setTimeout(initializeMenuOnce, 100);
   }
   
-  // Re-initialize after HTMX content swaps
+  // Re-initialize after HTMX content swaps (but only if needed)
   document.addEventListener('htmx:afterSettle', function() {
-    setTimeout(attemptInitialization, 50);
-  });
-  
-  // Additional safety net for mobile
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      // Final check to ensure everything is visible
-      const grid = document.getElementById('menuGrid');
-      const tabs = document.querySelectorAll('.cat-tab');
-      
-      if (grid) {
-        const cards = grid.querySelectorAll('article');
-        cards.forEach(card => {
-          if (card.style.display === 'none' && card.getAttribute('data-cat')) {
-            card.style.display = '';
-          }
-          card.style.visibility = 'visible';
-          card.style.opacity = '1';
-        });
-      }
-      
-      tabs.forEach(tab => {
-        tab.style.visibility = 'visible';
-        tab.style.display = 'inline-flex';
-      });
-    }, 100);
+    menuFiltersInitialized = false; // Reset flag for new content
+    setTimeout(initializeMenuOnce, 100);
   });
 </script>
 
