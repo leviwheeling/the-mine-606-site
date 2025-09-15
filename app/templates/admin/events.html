@@ -26,7 +26,7 @@
             <p class="text-sm text-white/60">Add a new show or special event</p>
           </div>
         </div>
-        <form action="/admin/events/create" method="post" class="space-y-4">
+        <form action="/admin/events/create" method="post" enctype="multipart/form-data" class="space-y-4">
           <label class="block">
             <span class="text-sm text-white/70">Title</span>
             <input name="title" required class="input mt-1" placeholder="Band Night on the Deck">

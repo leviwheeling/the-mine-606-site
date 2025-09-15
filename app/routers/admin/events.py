@@ -6,7 +6,7 @@ from typing import Optional
 from ...db.session import get_db
 from ...models.events import Event
 from ...security.auth import admin_required
-from ...services.media import save_upload
+from ...services.media import save_upload, delete_media
 import os
 
 router = APIRouter()
@@ -56,14 +56,9 @@ def delete_event(
     admin_required(request)
     e = db.get(Event, event_id)
     if e:
-        # Clean up associated image file
-        if e.image_url and e.image_url.startswith("/static/media/"):
-            old_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", e.image_url[1:])
-            if os.path.exists(old_path):
-                try:
-                    os.remove(old_path)
-                except OSError:
-                    pass  # File might already be gone
+        # Clean up associated image file (both local and cloud)
+        if e.image_url:
+            delete_media(e.image_url)
         db.delete(e)
         db.commit()
     return RedirectResponse("/admin/events", status_code=status.HTTP_302_FOUND)
@@ -94,14 +89,9 @@ async def update_event(
     
     # Handle image replacement
     if image and image.filename:
-        # Clean up old image file
-        if event.image_url and event.image_url.startswith("/static/media/"):
-            old_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", event.image_url[1:])
-            if os.path.exists(old_path):
-                try:
-                    os.remove(old_path)
-                except OSError:
-                    pass
+        # Clean up old image file (both local and cloud)
+        if event.image_url:
+            delete_media(event.image_url)
         # Save new image
         new_image_url = await save_upload(image, subdir="events")
         event.image_url = new_image_url
