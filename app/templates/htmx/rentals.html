@@ -1,0 +1,65 @@
+{% extends "layout/htmx_base.html" %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Venue & Rentals</h1>
+    <p class="text-white/70 mt-2">Book the deck across from the arena — perfect for pre- and post-show vibes.</p>
+  </header>
+
+  <div class="grid lg:grid-cols-2 gap-6 mb-10">
+    <img src="{{ request.url_for('assets', path='images/placeholders/event.jpg') }}" class="rounded-2xl border border-white/10 w-full h-72 object-cover" alt="Venue photo"/>
+    <div class="card p-5 space-y-2">
+      <div class="font-semibold">Packages</div>
+      <ul class="list-disc list-inside text-white/80 text-sm">
+        <li>Deck Rental (Evening)</li>
+        <li>Private Party Add-ons</li>
+        <li>Live Band Coordination</li>
+      </ul>
+      <div class="text-white/60 text-xs">All packages are customizable.</div>
+    </div>
+  </div>
+
+  <form id="rentalForm" class="card p-5 space-y-4 max-w-3xl">
+    <div class="font-semibold text-mine-gold">Get a Quote</div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block">
+        <span class="text-sm text-white/70">Name</span>
+        <input name="name" required class="input mt-1" placeholder="Your name">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Email</span>
+        <input name="email" type="email" required class="input mt-1" placeholder="your@email.com">
+      </label>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block">
+        <span class="text-sm text-white/70">Phone</span>
+        <input name="phone" class="input mt-1" placeholder="(606) 123-4567">
+      </label>
+      <label class="block">
+        <span class="text-sm text-white/70">Event Date</span>
+        <input name="event_date" type="date" class="input mt-1">
+      </label>
+    </div>
+    <label class="block">
+      <span class="text-sm text-white/70">Event Details</span>
+      <textarea name="message" class="input mt-1" rows="4" placeholder="Tell us about your event..."></textarea>
+    </label>
+    <button class="btn-primary">Submit Request</button>
+    <div id="rentalMsg" class="form-msg"></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="/static/js/forms.js"></script>
+<script>
+  setupAjaxForm({
+    formId: 'rentalForm',
+    endpoint: '/api/forms/rental',
+    successText: 'Thanks! We\'ll get back to you soon.',
+    errorText: 'Something went wrong. Please try again.'
+  });
+</script>
+{% endblock %}

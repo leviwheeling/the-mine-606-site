@@ -23,6 +23,12 @@ def ctx(request: Request, **kw):
     base.update(kw)
     return base
 
+def get_template_name(base_name: str, request: Request) -> str:
+    """Return appropriate template based on whether this is an HTMX request."""
+    if request.headers.get('HX-Request'):
+        return f"htmx/{base_name}"
+    return f"public/{base_name}"
+
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     featured = (
@@ -40,7 +46,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     ev = json.dumps(events_schema(events), ensure_ascii=False)
 
     return request.app.templates.TemplateResponse(
-        "public/home.html",
+        get_template_name("home.html", request),
         ctx(request, featured=featured, events=events, site=site, jsonld_local=lb, jsonld_events=ev)
     )
 
@@ -66,27 +72,27 @@ async def menu(request: Request, db: Session = Depends(get_db)):
         })
 
     return request.app.templates.TemplateResponse(
-        "public/menu.html",
+        get_template_name("menu.html", request),
         ctx(request, categories=cat_payload, tags=tag_payload, items=item_payload)
     )
 
 @router.get("/ordering", response_class=HTMLResponse)
 async def ordering(request: Request):
-    return request.app.templates.TemplateResponse("public/ordering.html", ctx(request))
+    return request.app.templates.TemplateResponse(get_template_name("ordering.html", request), ctx(request))
 
 @router.get("/shopify", response_class=HTMLResponse)
 async def shopify(request: Request):
-    return request.app.templates.TemplateResponse("public/shopify.html", ctx(request))
+    return request.app.templates.TemplateResponse(get_template_name("shopify.html", request), ctx(request))
 
 @router.get("/musician", response_class=HTMLResponse)
 async def musician(request: Request):
-    return request.app.templates.TemplateResponse("public/musician.html", ctx(request))
+    return request.app.templates.TemplateResponse(get_template_name("musician.html", request), ctx(request))
 
 @router.get("/rentals", response_class=HTMLResponse)
 async def rentals(request: Request):
-    return request.app.templates.TemplateResponse("public/rentals.html", ctx(request))
+    return request.app.templates.TemplateResponse(get_template_name("rentals.html", request), ctx(request))
 
 @router.get("/location", response_class=HTMLResponse)
 async def location(request: Request, db: Session = Depends(get_db)):
     site = db.query(SiteSetting).first()
-    return request.app.templates.TemplateResponse("public/location.html", ctx(request, site=site))
+    return request.app.templates.TemplateResponse(get_template_name("location.html", request), ctx(request, site=site))

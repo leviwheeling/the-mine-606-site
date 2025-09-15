@@ -155,15 +155,21 @@
   <!-- NAV -->
   <header class="sticky top-0 z-50 navbar-gradient border-b border-white/10 transition-all duration-300"
           x-data="{ atTop: true }"
-          x-init="atTop = window.pageYOffset < 50"
-          @scroll.window.throttle="atTop = window.pageYOffset < 50"
+          x-init="
+            atTop = window.pageYOffset < 50;
+            $nextTick(() => {
+              window.addEventListener('scroll', () => {
+                atTop = window.pageYOffset < 50;
+              }, { passive: true });
+            });
+          "
           :class="{ 'bg-opacity-95': !atTop }">
     <nav class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between">
       <!-- Brand wordmark -->
       <a href="/" class="shrink-0 group" 
          hx-boost="true"
          hx-push-url="true"
-         hx-target="main"
+         hx-target="#main-content"
          hx-swap="innerHTML transition:true">
         <span class="brand-wordmark block text-2xl sm:text-3xl md:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform">
           The&nbsp;Mine&nbsp;606
@@ -201,7 +207,7 @@
                class="nav-link relative overflow-hidden group"
                hx-boost="true"
                hx-push-url="true"
-               hx-target="main"
+               hx-target="#main-content"
                hx-swap="innerHTML transition:true">
               <span class="block transition-transform group-hover:-translate-y-full duration-300" 
                     x-text="item.text"></span>
@@ -238,7 +244,7 @@
              class="nav-link nav-drawer-link hover:text-mine-gold/90 transform hover:translate-x-2 transition-transform"
              hx-boost="true"
              hx-push-url="true"
-             hx-target="main"
+             hx-target="#main-content"
              hx-swap="innerHTML transition:true">
           </a>
         </template>
@@ -247,7 +253,7 @@
   </div>
 
   <!-- MAIN -->
-  <main>
+  <main id="main-content">
     {% block content %}{% endblock %}
   </main>
 

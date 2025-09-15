@@ -1,0 +1,20 @@
+<!-- HTMX-only template - just the content without navbar/footer -->
+{% block content %}{% endblock %}
+
+<!-- Scripts that need to run on HTMX swaps -->
+{% block body_scripts %}{% endblock %}
+
+<script>
+// Re-initialize any components that need it after HTMX swap
+document.addEventListener('htmx:afterSwap', function(evt) {
+  // Re-run Alpine.js initialization for any new elements
+  if (window.Alpine) {
+    window.Alpine.initTree(evt.detail.target);
+  }
+  
+  // Re-initialize any other components as needed
+  if (typeof initializeCalendar === 'function') {
+    initializeCalendar();
+  }
+});
+</script>

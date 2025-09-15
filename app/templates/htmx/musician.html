@@ -1,0 +1,85 @@
+{% extends "layout/htmx_base.html" %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto px-4 pt-14 pb-24">
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl md:text-5xl">Musicians</h1>
+    <p class="text-white/70 mt-2">Want to play at The Mine? We'd love to hear from you.</p>
+  </header>
+
+  <div class="grid lg:grid-cols-2 gap-8">
+    <div class="space-y-6">
+      <div class="card p-6">
+        <h3 class="font-semibold text-mine-gold mb-3">What We're Looking For</h3>
+        <ul class="space-y-2 text-white/80">
+          <li>• Solo artists and bands</li>
+          <li>• Original music and covers</li>
+          <li>• All genres welcome</li>
+          <li>• Professional attitude</li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="font-semibold text-mine-gold mb-3">Performance Details</h3>
+        <ul class="space-y-2 text-white/80">
+          <li>• Deck and indoor stages</li>
+          <li>• Sound system provided</li>
+          <li>• Flexible scheduling</li>
+          <li>• Fair compensation</li>
+        </ul>
+      </div>
+    </div>
+
+    <form id="musicianForm" class="card p-6 space-y-4">
+      <div class="font-semibold text-mine-gold">Apply to Play</div>
+      
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Name / Band Name</span>
+          <input name="name" required class="input mt-1" placeholder="Your name or band">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Email</span>
+          <input name="email" type="email" required class="input mt-1" placeholder="your@email.com">
+        </label>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-sm text-white/70">Phone</span>
+          <input name="phone" class="input mt-1" placeholder="(606) 123-4567">
+        </label>
+        <label class="block">
+          <span class="text-sm text-white/70">Genre</span>
+          <input name="genre" class="input mt-1" placeholder="Rock, Country, etc.">
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Music Link</span>
+        <input name="link" type="url" class="input mt-1" placeholder="YouTube, Spotify, etc.">
+      </label>
+
+      <label class="block">
+        <span class="text-sm text-white/70">Tell us about your music</span>
+        <textarea name="message" class="input mt-1" rows="4" placeholder="Describe your style, experience, what makes you unique..."></textarea>
+      </label>
+
+      <button class="btn-primary">Submit Application</button>
+      <div id="musicianMsg" class="form-msg"></div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block body_scripts %}
+<script src="/static/js/forms.js"></script>
+<script>
+  setupAjaxForm({
+    formId: 'musicianForm',
+    endpoint: '/api/forms/musician',
+    successText: 'Thanks for applying! We\'ll review your submission.',
+    errorText: 'Something went wrong. Please try again.'
+  });
+</script>
+{% endblock %}
