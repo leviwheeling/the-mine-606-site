@@ -7,6 +7,9 @@
   <title>{% block title %}The Mine 606 — What's Mine is Yours{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Modern rustic bar & kitchen across from Appalachian Wireless Arena. Live music, great food, better vibes.{% endblock %}" />
   <meta name="theme-color" content="#0A0A0A" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 
   <!-- Open Graph -->
   <meta property="og:title" content="{% block og_title %}The Mine 606{% endblock %}">
@@ -14,57 +17,95 @@
   <meta property="og:image" content="{{ request.url_for('assets', path='images/og-card.jpg') }}">
   <meta property="og:type" content="website">
 
-  <!-- Modern Stack -->
+  <!-- Modern Stack with fallbacks -->
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind CSS with fallback -->
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            'mine-gold': '#C8A349',
-            'rustic-black': '#0A0A0A',
-            'stone-gray': '#2F2F2F',
-            'earth-brown': '#5C4033',
-            'parchment': '#F2E6D0'
-          },
-          fontFamily: {
-            serif: ['"Bodoni Moda"', 'serif'],
-            sans: ['Inter', 'ui-sans-serif', 'system-ui']
-          },
-          boxShadow: { 
-            soft: '0 10px 30px rgba(0,0,0,0.35)',
-            'soft-light': '0 10px 30px rgba(255,255,255,0.1)'
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-out',
-            'slide-up': 'slideUp 0.5s ease-out',
-            'slide-down': 'slideDown 0.3s ease-out',
-            'scale': 'scale 0.2s ease-in-out',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
+    // Load Tailwind CSS with fallback mechanism and config
+    (function() {
+      const tailwindConfig = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'mine-gold': '#C8A349',
+              'rustic-black': '#0A0A0A',
+              'stone-gray': '#2F2F2F',
+              'earth-brown': '#5C4033',
+              'parchment': '#F2E6D0'
             },
-            slideUp: {
-              '0%': { transform: 'translateY(10px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' },
+            fontFamily: {
+              serif: ['"Bodoni Moda"', 'serif'],
+              sans: ['Inter', 'ui-sans-serif', 'system-ui']
             },
-            slideDown: {
-              '0%': { transform: 'translateY(-10px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' },
+            boxShadow: { 
+              soft: '0 10px 30px rgba(0,0,0,0.35)',
+              'soft-light': '0 10px 30px rgba(255,255,255,0.1)'
             },
-            scale: {
-              '0%': { transform: 'scale(0.95)' },
-              '100%': { transform: 'scale(1)' },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'slide-up': 'slideUp 0.5s ease-out',
+              'slide-down': 'slideDown 0.3s ease-out',
+              'scale': 'scale 0.2s ease-in-out',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              slideDown: {
+                '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              scale: {
+                '0%': { transform: 'scale(0.95)' },
+                '100%': { transform: 'scale(1)' },
+              }
             }
           }
         }
-      }
-    }
+      };
+
+      const loadTailwind = (src, callback) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => {
+          // Configure Tailwind after it loads successfully
+          if (typeof tailwind !== 'undefined') {
+            tailwind.config = tailwindConfig;
+            console.log('Tailwind CSS loaded and configured successfully');
+            callback(true);
+          } else {
+            console.warn('Tailwind loaded but tailwind object not available');
+            callback(false);
+          }
+        };
+        script.onerror = () => {
+          console.warn('Failed to load Tailwind from:', src);
+          callback(false);
+        };
+        document.head.appendChild(script);
+      };
+      
+      // Try primary CDN first
+      loadTailwind('https://cdn.tailwindcss.com/3.4.17', (success) => {
+        if (!success) {
+          // Try alternative CDN
+          loadTailwind('https://unpkg.com/tailwindcss@3.4.17/lib/index.js', (success2) => {
+            if (!success2) {
+              console.error('All Tailwind CDNs failed, applying emergency styles');
+              document.body.classList.add('emergency-fallback');
+            }
+          });
+        }
+      });
+    })();
   </script>
   
   <!-- Progressive Image Loading -->
@@ -192,30 +233,13 @@
 
       <!-- Desktop menu -->
       <ul class="hidden md:flex items-center gap-6 lg:gap-8 text-[15px] lg:text-[16px]">
-        <template x-for="(item, index) in [
-          { text: 'Home', href: '/' },
-          { text: 'Menu', href: '/menu' },
-          { text: 'Ordering', href: '/ordering' },
-          { text: 'Shop', href: '/shopify' },
-          { text: 'Venue', href: '/rentals' },
-          { text: 'Musicians', href: '/musician' },
-          { text: 'Location', href: '/location' }
-        ]">
-          <li>
-            <a :href="item.href"
-               x-text="item.text"
-               class="nav-link relative overflow-hidden group"
-               hx-boost="true"
-               hx-push-url="true"
-               hx-target="#main-content"
-               hx-swap="innerHTML transition:true">
-              <span class="block transition-transform group-hover:-translate-y-full duration-300" 
-                    x-text="item.text"></span>
-              <span class="absolute top-0 left-0 h-full transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-mine-gold"
-                    x-text="item.text"></span>
-            </a>
-          </li>
-        </template>
+        <li><a href="/" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Home</a></li>
+        <li><a href="/menu" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Menu</a></li>
+        <li><a href="/ordering" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Ordering</a></li>
+        <li><a href="/shopify" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Shop</a></li>
+        <li><a href="/rentals" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Venue</a></li>
+        <li><a href="/musician" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Musicians</a></li>
+        <li><a href="/location" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Location</a></li>
       </ul>
     </nav>
   </header>
@@ -242,25 +266,13 @@
       
       <!-- Mobile menu items -->
       <div class="p-4 sm:p-6 flex flex-col gap-1">
-        <template x-for="(item, index) in [
-          { text: 'Home', href: '/' },
-          { text: 'Menu', href: '/menu' },
-          { text: 'Ordering', href: '/ordering' },
-          { text: 'Shop', href: '/shopify' },
-          { text: 'Venue', href: '/rentals' },
-          { text: 'Musicians', href: '/musician' },
-          { text: 'Location', href: '/location' }
-        ]">
-          <a :href="item.href"
-             x-text="item.text"
-             @click="menuOpen = false"
-             class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation"
-             hx-boost="true"
-             hx-push-url="true"
-             hx-target="#main-content"
-             hx-swap="innerHTML transition:true">
-          </a>
-        </template>
+        <a href="/" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Home</a>
+        <a href="/menu" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Menu</a>
+        <a href="/ordering" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Ordering</a>
+        <a href="/shopify" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Shop</a>
+        <a href="/rentals" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Venue</a>
+        <a href="/musician" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Musicians</a>
+        <a href="/location" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Location</a>
       </div>
       
       <!-- Mobile menu footer -->
@@ -317,6 +329,99 @@
   <script src="/static/js/transitions.js" defer></script>
   <script src="/static/js/main.js" defer></script>
   <script src="/static/js/animations.js" defer></script>
+  
+  <!-- Enhanced fallback detection for mobile -->
+  <script>
+    // Comprehensive Tailwind CSS failure detection and recovery
+    function checkTailwindAndApplyFallback() {
+      // Multiple detection methods for reliability
+      const testElement = document.createElement('div');
+      testElement.className = 'bg-mine-gold text-white p-4 hidden';
+      testElement.style.position = 'absolute';
+      testElement.style.left = '-9999px';
+      document.body.appendChild(testElement);
+      
+      const styles = window.getComputedStyle(testElement);
+      const hasGoldBg = styles.backgroundColor.includes('200, 163, 73') || 
+                       styles.backgroundColor.includes('#C8A349') ||
+                       styles.backgroundColor === 'rgb(200, 163, 73)';
+      const hasHiddenClass = styles.display === 'none';
+      const hasPadding = parseFloat(styles.paddingTop) >= 16;
+      
+      document.body.removeChild(testElement);
+      
+      const tailwindWorking = hasGoldBg && hasHiddenClass && hasPadding;
+      
+      if (!tailwindWorking) {
+        console.warn('Tailwind CSS not working properly, applying emergency styles');
+        document.body.classList.add('emergency-fallback');
+        
+        // Force visibility of critical elements
+        setTimeout(() => {
+          const menuButtons = document.querySelectorAll('.cat-tab');
+          const menuGrid = document.getElementById('menuGrid');
+          
+          menuButtons.forEach(button => {
+            button.style.display = 'inline-flex';
+            button.style.alignItems = 'center';
+            button.style.justifyContent = 'center';
+            button.style.padding = '8px 16px';
+            button.style.backgroundColor = '#C8A349';
+            button.style.color = '#000';
+            button.style.border = '2px solid #C8A349';
+            button.style.borderRadius = '8px';
+            button.style.fontWeight = '600';
+            button.style.cursor = 'pointer';
+            button.style.marginRight = '8px';
+            button.style.marginBottom = '8px';
+            button.style.visibility = 'visible';
+            button.style.opacity = '1';
+          });
+          
+          if (menuGrid) {
+            menuGrid.style.display = 'grid';
+            menuGrid.style.gridTemplateColumns = '1fr';
+            menuGrid.style.gap = '16px';
+            
+            const cards = menuGrid.querySelectorAll('article');
+            cards.forEach(card => {
+              card.style.display = 'block';
+              card.style.visibility = 'visible';
+              card.style.opacity = '1';
+              card.style.backgroundColor = 'rgba(255,255,255,0.05)';
+              card.style.border = '1px solid rgba(255,255,255,0.1)';
+              card.style.borderRadius = '16px';
+              card.style.padding = '16px';
+            });
+          }
+          
+          // Ensure body has dark background
+          document.body.style.backgroundColor = '#0A0A0A';
+          document.body.style.color = '#fff';
+        }, 100);
+      }
+    }
+    
+    // Run checks at multiple points
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(checkTailwindAndApplyFallback, 200);
+      });
+    } else {
+      setTimeout(checkTailwindAndApplyFallback, 200);
+    }
+    
+    // Additional check after full page load
+    window.addEventListener('load', () => {
+      setTimeout(checkTailwindAndApplyFallback, 500);
+    });
+    
+    // Final safety check for mobile
+    setTimeout(() => {
+      checkTailwindAndApplyFallback();
+    }, 2000);
+  </script>
+  
   {% block body_scripts %}{% endblock %}
   
   <!-- Loading indicator -->

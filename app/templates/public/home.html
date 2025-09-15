@@ -91,7 +91,14 @@
       <!-- Calendar (left, spans 2 cols) -->
       <div class="lg:col-span-2 order-2 lg:order-1">
         <div id="calendar" data-endpoint="/api/events/data"
-             class="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 shadow-soft"></div>
+             class="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 shadow-soft">
+          <div id="calendar-loading" class="flex items-center justify-center py-12">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-mine-gold mx-auto mb-4"></div>
+              <div class="text-white/60">Loading calendar...</div>
+            </div>
+          </div>
+        </div>
         <div id="event-description" class="mt-4 p-4 bg-white/5 border border-white/10 rounded-xl hidden">
           <h3 class="text-lg font-semibold text-mine-gold mb-1">Event Details</h3>
           <p id="event-desc-text" class="text-white/80"></p>
@@ -130,5 +137,28 @@
 {% block body_scripts %}
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+// Fallback for FullCalendar CDN failure
+if (typeof FullCalendar === 'undefined') {
+    console.warn('FullCalendar CDN failed, loading fallback...');
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/fullcalendar@6.1.15/index.global.min.js';
+    script.onload = function() {
+        console.log('FullCalendar fallback loaded');
+        if (typeof initializeCalendar === 'function') {
+            initializeCalendar();
+        }
+    };
+    script.onerror = function() {
+        console.error('FullCalendar fallback also failed');
+        // Show a fallback message
+        const calendarEl = document.getElementById('calendar');
+        if (calendarEl) {
+            calendarEl.innerHTML = '<div class="p-8 text-center text-white/60">Calendar temporarily unavailable. Please refresh the page.</div>';
+        }
+    };
+    document.head.appendChild(script);
+}
+</script>
 <script src="/static/js/calendar.js"></script>
 {% endblock %}

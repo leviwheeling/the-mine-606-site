@@ -39,33 +39,20 @@
   <!-- Items Grid -->
   {% set count = items|length if items is defined else 0 %}
   <div id="menuGrid" 
-       class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
-       data-infinite-scroll
-       hx-trigger="revealed"
-       hx-get="/api/menu/more?page={{ page + 1 if page is defined else 1 }}"
-       hx-target="#menuGrid"
-       hx-swap="beforeend">
+       class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {% for it in items %}
       <article
         class="card overflow-hidden group transition hover:-translate-y-0.5 animate-fade-in"
-        style="animation-delay: {{ loop.index * 0.1 }}s"
         data-cat="{{ it.category }}"
         data-tags="{{ (it.tags|join(',')) if it.tags else '' }}"
+        data-animation-delay="{{ loop.index * 0.1 }}"
       >
-        <div class="h-32 sm:h-40 w-full overflow-hidden menu-image-container"
-             x-data="{ 
-               loaded: false,
-               init() {
-                 const img = new Image();
-                 img.src = '{{ it.img if it.img else '/static/media/menu/placeholder.webp' }}';
-                 img.onload = () => this.loaded = true;
-               }
-             }">
+        <div class="h-32 sm:h-40 w-full overflow-hidden menu-image-container">
           <img 
-            :src="loaded ? '{{ it.img }}' : '/static/media/menu/placeholder.webp'"
+            src="{{ it.img if it.img else '/static/media/menu/placeholder.svg' }}"
             alt="{{ it.name }}" 
-            class="menu-image group-hover:scale-[1.03]"
-            :class="{ 'menu-image-loading': !loaded, 'menu-image-loaded': loaded }"
+            class="menu-image group-hover:scale-[1.03] w-full h-full object-cover"
+            loading="lazy"
           >
         </div>
         <div class="p-4 sm:p-5 space-y-2">
@@ -99,44 +86,63 @@
 
 {% block body_scripts %}
 <script>
-  // ULTRA SIMPLE - JUST MAKE BUTTONS WORK, DON'T HIDE ANYTHING ON LOAD
+  // Robust menu filter initialization with multiple fallback strategies
   function initMenuFilters() {
-    console.log('Initializing menu filters...'); // Debug
+    console.log('Initializing menu filters...');
     
     const grid = document.getElementById('menuGrid');
     const tabs = document.querySelectorAll('.cat-tab');
     const select = document.getElementById('tagFilter');
     
     if (!grid) {
-      console.log('Missing grid element'); // Debug
-      return;
+      console.warn('Menu grid not found, retrying...');
+      return false;
     }
     
-    // FIRST - MAKE SURE ALL ITEMS ARE VISIBLE
+    // Ensure all cards are visible first (critical for mobile)
     const allCards = grid.querySelectorAll('article[data-cat]');
-    console.log('Making sure all', allCards.length, 'cards are visible'); // Debug
+    console.log('Ensuring', allCards.length, 'cards are visible');
     allCards.forEach(card => {
       card.style.display = '';
       card.style.visibility = 'visible';
+      card.style.opacity = '1';
+      
+      // Apply animation delay from data attribute
+      const delay = card.getAttribute('data-animation-delay');
+      if (delay) {
+        card.style.animationDelay = delay + 's';
+      }
     });
     
-    console.log('Found', tabs.length, 'category tabs'); // Debug
+    // Ensure buttons are visible and properly styled
+    tabs.forEach(tab => {
+      tab.style.display = 'inline-flex';
+      tab.style.visibility = 'visible';
+      tab.style.opacity = '1';
+      // Force button styling as fallback
+      if (!tab.style.backgroundColor) {
+        tab.style.backgroundColor = '#C8A349';
+        tab.style.color = '#000';
+        tab.style.padding = '8px 16px';
+        tab.style.borderRadius = '8px';
+        tab.style.border = '2px solid #C8A349';
+        tab.style.fontWeight = '600';
+        tab.style.cursor = 'pointer';
+      }
+    });
+    
+    console.log('Found', tabs.length, 'category tabs');
 
     function applyFilters() {
       const activeTab = document.querySelector('.cat-tab.active');
       const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
       const tag = select ? select.value : '';
 
-      console.log('Filtering - Category:', cat, 'Tag:', tag); // Debug
-
       const cards = grid.querySelectorAll('article[data-cat]');
       let visibleCount = 0;
       
-      console.log('Found', cards.length, 'cards to filter'); // Debug
-      
-      // SAFETY: If no cards found, don't do anything
       if (cards.length === 0) {
-        console.log('NO CARDS FOUND - ABORTING FILTER'); // Debug
+        console.warn('No menu cards found');
         return;
       }
       
@@ -150,57 +156,145 @@
         
         if (shouldShow) {
           card.style.display = '';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+          // Preserve animation delay
+          const delay = card.getAttribute('data-animation-delay');
+          if (delay) {
+            card.style.animationDelay = delay + 's';
+          }
           visibleCount++;
         } else {
           card.style.display = 'none';
         }
       });
       
-      console.log('Showing', visibleCount, 'of', cards.length, 'cards'); // Debug
-      
-      // SAFETY: If nothing is visible and we're on "All", show everything
+      // Safety fallback: if nothing visible and on "All", show everything
       if (visibleCount === 0 && cat === 'all') {
-        console.log('NOTHING VISIBLE - SHOWING ALL CARDS'); // Debug
+        console.log('Fallback: showing all cards');
         cards.forEach(card => {
           card.style.display = '';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+          // Preserve animation delay
+          const delay = card.getAttribute('data-animation-delay');
+          if (delay) {
+            card.style.animationDelay = delay + 's';
+          }
         });
       }
     }
 
-    // Simple click handler for category tabs
+    // Robust event handlers with error handling
     tabs.forEach(tab => {
       tab.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        console.log('Tab clicked:', this.getAttribute('data-cat')); // Debug
-        
-        // Remove active class from all tabs
-        tabs.forEach(t => t.classList.remove('active'));
-        
-        // Add active class to clicked tab
-        this.classList.add('active');
-        
-        // Apply filters
-        applyFilters();
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Remove active class from all tabs
+          tabs.forEach(t => t.classList.remove('active'));
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+          
+          // Apply filters
+          applyFilters();
+        } catch (error) {
+          console.error('Error handling tab click:', error);
+        }
       });
     });
 
-    // Handle tag filter
+    // Handle tag filter with error handling
     if (select) {
-      select.addEventListener('change', applyFilters);
+      select.addEventListener('change', function() {
+        try {
+          applyFilters();
+        } catch (error) {
+          console.error('Error handling tag filter:', error);
+        }
+      });
     }
 
-    // DON'T RUN INITIAL FILTER - LEAVE EVERYTHING VISIBLE
-    console.log('NOT running initial filter - leaving all items visible'); // Debug
+    console.log('Menu filters initialized successfully');
+    return true;
   }
 
-  // Initialize with delay to ensure DOM is ready
-  setTimeout(initMenuFilters, 100);
+  // Multiple initialization strategies for reliability
+  function attemptInitialization() {
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    function tryInit() {
+      attempts++;
+      console.log(`Menu init attempt ${attempts}`);
+      
+      if (initMenuFilters()) {
+        console.log('Menu filters initialized successfully');
+        return;
+      }
+      
+      if (attempts < maxAttempts) {
+        setTimeout(tryInit, 200 * attempts); // Progressive delay
+      } else {
+        console.error('Failed to initialize menu filters after', maxAttempts, 'attempts');
+        // Last resort: ensure basic visibility
+        const grid = document.getElementById('menuGrid');
+        const tabs = document.querySelectorAll('.cat-tab');
+        if (grid) {
+          const cards = grid.querySelectorAll('article');
+          cards.forEach(card => {
+            card.style.display = '';
+            card.style.visibility = 'visible';
+            card.style.opacity = '1';
+          });
+        }
+        tabs.forEach(tab => {
+          tab.style.display = 'inline-flex';
+          tab.style.visibility = 'visible';
+        });
+      }
+    }
+    
+    tryInit();
+  }
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attemptInitialization);
+  } else {
+    attemptInitialization();
+  }
   
   // Re-initialize after HTMX content swaps
   document.addEventListener('htmx:afterSettle', function() {
-    setTimeout(initMenuFilters, 100);
+    setTimeout(attemptInitialization, 50);
+  });
+  
+  // Additional safety net for mobile
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      // Final check to ensure everything is visible
+      const grid = document.getElementById('menuGrid');
+      const tabs = document.querySelectorAll('.cat-tab');
+      
+      if (grid) {
+        const cards = grid.querySelectorAll('article');
+        cards.forEach(card => {
+          if (card.style.display === 'none' && card.getAttribute('data-cat')) {
+            card.style.display = '';
+          }
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+        });
+      }
+      
+      tabs.forEach(tab => {
+        tab.style.visibility = 'visible';
+        tab.style.display = 'inline-flex';
+      });
+    }, 100);
   });
 </script>
 

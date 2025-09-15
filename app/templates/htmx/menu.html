@@ -34,18 +34,13 @@
   <!-- Items Grid -->
   {% set count = items|length if items is defined else 0 %}
   <div id="menuGrid" 
-       class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-       data-infinite-scroll
-       hx-trigger="revealed"
-       hx-get="/api/menu/more?page={{ page + 1 if page is defined else 1 }}"
-       hx-target="#menuGrid"
-       hx-swap="beforeend">
+       class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for it in items %}
       <article
         class="menu-card card group hover:scale-[1.02] transition-transform"
         data-cat="{{ it.category }}"
         data-tags="{{ it.tags|join(',') }}">
-        <img src="{{ it.img }}" alt="{{ it.name }}" class="w-full h-48 object-cover rounded-xl" />
+        <img src="{{ it.img if it.img else '/static/media/menu/placeholder.svg' }}" alt="{{ it.name }}" class="w-full h-48 object-cover rounded-xl" loading="lazy" />
         <div class="p-4 space-y-2">
           <div class="flex items-start justify-between gap-2">
             <h3 class="font-semibold group-hover:text-mine-gold transition-colors">{{ it.name }}</h3>
@@ -72,5 +67,185 @@
 {% endblock %}
 
 {% block body_scripts %}
-<script src="/static/js/filters.js"></script>
+<script>
+  // Robust menu filter initialization with multiple fallback strategies (HTMX version)
+  function initMenuFilters() {
+    console.log('Initializing HTMX menu filters...');
+    
+    const grid = document.getElementById('menuGrid');
+    const tabs = document.querySelectorAll('.cat-tab');
+    const select = document.getElementById('tagFilter');
+    
+    if (!grid) {
+      console.warn('Menu grid not found, retrying...');
+      return false;
+    }
+    
+    // Ensure all cards are visible first (critical for mobile)
+    const allCards = grid.querySelectorAll('article[data-cat], .menu-card');
+    console.log('Ensuring', allCards.length, 'cards are visible');
+    allCards.forEach(card => {
+      card.style.display = '';
+      card.style.visibility = 'visible';
+      card.style.opacity = '1';
+    });
+    
+    // Ensure buttons are visible and properly styled
+    tabs.forEach(tab => {
+      tab.style.display = 'inline-flex';
+      tab.style.visibility = 'visible';
+      tab.style.opacity = '1';
+      // Force button styling as fallback
+      if (!tab.style.backgroundColor) {
+        tab.style.backgroundColor = '#C8A349';
+        tab.style.color = '#000';
+        tab.style.padding = '8px 16px';
+        tab.style.borderRadius = '8px';
+        tab.style.border = '2px solid #C8A349';
+        tab.style.fontWeight = '600';
+        tab.style.cursor = 'pointer';
+      }
+    });
+    
+    console.log('Found', tabs.length, 'category tabs');
+
+    function applyFilters() {
+      const activeTab = document.querySelector('.cat-tab.active');
+      const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+      const tag = select ? select.value : '';
+
+      const cards = grid.querySelectorAll('article[data-cat], .menu-card');
+      let visibleCount = 0;
+      
+      if (cards.length === 0) {
+        console.warn('No menu cards found');
+        return;
+      }
+      
+      cards.forEach(card => {
+        const cardCat = card.getAttribute('data-cat') || '';
+        const cardTags = card.getAttribute('data-tags') || '';
+        
+        const catMatch = cat === 'all' || cardCat === cat;
+        const tagMatch = !tag || cardTags.includes(tag);
+        const shouldShow = catMatch && tagMatch;
+        
+        if (shouldShow) {
+          card.style.display = '';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Safety fallback: if nothing visible and on "All", show everything
+      if (visibleCount === 0 && cat === 'all') {
+        console.log('Fallback: showing all cards');
+        cards.forEach(card => {
+          card.style.display = '';
+          card.style.visibility = 'visible';
+          card.style.opacity = '1';
+        });
+      }
+    }
+
+    // Robust event handlers with error handling
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(e) {
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Remove active class from all tabs
+          tabs.forEach(t => t.classList.remove('active'));
+          
+          // Add active class to clicked tab
+          this.classList.add('active');
+          
+          // Apply filters
+          applyFilters();
+        } catch (error) {
+          console.error('Error handling tab click:', error);
+        }
+      });
+    });
+
+    // Handle tag filter with error handling
+    if (select) {
+      select.addEventListener('change', function() {
+        try {
+          applyFilters();
+        } catch (error) {
+          console.error('Error handling tag filter:', error);
+        }
+      });
+    }
+
+    console.log('HTMX menu filters initialized successfully');
+    return true;
+  }
+
+  // Multiple initialization strategies for reliability
+  function attemptInitialization() {
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    function tryInit() {
+      attempts++;
+      console.log(`HTMX menu init attempt ${attempts}`);
+      
+      if (initMenuFilters()) {
+        console.log('HTMX menu filters initialized successfully');
+        return;
+      }
+      
+      if (attempts < maxAttempts) {
+        setTimeout(tryInit, 200 * attempts);
+      } else {
+        console.error('Failed to initialize HTMX menu filters after', maxAttempts, 'attempts');
+        // Last resort: ensure basic visibility
+        const grid = document.getElementById('menuGrid');
+        const tabs = document.querySelectorAll('.cat-tab');
+        if (grid) {
+          const cards = grid.querySelectorAll('article, .menu-card');
+          cards.forEach(card => {
+            card.style.display = '';
+            card.style.visibility = 'visible';
+            card.style.opacity = '1';
+          });
+        }
+        tabs.forEach(tab => {
+          tab.style.display = 'inline-flex';
+          tab.style.visibility = 'visible';
+        });
+      }
+    }
+    
+    tryInit();
+  }
+
+  // Initialize immediately
+  attemptInitialization();
+  
+  // Additional safety net
+  setTimeout(function() {
+    const grid = document.getElementById('menuGrid');
+    const tabs = document.querySelectorAll('.cat-tab');
+    
+    if (grid) {
+      const cards = grid.querySelectorAll('article, .menu-card');
+      cards.forEach(card => {
+        card.style.visibility = 'visible';
+        card.style.opacity = '1';
+      });
+    }
+    
+    tabs.forEach(tab => {
+      tab.style.visibility = 'visible';
+      tab.style.display = 'inline-flex';
+    });
+  }, 100);
+</script>
 {% endblock %}

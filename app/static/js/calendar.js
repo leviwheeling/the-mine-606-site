@@ -1,16 +1,61 @@
 // FullCalendar initialization and event handling
 let currentCalendar = null;
 
+// Retry mechanism for failed requests
+function fetchWithRetry(url, maxRetries = 2) {
+    return new Promise((resolve, reject) => {
+        let retries = 0;
+        
+        function attempt() {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(resolve)
+                .catch(error => {
+                    retries++;
+                    if (retries <= maxRetries) {
+                        console.warn(`Request failed, retrying (${retries}/${maxRetries}):`, error.message);
+                        setTimeout(attempt, 1000 * retries); // Exponential backoff
+                    } else {
+                        reject(error);
+                    }
+                });
+        }
+        
+        attempt();
+    });
+}
+
 // Function to initialize calendar
 function initializeCalendar() {
+    console.log('Initializing calendar...');
+    
     // Clean up any existing calendar
     if (currentCalendar) {
+        console.log('Cleaning up existing calendar');
         currentCalendar.destroy();
         currentCalendar = null;
     }
 
     const calendarEl = document.getElementById('calendar');
-    if (!calendarEl) return;
+    if (!calendarEl) {
+        console.warn('Calendar element not found');
+        return;
+    }
+    
+    // Check if FullCalendar is loaded
+    if (typeof FullCalendar === 'undefined') {
+        console.error('FullCalendar library not loaded');
+        const loadingEl = document.getElementById('calendar-loading');
+        if (loadingEl) {
+            loadingEl.innerHTML = '<div class="text-center text-white/60"><div class="mb-2">⚠️</div><div>Calendar library failed to load</div><div class="text-sm mt-2"><button onclick="location.reload()" class="text-mine-gold hover:underline">Refresh page</button></div></div>';
+        }
+        return;
+    }
 
     const endpoint = calendarEl.dataset.endpoint || '/api/events/data';
     
@@ -41,10 +86,11 @@ function initializeCalendar() {
         dayMaxEvents: isMobile ? 2 : true,
         eventDisplay: 'block',
         events: function(info, successCallback, failureCallback) {
-            // Fetch events from our API
-            fetch(`${endpoint}?start=${info.startStr}&end=${info.endStr}`)
-                .then(response => response.json())
+            // Fetch events from our API with retry mechanism
+            console.log(`Fetching events from ${endpoint} for ${info.startStr} to ${info.endStr}`);
+            fetchWithRetry(`${endpoint}?start=${info.startStr}&end=${info.endStr}`)
                 .then(data => {
+                    console.log('Events data received:', data);
                     if (Array.isArray(data)) {
                         successCallback(data);
                     } else {
@@ -53,7 +99,8 @@ function initializeCalendar() {
                     }
                 })
                 .catch(error => {
-                    console.error('Failed to fetch events:', error);
+                    console.error('Failed to fetch events after retries:', error);
+                    // Show error message in calendar
                     failureCallback(error);
                 });
         },
@@ -84,7 +131,24 @@ function initializeCalendar() {
     });
 
     // Render the calendar
-    currentCalendar.render();
+    try {
+        currentCalendar.render();
+        console.log('Calendar rendered successfully');
+        
+        // Hide loading indicator
+        const loadingEl = document.getElementById('calendar-loading');
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Failed to render calendar:', error);
+        
+        // Show error message instead of loading
+        const loadingEl = document.getElementById('calendar-loading');
+        if (loadingEl) {
+            loadingEl.innerHTML = '<div class="text-center text-white/60"><div class="mb-2">⚠️</div><div>Calendar failed to load</div><div class="text-sm mt-2"><button onclick="location.reload()" class="text-mine-gold hover:underline">Refresh page</button></div></div>';
+        }
+    }
     
     // Handle window resize for responsive behavior
     let resizeTimeout;

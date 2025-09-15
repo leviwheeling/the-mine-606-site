@@ -1,0 +1,7 @@
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#2F2F2F"/>
+  <text x="150" y="90" font-family="Arial, sans-serif" font-size="16" fill="#C8A349" text-anchor="middle">Menu Item</text>
+  <text x="150" y="115" font-family="Arial, sans-serif" font-size="14" fill="#C8A349" text-anchor="middle">Image Coming Soon</text>
+  <circle cx="150" cy="140" r="15" fill="none" stroke="#C8A349" stroke-width="2"/>
+  <path d="M142 140 l6 6 l10 -12" stroke="#C8A349" stroke-width="2" fill="none"/>
+</svg>
