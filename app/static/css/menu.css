@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 @layer components {
-  /* Enhanced category button styles */
+  /* Enhanced category button styles - consistent across all devices */
   .cat-tab {
-    @apply px-4 py-3 rounded-xl text-sm font-medium border-2 border-white/20 bg-white/5 text-white hover:border-mine-gold hover:bg-mine-gold/10 hover:text-mine-gold transition-all duration-200 touch-manipulation whitespace-nowrap flex-shrink-0 min-h-[48px] flex items-center justify-center;
+    @apply px-4 py-3 rounded-xl text-sm font-medium border-2 border-white/20 bg-white/5 text-white hover:border-mine-gold hover:bg-mine-gold/10 hover:text-mine-gold transition-all duration-200 touch-manipulation whitespace-nowrap flex-shrink-0 min-h-[48px] flex items-center justify-center cursor-pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     backdrop-filter: blur(8px);
@@ -18,7 +18,6 @@
   }
   
   .cat-tab:active {
-    @apply scale-95;
     transform: scale(0.95);
   }
   
@@ -26,12 +25,23 @@
     @apply border-mine-gold/60 bg-mine-gold/5 text-mine-gold;
   }
   
+  /* Desktop enhancements */
   @media (min-width: 640px) {
     .cat-tab {
       @apply px-6 py-3 text-base min-h-[52px];
     }
+    
+    .cat-tab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .cat-tab.active:hover {
+      box-shadow: 0 6px 16px rgba(200, 163, 73, 0.4);
+    }
   }
   
+  /* Mobile optimizations */
   @media (max-width: 639px) {
     .cat-tab {
       @apply px-3 py-2 text-xs min-h-[44px];

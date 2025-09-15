@@ -99,136 +99,88 @@
 
 {% block body_scripts %}
 <script>
-  // Enhanced menu filter logic with mobile stability
+  // Simplified and robust menu filtering
   function initMenuFilters() {
+    console.log('Initializing menu filters...'); // Debug
+    
     const grid = document.getElementById('menuGrid');
-    if (!grid) return;
-
-    const tabs = Array.from(document.querySelectorAll('.cat-tab'));
+    const tabs = document.querySelectorAll('.cat-tab');
     const select = document.getElementById('tagFilter');
     
-    // Debounce function to prevent rapid-fire filtering
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
+    if (!grid || !tabs.length) {
+      console.log('Missing grid or tabs'); // Debug
+      return;
     }
+    
+    console.log('Found', tabs.length, 'category tabs'); // Debug
 
     function applyFilters() {
-      requestAnimationFrame(() => {
-        const activeTab = tabs.find(t => t.classList.contains('active'));
-        const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
-        const tag = (select && select.value) ? select.value : '';
+      const activeTab = document.querySelector('.cat-tab.active');
+      const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+      const tag = select ? select.value : '';
 
-        console.log('Applying filters - Category:', cat, 'Tag:', tag); // Debug log
+      console.log('Filtering - Category:', cat, 'Tag:', tag); // Debug
 
-        const cards = Array.from(grid.children);
-        let visibleCount = 0;
-        let hiddenCount = 0;
+      const cards = grid.querySelectorAll('article[data-cat]');
+      let visibleCount = 0;
+      
+      console.log('Found', cards.length, 'cards to filter'); // Debug
+      
+      cards.forEach(card => {
+        const cardCat = card.getAttribute('data-cat');
+        const cardTags = card.getAttribute('data-tags') || '';
         
-        cards.forEach((card, index) => {
-          // Skip non-article elements (like loading indicators)
-          if (!card.hasAttribute('data-cat')) {
-            return;
-          }
-          
-          const cardCat = card.getAttribute('data-cat') || 'other';
-          const cardTags = (card.getAttribute('data-tags') || '').split(',').filter(Boolean);
-
-          const catOK = (cat === 'all') || (cardCat === cat);
-          const tagOK = (!tag) || cardTags.includes(tag);
-          const shouldShow = catOK && tagOK;
-
-          if (shouldShow) {
-            card.style.display = 'block';
-            card.style.animationDelay = `${visibleCount * 0.05}s`;
-            card.classList.remove('hidden');
-            visibleCount++;
-          } else {
-            card.style.display = 'none';
-            card.classList.add('hidden');
-            hiddenCount++;
-          }
-        });
+        const catMatch = cat === 'all' || cardCat === cat;
+        const tagMatch = !tag || cardTags.includes(tag);
+        const shouldShow = catMatch && tagMatch;
         
-        console.log(`Filtered: ${visibleCount} visible, ${hiddenCount} hidden`); // Debug log
+        console.log('Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Show:', shouldShow); // Debug
+        
+        if (shouldShow) {
+          card.style.display = 'block';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
       });
+      
+      console.log('Showing', visibleCount, 'of', cards.length, 'cards'); // Debug
     }
 
-    const debouncedApplyFilters = debounce(applyFilters, 100);
-
-    // Enhanced tab click handling with proper mobile support
-    tabs.forEach(btn => {
-      // Primary click handler
-      const handleTabClick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    // Simple click handler for category tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(e) {
+        console.log('Tab clicked:', this.getAttribute('data-cat')); // Debug
         
-        // Prevent double-triggering
-        if (btn.classList.contains('active')) {
-          return;
-        }
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('active'));
         
-        console.log('Tab clicked:', btn.getAttribute('data-cat')); // Debug log
+        // Add active class to clicked tab
+        this.classList.add('active');
         
-        // Remove active from all tabs
-        tabs.forEach(b => b.classList.remove('active'));
-        // Add active to clicked tab
-        btn.classList.add('active');
-        
-        // Apply filters immediately, then debounced
+        // Apply filters
         applyFilters();
-        debouncedApplyFilters();
-      };
-      
-      // Add click event listener
-      btn.addEventListener('click', handleTabClick, { passive: false });
-      
-      // Add touch event handling for mobile
-      btn.addEventListener('touchstart', (e) => {
-        btn.style.transform = 'scale(0.95)';
-      }, { passive: true });
-      
-      btn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        btn.style.transform = '';
-        
-        // Trigger click after a small delay to ensure touch is processed
-        setTimeout(() => {
-          handleTabClick(e);
-        }, 50);
-      }, { passive: false });
-      
-      btn.addEventListener('touchcancel', (e) => {
-        btn.style.transform = '';
-      }, { passive: true });
+      });
     });
 
-    // Enhanced select handling
+    // Handle tag filter
     if (select) {
-      select.addEventListener('change', debouncedApplyFilters);
-      select.addEventListener('input', debouncedApplyFilters); // For better mobile keyboard support
+      select.addEventListener('change', applyFilters);
     }
 
-    // Initial render with slight delay to ensure DOM is ready
-    setTimeout(applyFilters, 50);
+    // Initial filter application
+    console.log('Applying initial filters...'); // Debug
+    applyFilters();
   }
 
-  // Initialize on DOM ready and after HTMX content swaps
+  // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initMenuFilters);
   } else {
     initMenuFilters();
   }
   
-  // Re-initialize after HTMX swaps
+  // Re-initialize after HTMX content swaps
   document.addEventListener('htmx:afterSettle', initMenuFilters);
 </script>
 
