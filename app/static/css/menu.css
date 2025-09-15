@@ -3,18 +3,36 @@
 @tailwind utilities;
 
 @layer components {
-  /* Gold category button styles - consistent across all devices */
+  /* Simple gold button styles that actually work */
   .cat-tab {
-    @apply px-4 py-3 rounded-xl text-sm font-medium border-2 border-mine-gold bg-mine-gold text-black hover:bg-mine-gold/90 hover:border-mine-gold/90 transition-all duration-200 touch-manipulation whitespace-nowrap flex-shrink-0 min-h-[48px] flex items-center justify-center cursor-pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background-color: #C8A349;
+    color: #000;
+    border: 2px solid #C8A349;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-height: 48px;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .cat-tab:hover {
+    background-color: #D4AF37;
+    border-color: #D4AF37;
+    transform: translateY(-1px);
   }
 
   .cat-tab.active {
-    @apply bg-mine-gold/80 text-black border-mine-gold shadow-lg;
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
+    background-color: #FFD700;
+    border-color: #FFD700;
+    color: #000;
     box-shadow: 0 4px 12px rgba(200, 163, 73, 0.4);
   }
   
@@ -22,31 +40,20 @@
     transform: scale(0.95);
   }
   
-  .cat-tab:hover:not(.active) {
-    @apply bg-mine-gold/90 border-mine-gold text-black;
-    transform: translateY(-1px);
-  }
-  
-  /* Desktop enhancements */
+  /* Responsive sizing */
   @media (min-width: 640px) {
     .cat-tab {
-      @apply px-6 py-3 text-base min-h-[52px];
-    }
-    
-    .cat-tab:hover {
-      box-shadow: 0 4px 12px rgba(200, 163, 73, 0.3);
-    }
-    
-    .cat-tab.active:hover {
-      box-shadow: 0 6px 16px rgba(200, 163, 73, 0.5);
-      background: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%);
+      padding: 12px 32px;
+      font-size: 16px;
+      min-height: 52px;
     }
   }
   
-  /* Mobile optimizations */
   @media (max-width: 639px) {
     .cat-tab {
-      @apply px-3 py-2 text-xs min-h-[44px];
+      padding: 8px 16px;
+      font-size: 12px;
+      min-height: 44px;
     }
   }
   
