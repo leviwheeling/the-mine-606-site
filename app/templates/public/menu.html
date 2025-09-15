@@ -15,7 +15,7 @@
   <!-- Filters -->
   <div class="flex flex-col gap-4 mb-6 sm:mb-8">
     <!-- Categories -->
-    <div class="flex flex-wrap items-center gap-2" id="catTabs">
+    <div class="flex flex-wrap items-center gap-2 w-full" id="catTabs">
       <button data-cat="all" class="cat-tab active">All</button>
       {% for c in categories %}
         <button data-cat="{{ c.id }}" class="cat-tab">{{ c.name }}</button>
@@ -99,44 +99,99 @@
 
 {% block body_scripts %}
 <script>
-  // basic filter logic
-  (function(){
+  // Enhanced menu filter logic with mobile stability
+  function initMenuFilters() {
     const grid = document.getElementById('menuGrid');
     if (!grid) return;
 
     const tabs = Array.from(document.querySelectorAll('.cat-tab'));
     const select = document.getElementById('tagFilter');
+    
+    // Debounce function to prevent rapid-fire filtering
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
 
     function applyFilters() {
-      const activeTab = tabs.find(t => t.classList.contains('active'));
-      const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
-      const tag = (select && select.value) ? select.value : '';
+      requestAnimationFrame(() => {
+        const activeTab = tabs.find(t => t.classList.contains('active'));
+        const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
+        const tag = (select && select.value) ? select.value : '';
 
-      const cards = Array.from(grid.children);
-      cards.forEach(card => {
-        const cardCat = card.getAttribute('data-cat') || 'other';
-        const cardTags = (card.getAttribute('data-tags') || '').split(',').filter(Boolean);
+        const cards = Array.from(grid.children);
+        let visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+          const cardCat = card.getAttribute('data-cat') || 'other';
+          const cardTags = (card.getAttribute('data-tags') || '').split(',').filter(Boolean);
 
-        const catOK = (cat === 'all') || (cardCat === cat);
-        const tagOK = (!tag) || cardTags.includes(tag);
+          const catOK = (cat === 'all') || (cardCat === cat);
+          const tagOK = (!tag) || cardTags.includes(tag);
+          const shouldShow = catOK && tagOK;
 
-        card.style.display = (catOK && tagOK) ? '' : 'none';
+          if (shouldShow) {
+            card.style.display = '';
+            card.style.animationDelay = `${visibleCount * 0.05}s`;
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
       });
     }
 
+    const debouncedApplyFilters = debounce(applyFilters, 100);
+
+    // Enhanced tab click handling with proper mobile support
     tabs.forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Remove active from all tabs
         tabs.forEach(b => b.classList.remove('active'));
+        // Add active to clicked tab
         btn.classList.add('active');
-        applyFilters();
-      });
+        
+        // Apply filters with debounce for mobile performance
+        debouncedApplyFilters();
+      }, { passive: false });
+      
+      // Add touch event handling for better mobile responsiveness
+      btn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        btn.click();
+      }, { passive: false });
     });
 
-    if (select) select.addEventListener('change', applyFilters);
+    // Enhanced select handling
+    if (select) {
+      select.addEventListener('change', debouncedApplyFilters);
+      select.addEventListener('input', debouncedApplyFilters); // For better mobile keyboard support
+    }
 
-    // initial render
-    applyFilters();
-  })();
+    // Initial render with slight delay to ensure DOM is ready
+    setTimeout(applyFilters, 50);
+  }
+
+  // Initialize on DOM ready and after HTMX content swaps
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenuFilters);
+  } else {
+    initMenuFilters();
+  }
+  
+  // Re-initialize after HTMX swaps
+  document.addEventListener('htmx:afterSettle', initMenuFilters);
 </script>
 
 {% endblock %}

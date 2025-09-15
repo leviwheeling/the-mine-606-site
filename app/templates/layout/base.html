@@ -148,7 +148,7 @@
   {% block head_extra %}{% endblock %}
 </head>
 
-<body class="bg-rustic-black text-white font-sans antialiased selection:bg-mine-gold/30">
+<body class="bg-rustic-black text-white font-sans antialiased selection:bg-mine-gold/30 overflow-x-hidden">
   <!-- Top border accent -->
   <div class="h-1 bg-gradient-to-r from-mine-gold via-yellow-500 to-mine-gold"></div>
 
@@ -171,7 +171,7 @@
          hx-push-url="true"
          hx-target="#main-content"
          hx-swap="innerHTML transition:true">
-        <span class="brand-wordmark block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform">
+        <span class="brand-wordmark block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform whitespace-nowrap">
           The&nbsp;Mine&nbsp;606
         </span>
       </a>

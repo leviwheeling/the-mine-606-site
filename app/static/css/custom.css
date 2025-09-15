@@ -1,3 +1,49 @@
+/* Prevent horizontal scrolling and improve mobile stability */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure containers don't cause horizontal scroll */
+.container, .max-w-6xl, .max-w-7xl {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Fix any potential overflow issues */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile-specific stability improvements */
+@media (max-width: 768px) {
+  /* Prevent zoom on inputs */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Improve touch scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent horizontal bounce */
+  .overflow-hidden {
+    overflow-x: hidden !important;
+  }
+  
+  /* Fix flex container issues on mobile */
+  .flex-wrap {
+    overflow: hidden;
+  }
+}
+
 /* Subtle vibes without a build pipeline */
 .nav-link { @apply text-white/80 hover:text-mine-gold transition; }
 .nav-drawer-link { @apply text-white/80 hover:text-mine-gold transition py-2; }
