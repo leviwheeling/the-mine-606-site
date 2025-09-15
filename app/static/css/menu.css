@@ -5,11 +5,17 @@
 @layer components {
   /* Menu page specific styles */
   .cat-tab {
-    @apply px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80 hover:text-mine-gold hover:border-mine-gold transition;
+    @apply px-3 py-2 rounded-full text-xs sm:text-sm bg-white/5 border border-white/10 text-white/80 hover:text-mine-gold hover:border-mine-gold transition touch-manipulation;
   }
 
   .cat-tab.active {
     @apply bg-mine-gold text-black border-mine-gold;
+  }
+  
+  @media (min-width: 640px) {
+    .cat-tab {
+      @apply px-4 py-2;
+    }
   }
 
   /* Dark mode styles */

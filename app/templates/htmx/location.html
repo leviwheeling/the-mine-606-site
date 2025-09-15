@@ -20,13 +20,13 @@
           src="https://www.google.com/maps/embed/v1/view?key={{ GOOGLE_MAPS_API_KEY }}&center={{ lat }},{{ lng }}&zoom=16&maptype=roadmap">
         </iframe>
       {% else %}
-        <!-- Fallback: arena-based search -->
+        <!-- Fallback: Mine 606 location -->
         <iframe
           title="Map"
           class="w-full h-80"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=Appalachian%20Wireless%20Arena%2C%20Pikeville%2C%20KY&output=embed">
+          src="https://www.google.com/maps?q=The%20Mine%20606%2C%20121%20Main%20St%2C%20Pikeville%2C%20KY&output=embed">
         </iframe>
       {% endif %}
     </div>
@@ -48,7 +48,7 @@
         {% if site and site.address %}
           {{ site.address }}
         {% else %}
-          Mine 606<br>
+          121 Main St<br>
           Pikeville, KY
         {% endif %}
       </div>

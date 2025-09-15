@@ -164,34 +164,34 @@
             });
           "
           :class="{ 'bg-opacity-95': !atTop }">
-    <nav class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between">
+    <nav class="max-w-6xl mx-auto px-4 sm:px-5 py-4 sm:py-5 flex items-center justify-between">
       <!-- Brand wordmark -->
       <a href="/" class="shrink-0 group" 
          hx-boost="true"
          hx-push-url="true"
          hx-target="#main-content"
          hx-swap="innerHTML transition:true">
-        <span class="brand-wordmark block text-2xl sm:text-3xl md:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform">
+        <span class="brand-wordmark block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform">
           The&nbsp;Mine&nbsp;606
         </span>
       </a>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-4">
         <!-- Mobile toggle -->
         <button @click="menuOpen = !menuOpen" 
-                class="md:hidden p-3 rounded-lg hover:bg-white/10 transition-colors" 
+                class="md:hidden p-2 sm:p-3 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation" 
                 :aria-label="menuOpen ? 'Close menu' : 'Open menu'">
-          <svg x-show="!menuOpen" class="w-7 h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg x-show="!menuOpen" class="w-6 h-6 sm:w-7 sm:h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
           </svg>
-          <svg x-show="menuOpen" class="w-7 h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg x-show="menuOpen" class="w-6 h-6 sm:w-7 sm:h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
 
       <!-- Desktop menu -->
-      <ul class="hidden md:flex items-center gap-8 text-[16px]">
+      <ul class="hidden md:flex items-center gap-6 lg:gap-8 text-[15px] lg:text-[16px]">
         <template x-for="(item, index) in [
           { text: 'Home', href: '/' },
           { text: 'Menu', href: '/menu' },
@@ -221,14 +221,27 @@
   </header>
 
   <!-- MOBILE MENU -->
-  <div class="md:hidden fixed inset-0 bg-black/70 transition-opacity duration-300"
+  <div class="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm transition-all duration-300 z-50"
        :class="menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
        @click="menuOpen = false">
-    <div class="absolute right-0 top-0 w-80 h-full navbar-gradient border-l border-white/10 p-6"
+    <div class="absolute right-0 top-0 w-full max-w-sm h-full navbar-gradient border-l border-white/10 shadow-2xl"
          :class="menuOpen ? 'translate-x-0' : 'translate-x-full'"
          @click.stop
-         class="transition-transform duration-300">
-      <div class="mt-16 flex flex-col gap-4 text-lg">
+         class="transition-transform duration-300 ease-out">
+      
+      <!-- Mobile menu header -->
+      <div class="flex items-center justify-between p-4 sm:p-6 border-b border-white/10">
+        <span class="brand-wordmark text-lg sm:text-xl">The Mine 606</span>
+        <button @click="menuOpen = false" 
+                class="p-2 rounded-lg hover:bg-white/10 transition-colors touch-manipulation">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Mobile menu items -->
+      <div class="p-4 sm:p-6 flex flex-col gap-1">
         <template x-for="(item, index) in [
           { text: 'Home', href: '/' },
           { text: 'Menu', href: '/menu' },
@@ -241,13 +254,20 @@
           <a :href="item.href"
              x-text="item.text"
              @click="menuOpen = false"
-             class="nav-link nav-drawer-link hover:text-mine-gold/90 transform hover:translate-x-2 transition-transform"
+             class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation"
              hx-boost="true"
              hx-push-url="true"
              hx-target="#main-content"
              hx-swap="innerHTML transition:true">
           </a>
         </template>
+      </div>
+      
+      <!-- Mobile menu footer -->
+      <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 border-t border-white/10">
+        <div class="text-center text-white/60 text-sm">
+          What's Mine is Yours
+        </div>
       </div>
     </div>
   </div>
@@ -258,15 +278,15 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-white/10 mt-28">
-    <div class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8">
-      <div>
-        <div class="font-serif text-2xl text-mine-gold">What’s Mine is Yours</div>
-        <p class="text-white/70 mt-2">Across from Appalachian Wireless Arena.</p>
+  <footer class="border-t border-white/10 mt-20 sm:mt-28">
+    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10 grid gap-6 sm:gap-8 md:grid-cols-3">
+      <div class="text-center md:text-left">
+        <div class="font-serif text-xl sm:text-2xl text-mine-gold">What's Mine is Yours</div>
+        <p class="text-white/70 mt-2 text-sm sm:text-base">Across from Appalachian Wireless Arena.</p>
       </div>
-      <div>
+      <div class="text-center md:text-left">
         <div class="uppercase text-white/60 text-sm tracking-wide">Hours</div>
-        <div class="mt-2 text-white/80">
+        <div class="mt-2 text-white/80 text-sm sm:text-base">
           {% if template_globals(request).get('HOURS_HTML') %}
             {{ template_globals(request).get('HOURS_HTML')|safe }}
           {% else %}
@@ -274,13 +294,13 @@
           {% endif %}
         </div>
       </div>
-      <div>
+      <div class="text-center md:text-left">
         <div class="uppercase text-white/60 text-sm tracking-wide">Find Us</div>
-        <div class="mt-2 text-white/80">
-          <div>Mine 606, Pikeville, KY</div>
+        <div class="mt-2 text-white/80 text-sm sm:text-base">
+          <div>121 Main St Pikeville, KY 41501</div>
           <a class="underline underline-offset-4 hover:text-mine-gold" href="/location">Get directions</a>
         </div>
-        <div class="mt-3">
+        <div class="mt-3 flex justify-center md:justify-start">
           {% if template_globals(request).get('SITE_OBJ') %}
             {% set site = template_globals(request).get('SITE_OBJ') %}
             {% include "layout/components/socials.html" %}
@@ -288,7 +308,7 @@
         </div>
       </div>
     </div>
-    <div class="text-center text-white/50 text-sm py-4 border-t border-white/10">
+    <div class="text-center text-white/50 text-xs sm:text-sm py-4 border-t border-white/10">
       © {{ template_globals(request).CURRENT_YEAR }} The Mine 606. All rights reserved.
     </div>
   </footer>

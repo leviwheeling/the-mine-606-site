@@ -15,10 +15,23 @@ from ..seo.schema import local_business, events as events_schema
 router = APIRouter()
 
 def ctx(request: Request, **kw):
+    from ..services.cache import get_cached_hours, get_cached_site_settings
+    from ..settings import get_settings
+    from datetime import datetime
+    
+    settings = get_settings()
+    
     base = {
         "request": request,
         "page_title": "The Mine 606",
         "meta_desc": "Modern rustic bar & kitchen across from Appalachian Wireless Arena.",
+        # Template globals
+        "APP_NAME": settings.app_name,
+        "ENV": settings.environment,
+        "CURRENT_YEAR": datetime.now().year,
+        "GOOGLE_MAPS_API_KEY": settings.google_maps_api_key,
+        "HOURS_HTML": get_cached_hours(),
+        "SITE_OBJ": get_cached_site_settings(),
     }
     base.update(kw)
     return base

@@ -19,6 +19,75 @@
   --fc-page-bg-color: transparent;
 }
 
+/* Mobile-first responsive design */
+.fc {
+  min-height: 300px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .fc {
+    font-size: 12px;
+  }
+  
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .fc .fc-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  
+  .fc .fc-button {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 32px;
+    touch-action: manipulation;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.2em;
+    margin: 0;
+    text-align: center;
+  }
+  
+  .fc .fc-daygrid-day-number {
+    font-size: 12px;
+    padding: 4px;
+  }
+  
+  .fc .fc-col-header-cell-cushion {
+    font-size: 11px;
+    padding: 4px 2px;
+  }
+  
+  .fc .fc-event {
+    font-size: 10px;
+    padding: 1px 2px;
+    margin: 0 1px 1px 0;
+  }
+  
+  .fc .fc-daygrid-day-events {
+    margin-top: 2px;
+  }
+  
+  .fc .fc-more-link {
+    font-size: 10px;
+    padding: 1px 3px;
+  }
+}
+
 .fc-theme-standard .fc-scrollgrid {
   border: 1px solid var(--fc-border-color);
 }

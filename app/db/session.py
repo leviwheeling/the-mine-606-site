@@ -5,10 +5,10 @@ from ..settings import get_settings
 
 settings = get_settings()
 
-# Convert postgresql:// to postgresql+psycopg:// for psycopg3 compatibility
+# Convert postgresql:// to postgresql+psycopg2:// for psycopg2 compatibility
 database_url = settings.database_url
 if database_url.startswith("postgresql://"):
-    database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 engine = create_engine(
     database_url,

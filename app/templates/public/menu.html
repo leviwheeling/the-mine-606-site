@@ -7,13 +7,13 @@
 
 {% block content %}
 <section class="max-w-7xl mx-auto px-4 pt-14 pb-24">
-  <header class="mb-8">
-    <h1 class="font-serif text-4xl md:text-5xl">Our Menu</h1>
-    <p class="text-white/70 mt-2">Filter by category and dietary tags.</p>
+  <header class="mb-6 sm:mb-8">
+    <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl">Our Menu</h1>
+    <p class="text-white/70 mt-2 text-sm sm:text-base">Filter by category and dietary tags.</p>
   </header>
 
   <!-- Filters -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+  <div class="flex flex-col gap-4 mb-6 sm:mb-8">
     <!-- Categories -->
     <div class="flex flex-wrap items-center gap-2" id="catTabs">
       <button data-cat="all" class="cat-tab active">All</button>
@@ -23,9 +23,9 @@
     </div>
 
     <!-- Tag filter -->
-    <div class="w-full md:w-96">
+    <div class="w-full sm:w-80">
       <div class="relative">
-        <select id="tagFilter" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white/90 focus:outline-none focus:border-mine-gold">
+        <select id="tagFilter" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white/90 focus:outline-none focus:border-mine-gold touch-manipulation">
           <option value="">DIETARY (any)</option>
           {% for t in tags %}
             <option value="{{ t }}">{{ t|replace('-', ' ')|title }}</option>
@@ -39,7 +39,7 @@
   <!-- Items Grid -->
   {% set count = items|length if items is defined else 0 %}
   <div id="menuGrid" 
-       class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+       class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
        data-infinite-scroll
        hx-trigger="revealed"
        hx-get="/api/menu/more?page={{ page + 1 if page is defined else 1 }}"
@@ -52,7 +52,7 @@
         data-cat="{{ it.category }}"
         data-tags="{{ (it.tags|join(',')) if it.tags else '' }}"
       >
-        <div class="h-40 w-full overflow-hidden menu-image-container"
+        <div class="h-32 sm:h-40 w-full overflow-hidden menu-image-container"
              x-data="{ 
                loaded: false,
                init() {
@@ -68,10 +68,10 @@
             :class="{ 'menu-image-loading': !loaded, 'menu-image-loaded': loaded }"
           >
         </div>
-        <div class="p-5 space-y-2">
+        <div class="p-4 sm:p-5 space-y-2">
           <div class="flex items-start justify-between gap-3">
-            <h3 class="font-semibold leading-tight">{{ it.name }}</h3>
-            <div class="text-mine-gold font-semibold shrink-0">${{ '%.2f'|format(it.price) }}</div>
+            <h3 class="font-semibold leading-tight text-sm sm:text-base">{{ it.name }}</h3>
+            <div class="text-mine-gold font-semibold shrink-0 text-sm sm:text-base">${{ '%.2f'|format(it.price) }}</div>
           </div>
           {% if it.description %}
             <p class="text-white/70 text-sm">{{ it.description }}</p>

@@ -5,6 +5,27 @@ from typing import Optional, Dict, Any
 from ..db.session import SessionLocal
 from ..models.site import Hours, SiteSetting
 
+def convert_to_12hour(time_str: str) -> str:
+    """Convert 24-hour format time to 12-hour format with am/pm"""
+    if not time_str or time_str == '—':
+        return time_str
+    
+    try:
+        # Parse the time string (e.g., "11:00" or "22:00")
+        hour, minute = map(int, time_str.split(':'))
+        
+        # Convert to 12-hour format
+        if hour == 0:
+            return f"12:{minute:02d}am"
+        elif hour < 12:
+            return f"{hour}:{minute:02d}am"
+        elif hour == 12:
+            return f"12:{minute:02d}pm"
+        else:
+            return f"{hour - 12}:{minute:02d}pm"
+    except (ValueError, AttributeError):
+        return time_str
+
 @lru_cache(maxsize=1)
 def get_cached_hours() -> Optional[str]:
     """Cache hours HTML for 1 hour since it rarely changes"""
@@ -23,8 +44,8 @@ def get_cached_hours() -> Optional[str]:
             if r.closed:
                 parts.append(f"<div>{label}: Closed</div>")
             else:
-                open_ = r.open or '—'
-                close_ = r.close or '—'
+                open_ = convert_to_12hour(r.open) if r.open else '—'
+                close_ = convert_to_12hour(r.close) if r.close else '—'
                 parts.append(f"<div>{label}: {open_}–{close_}</div>")
         return "".join(parts) if parts else None
     except Exception:
