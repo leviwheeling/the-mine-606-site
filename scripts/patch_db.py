@@ -44,13 +44,6 @@ ALTER TABLE events
 ALTER TABLE events
   ALTER COLUMN is_published SET NOT NULL;
 
--- === REVIEWS (optional but used by admin UI) ===
-ALTER TABLE reviews
-  ADD COLUMN IF NOT EXISTS rating INTEGER,
-  ADD COLUMN IF NOT EXISTS reviewer_name VARCHAR(100),
-  ADD COLUMN IF NOT EXISTS reviewer_avatar VARCHAR(300),
-  ADD COLUMN IF NOT EXISTS url VARCHAR(300),
-  ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
 
 -- === MUSICIAN APPLICATIONS (optional fields) ===
 ALTER TABLE musician_applications

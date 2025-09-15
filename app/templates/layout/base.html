@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" 
+      x-data="{ menuOpen: false }">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,10 +14,13 @@
   <meta property="og:image" content="{{ request.url_for('assets', path='images/og-card.jpg') }}">
   <meta property="og:type" content="website">
 
-  <!-- Tailwind via CDN -->
+  <!-- Modern Stack -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -30,10 +34,56 @@
             serif: ['"Bodoni Moda"', 'serif'],
             sans: ['Inter', 'ui-sans-serif', 'system-ui']
           },
-          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.35)' }
+          boxShadow: { 
+            soft: '0 10px 30px rgba(0,0,0,0.35)',
+            'soft-light': '0 10px 30px rgba(255,255,255,0.1)'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
+            'scale': 'scale 0.2s ease-in-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            scale: {
+              '0%': { transform: 'scale(0.95)' },
+              '100%': { transform: 'scale(1)' },
+            }
+          }
         }
       }
     }
+  </script>
+  
+  <!-- Progressive Image Loading -->
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('progressiveImg', (lowQualitySrc, highQualitySrc) => ({
+        init() {
+          this.loadHighQuality()
+        },
+        loaded: false,
+        loadHighQuality() {
+          const img = new Image()
+          img.src = highQualitySrc
+          img.onload = () => {
+            this.loaded = true
+          }
+        }
+      }))
+    })
   </script>
 
   <!-- Fonts -->
@@ -103,53 +153,95 @@
   <div class="h-1 bg-gradient-to-r from-mine-gold via-yellow-500 to-mine-gold"></div>
 
   <!-- NAV -->
-  <header class="sticky top-0 z-50 navbar-gradient border-b border-white/10">
+  <header class="sticky top-0 z-50 navbar-gradient border-b border-white/10 transition-all duration-300"
+          x-data="{ atTop: true }"
+          x-init="atTop = window.pageYOffset < 50"
+          @scroll.window.throttle="atTop = window.pageYOffset < 50"
+          :class="{ 'bg-opacity-95': !atTop }">
     <nav class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between">
-      <!-- Brand wordmark only (responsive) -->
-      <a href="/" class="shrink-0">
-        <span class="brand-wordmark block text-2xl sm:text-3xl md:text-4xl tracking-wide">
+      <!-- Brand wordmark -->
+      <a href="/" class="shrink-0 group" 
+         hx-boost="true"
+         hx-push-url="true"
+         hx-target="main"
+         hx-swap="innerHTML transition:true">
+        <span class="brand-wordmark block text-2xl sm:text-3xl md:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform">
           The&nbsp;Mine&nbsp;606
         </span>
       </a>
 
-      <!-- Mobile toggle -->
-      <button id="navToggle" class="md:hidden p-3 rounded-lg hover:bg-white/10" aria-label="Open menu">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-        </svg>
-      </button>
+      <div class="flex items-center gap-4">
+        <!-- Mobile toggle -->
+        <button @click="menuOpen = !menuOpen" 
+                class="md:hidden p-3 rounded-lg hover:bg-white/10 transition-colors" 
+                :aria-label="menuOpen ? 'Close menu' : 'Open menu'">
+          <svg x-show="!menuOpen" class="w-7 h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+          <svg x-show="menuOpen" class="w-7 h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
 
       <!-- Desktop menu -->
-      <ul id="navMenu" class="hidden md:flex items-center gap-8 text-[16px]">
-        <li><a class="nav-link hover:text-mine-gold/90" href="/">Home</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/menu">Menu</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/ordering">Ordering</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/shopify">Shop</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/rentals">Venue</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/musician">Musicians</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/reviews">Reviews</a></li>
-        <li><a class="nav-link hover:text-mine-gold/90" href="/location">Location</a></li>
+      <ul class="hidden md:flex items-center gap-8 text-[16px]">
+        <template x-for="(item, index) in [
+          { text: 'Home', href: '/' },
+          { text: 'Menu', href: '/menu' },
+          { text: 'Ordering', href: '/ordering' },
+          { text: 'Shop', href: '/shopify' },
+          { text: 'Venue', href: '/rentals' },
+          { text: 'Musicians', href: '/musician' },
+          { text: 'Location', href: '/location' }
+        ]">
+          <li>
+            <a :href="item.href"
+               x-text="item.text"
+               class="nav-link relative overflow-hidden group"
+               hx-boost="true"
+               hx-push-url="true"
+               hx-target="main"
+               hx-swap="innerHTML transition:true">
+              <span class="block transition-transform group-hover:-translate-y-full duration-300" 
+                    x-text="item.text"></span>
+              <span class="absolute top-0 left-0 h-full transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-mine-gold"
+                    x-text="item.text"></span>
+            </a>
+          </li>
+        </template>
       </ul>
     </nav>
   </header>
 
   <!-- MOBILE MENU -->
-  <div id="navDrawer" class="md:hidden fixed inset-0 bg-black/70 hidden">
-    <div class="absolute right-0 top-0 w-80 h-full navbar-gradient border-l border-white/10 p-6 space-y-4">
-      <button id="navClose" class="p-3 rounded-lg hover:bg-white/10 float-right" aria-label="Close menu">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-      <div class="mt-10 flex flex-col gap-4 text-base">
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/">Home</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/menu">Menu</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/ordering">Ordering</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/shopify">Shop</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/rentals">Venue</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/musician">Musicians</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/reviews">Reviews</a>
-        <a class="nav-link nav-drawer-link hover:text-mine-gold/90" href="/location">Location</a>
+  <div class="md:hidden fixed inset-0 bg-black/70 transition-opacity duration-300"
+       :class="menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
+       @click="menuOpen = false">
+    <div class="absolute right-0 top-0 w-80 h-full navbar-gradient border-l border-white/10 p-6"
+         :class="menuOpen ? 'translate-x-0' : 'translate-x-full'"
+         @click.stop
+         class="transition-transform duration-300">
+      <div class="mt-16 flex flex-col gap-4 text-lg">
+        <template x-for="(item, index) in [
+          { text: 'Home', href: '/' },
+          { text: 'Menu', href: '/menu' },
+          { text: 'Ordering', href: '/ordering' },
+          { text: 'Shop', href: '/shopify' },
+          { text: 'Venue', href: '/rentals' },
+          { text: 'Musicians', href: '/musician' },
+          { text: 'Location', href: '/location' }
+        ]">
+          <a :href="item.href"
+             x-text="item.text"
+             @click="menuOpen = false"
+             class="nav-link nav-drawer-link hover:text-mine-gold/90 transform hover:translate-x-2 transition-transform"
+             hx-boost="true"
+             hx-push-url="true"
+             hx-target="main"
+             hx-swap="innerHTML transition:true">
+          </a>
+        </template>
       </div>
     </div>
   </div>
@@ -196,8 +288,18 @@
   </footer>
 
   <!-- JS -->
+  <script src="/static/js/transitions.js" defer></script>
   <script src="/static/js/main.js" defer></script>
   <script src="/static/js/animations.js" defer></script>
   {% block body_scripts %}{% endblock %}
+  
+  <!-- Loading indicator -->
+  <div id="loading-bar" 
+       class="fixed top-0 left-0 w-full h-1 bg-mine-gold/20 transform scale-x-0 origin-left transition-transform duration-300"
+       x-data="{ loading: false }"
+       x-show="loading"
+       @htmx:beforeRequest.window="loading = true"
+       @htmx:afterRequest.window="loading = false"
+       :class="{ 'scale-x-100': loading }"></div>
 </body>
 </html>

@@ -1,6 +1,10 @@
 {% extends "layout/base.html" %}
 {% block title %}Menu — The Mine 606{% endblock %}
 
+{% block head_extra %}
+<link rel="stylesheet" href="/static/css/menu.css">
+{% endblock %}
+
 {% block content %}
 <section class="max-w-7xl mx-auto px-4 pt-14 pb-24">
   <header class="mb-8">
@@ -34,28 +38,35 @@
 
   <!-- Items Grid -->
   {% set count = items|length if items is defined else 0 %}
-  <div id="menuGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div id="menuGrid" 
+       class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+       data-infinite-scroll
+       hx-trigger="revealed"
+       hx-get="/api/menu/more?page={{ page + 1 if page is defined else 1 }}"
+       hx-target="#menuGrid"
+       hx-swap="beforeend">
     {% for it in items %}
       <article
-        class="card overflow-hidden group transition hover:-translate-y-0.5"
+        class="card overflow-hidden group transition hover:-translate-y-0.5 animate-fade-in"
+        style="animation-delay: {{ loop.index * 0.1 }}s"
         data-cat="{{ it.category }}"
         data-tags="{{ (it.tags|join(',')) if it.tags else '' }}"
       >
-        <div class="h-40 w-full overflow-hidden">
-          {% if it.img %}
-            <img 
-              src="{{ it.img }}" 
-              alt="{{ it.name }}" 
-              class="w-full h-full object-cover group-hover:scale-[1.03] transition"
-              onerror="this.onerror=null; this.src='/static/media/menu/placeholder.webp';"
-            >
-          {% else %}
-            <img 
-              src="/static/media/menu/placeholder.webp" 
-              alt="{{ it.name }}" 
-              class="w-full h-full object-cover"
-            >
-          {% endif %}
+        <div class="h-40 w-full overflow-hidden menu-image-container"
+             x-data="{ 
+               loaded: false,
+               init() {
+                 const img = new Image();
+                 img.src = '{{ it.img if it.img else '/static/media/menu/placeholder.webp' }}';
+                 img.onload = () => this.loaded = true;
+               }
+             }">
+          <img 
+            :src="loaded ? '{{ it.img }}' : '/static/media/menu/placeholder.webp'"
+            alt="{{ it.name }}" 
+            class="menu-image group-hover:scale-[1.03]"
+            :class="{ 'menu-image-loading': !loaded, 'menu-image-loaded': loaded }"
+          >
         </div>
         <div class="p-5 space-y-2">
           <div class="flex items-start justify-between gap-3">
@@ -69,7 +80,9 @@
           {% if it.tags and it.tags|length > 0 %}
             <div class="flex flex-wrap gap-1.5 pt-1">
               {% for tag in it.tags %}
-                <span class="px-2 py-0.5 rounded-full text-xs border border-white/10 text-white/70">{{ tag|replace('-', ' ') }}</span>
+                <span class="px-2 py-0.5 rounded-full text-xs border border-white/10 text-white/70 hover:border-mine-gold hover:text-mine-gold transition-colors">
+                  {{ tag|replace('-', ' ') }}
+                </span>
               {% endfor %}
             </div>
           {% endif %}
@@ -125,8 +138,5 @@
     applyFilters();
   })();
 </script>
-<style>
-  .cat-tab { @apply px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80 hover:text-mine-gold hover:border-mine-gold transition; }
-  .cat-tab.active { @apply bg-mine-gold text-black border-mine-gold; }
-</style>
+
 {% endblock %}

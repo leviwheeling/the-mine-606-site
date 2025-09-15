@@ -41,7 +41,4 @@ async def logout():
     clear_session(resp)
     return resp
 
-@router.get("", response_class=HTMLResponse)
-async def admin_home(request: Request):
-    user = admin_required(request)
-    return request.app.templates.TemplateResponse("admin/dashboard.html", ctx(request, user=user))
+

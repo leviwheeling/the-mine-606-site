@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     google_places_api_key: Optional[str] = None   # GOOGLE_PLACES_API_KEY
     yelp_api_key: Optional[str] = None            # YELP_API_KEY
     facebook_graph_token: Optional[str] = None    # FACEBOOK_GRAPH_TOKEN
+    
+    # Cloudinary (for image uploads)
+    cloudinary_cloud_name: Optional[str] = None   # CLOUDINARY_CLOUD_NAME
+    cloudinary_api_key: Optional[str] = None      # CLOUDINARY_API_KEY
+    cloudinary_api_secret: Optional[str] = None   # CLOUDINARY_API_SECRET
 
     # Formspree endpoints (optional)
     formspree_musician_endpoint: Optional[str] = None  # FORMSPREE_MUSICIAN_ENDPOINT

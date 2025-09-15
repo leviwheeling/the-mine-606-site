@@ -1,0 +1,136 @@
+/* Admin-specific styles */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-rustic-black text-white;
+}
+.input {
+  @apply bg-white/5 border border-white/10 rounded-lg text-white;
+}
+
+.input:focus {
+  @apply border-mine-gold outline-none ring-1 ring-mine-gold/30;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-colors;
+}
+
+.btn-primary {
+  @apply bg-mine-gold text-black hover:bg-mine-gold/90;
+}
+
+.btn-secondary {
+  @apply bg-white/10 text-white hover:bg-white/20;
+}
+
+/* Table styles */
+.admin-table {
+  @apply w-full border-collapse;
+}
+
+.admin-table th {
+  @apply py-3 px-4 text-left font-medium text-white/70 bg-black/20 border-b border-white/10;
+}
+
+.admin-table td {
+  @apply py-3 px-4 border-b border-white/10;
+}
+
+.admin-table tr:hover {
+  @apply bg-white/5;
+}
+
+/* Form styles */
+.form-group {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-white/70 mb-1;
+}
+
+.form-input {
+  @apply w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white;
+}
+
+.form-input:focus {
+  @apply border-mine-gold outline-none ring-1 ring-mine-gold/30;
+}
+
+/* Card styles */
+.admin-card {
+  @apply bg-white/5 border border-white/10 rounded-xl p-6;
+}
+
+.admin-card-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.admin-card-title {
+  @apply text-xl font-semibold;
+}
+
+/* Status badges */
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-new {
+  @apply bg-blue-500/20 text-blue-300;
+}
+
+.status-pending {
+  @apply bg-yellow-500/20 text-yellow-300;
+}
+
+.status-approved {
+  @apply bg-green-500/20 text-green-300;
+}
+
+.status-closed {
+  @apply bg-gray-500/20 text-gray-300;
+}
+
+/* Filters */
+.filter-group {
+  @apply flex items-center gap-2;
+}
+
+.filter-select {
+  @apply bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white;
+}
+
+/* Responsive tables */
+.table-container {
+  @apply overflow-x-auto;
+}
+
+@media (max-width: 768px) {
+  .responsive-table {
+    @apply block;
+  }
+  
+  .responsive-table thead {
+    @apply hidden;
+  }
+  
+  .responsive-table tbody {
+    @apply block;
+  }
+  
+  .responsive-table tr {
+    @apply block border-b border-white/10;
+  }
+  
+  .responsive-table td {
+    @apply block py-2 px-4;
+  }
+  
+  .responsive-table td::before {
+    content: attr(data-label);
+    @apply block text-sm text-white/60 mb-1;
+  }
+}

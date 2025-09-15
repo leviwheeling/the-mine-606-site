@@ -1,15 +1,25 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin • Site Settings — The Mine 606{% endblock %}
+{% extends "admin/base.html" %}
+
 {% block content %}
-<section class="admin max-w-6xl mx-auto px-4 pt-12 pb-20 space-y-10">
-  <div class="flex items-center justify-between">
-    <h1 class="font-serif text-4xl">Site Settings</h1>
-    <a href="/admin" class="text-white/70 hover:text-mine-gold">Dashboard</a>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Site Settings</h1>
+    <p class="text-white/70">Configure business details, hours, and contact information</p>
   </div>
 
   <!-- Basic Info -->
-  <div class="card p-5">
-    <div class="font-semibold mb-3">Basics & Hero</div>
+  <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 hover:bg-white/10 transition-colors">
+    <div class="flex items-center mb-4">
+      <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
+        <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-medium text-mine-gold">Basic Information & Hero</h2>
+        <p class="text-sm text-white/60">Business details and homepage hero section</p>
+      </div>
+    </div>
     <form method="post" action="/admin/site/basic" class="grid md:grid-cols-2 gap-4">
       <input name="site_name" class="input" placeholder="Site Name" value="{{ s.site_name }}">
       <input name="phone" class="input" placeholder="Phone" value="{{ s.phone }}">
@@ -32,14 +42,24 @@
       <input name="youtube" class="input" placeholder="YouTube URL" value="{{ s.youtube }}">
 
       <div class="md:col-span-2 flex justify-end">
-        <button class="btn-primary">Save</button>
+        <button class="px-6 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Save</button>
       </div>
     </form>
   </div>
 
   <!-- Weekly Hours -->
-  <div class="card p-5">
-    <div class="font-semibold mb-3">Weekly Hours</div>
+  <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 hover:bg-white/10 transition-colors">
+    <div class="flex items-center mb-4">
+      <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
+        <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-medium text-mine-gold">Weekly Hours</h2>
+        <p class="text-sm text-white/60">Set operating hours for each day</p>
+      </div>
+    </div>
     <div class="grid md:grid-cols-2 gap-4">
       {% for dow in ['mon','tue','wed','thu','fri','sat','sun'] %}
       {% set h = (hours | selectattr('dow','equalto',dow) | list | first) %}
@@ -51,7 +71,7 @@
         <label class="col-span-1 flex items-center gap-2 text-sm text-white/80">
           <input type="checkbox" name="closed" {% if h and h.closed %}checked{% endif %}> Closed
         </label>
-        <button class="btn-secondary col-span-1">Save</button>
+        <button class="px-3 py-1 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors text-sm col-span-1">Save</button>
       </form>
       {% endfor %}
     </div>
@@ -67,7 +87,7 @@
       <label class="flex items-center gap-2 text-sm text-white/80">
         <input type="checkbox" name="closed"> Closed
       </label>
-      <button class="btn-secondary">Add/Update</button>
+      <button class="px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Add/Update</button>
     </form>
 
     <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -79,7 +99,7 @@
         </div>
         <form method="post" action="/admin/site/holiday/delete">
           <input type="hidden" name="date" value="{{ h.date }}">
-          <button class="inline-flex items-center gap-2 rounded-full bg-red-600/80 hover:bg-red-600 px-3 py-1.5 text-sm">Delete</button>
+          <button class="px-3 py-1 bg-red-600/80 hover:bg-red-600 rounded-lg transition-colors text-sm">Delete</button>
         </form>
       </div>
       {% else %}
@@ -87,5 +107,5 @@
       {% endfor %}
     </div>
   </div>
-</section>
+</div>
 {% endblock %}

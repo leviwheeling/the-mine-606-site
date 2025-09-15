@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Menu page specific styles */
+  .cat-tab {
+    @apply px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/80 hover:text-mine-gold hover:border-mine-gold transition;
+  }
+
+  .cat-tab.active {
+    @apply bg-mine-gold text-black border-mine-gold;
+  }
+
+  /* Dark mode styles */
+  .dark .cat-tab {
+    @apply bg-black/20 border-white/5 text-white/70;
+  }
+
+  .dark .cat-tab.active {
+    @apply bg-mine-gold text-white border-mine-gold;
+  }
+
+  /* Card animations */
+  .menu-card-enter {
+    @apply opacity-0 translate-y-4;
+  }
+
+  .menu-card-enter-active {
+    @apply opacity-100 translate-y-0 transition-all duration-300;
+  }
+
+  /* Progressive image loading */
+  .menu-image-container {
+    @apply relative overflow-hidden;
+  }
+
+  .menu-image {
+    @apply w-full h-full object-cover transition-all duration-700;
+  }
+
+  .menu-image-loading {
+    @apply blur-sm scale-105;
+  }
+
+  .menu-image-loaded {
+    @apply blur-0 scale-100;
+  }
+}

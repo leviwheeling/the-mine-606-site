@@ -1,12 +1,20 @@
 // FullCalendar initialization and event handling
-document.addEventListener('DOMContentLoaded', function() {
+let currentCalendar = null;
+
+// Function to initialize calendar
+function initializeCalendar() {
+    // Clean up any existing calendar
+    if (currentCalendar) {
+        currentCalendar.destroy();
+        currentCalendar = null;
+    }
+
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl) return;
 
     const endpoint = calendarEl.dataset.endpoint || '/api/events/data';
     
-    // Initialize FullCalendar
-    const calendar = new FullCalendar.Calendar(calendarEl, {
+    currentCalendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         height: 'auto',
         headerToolbar: {
@@ -65,28 +73,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Render the calendar
-    calendar.render();
-    
-    // Set default datetime-local values to current time
-    const now = new Date();
-    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
-    
-    // Set start time to current time
-    const startInput = document.querySelector('input[name="start"]');
-    if (startInput) {
-        startInput.value = localDateTime;
-    }
-    
-    // Set end time to current time + 2 hours
-    const endInput = document.querySelector('input[name="end"]');
-    if (endInput) {
-        const endTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-        const endLocalDateTime = new Date(endTime.getTime() - endTime.getTimezoneOffset() * 60000)
-            .toISOString()
-            .slice(0, 16);
-        endInput.value = endLocalDateTime;
+    currentCalendar.render();
+}
+
+// Initialize calendar on page load and after HTMX content swaps
+document.addEventListener('DOMContentLoaded', initializeCalendar);
+document.addEventListener('htmx:afterSettle', initializeCalendar);
+
+// Clean up old calendar instance before new content
+document.addEventListener('htmx:beforeSwap', function() {
+    if (currentCalendar) {
+        currentCalendar.destroy();
+        currentCalendar = null;
     }
 });
-  

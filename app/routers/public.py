@@ -86,15 +86,6 @@ async def musician(request: Request):
 async def rentals(request: Request):
     return request.app.templates.TemplateResponse("public/rentals.html", ctx(request))
 
-@router.get("/reviews", response_class=HTMLResponse)
-async def reviews(request: Request, db: Session = Depends(get_db)):
-    from ..models.reviews import Review
-    featured = db.query(Review).filter(Review.is_featured == True).order_by(Review.id.desc()).all()  # noqa: E712
-    others   = db.query(Review).filter(Review.is_featured == False).order_by(Review.id.desc()).limit(30).all()  # noqa: E712
-    return request.app.templates.TemplateResponse(
-        "public/reviews.html", ctx(request, featured=featured, others=others)
-    )
-
 @router.get("/location", response_class=HTMLResponse)
 async def location(request: Request, db: Session = Depends(get_db)):
     site = db.query(SiteSetting).first()

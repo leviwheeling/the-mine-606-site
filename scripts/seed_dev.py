@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.db.session import engine, SessionLocal
 from app.db.base import Base
-from app.models import menu, events, site, reviews, user  # register models
+from app.models import menu, events, site, user  # register models
 from app.models.menu import MenuCategory, MenuTag, MenuItem, MenuItemTag
 from app.models.events import Event
 from app.models.site import SiteSetting, Hours

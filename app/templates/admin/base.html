@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en" x-data="{ menuOpen: false }">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — The Mine 606</title>
+
+  <!-- Modern Stack -->
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'mine-gold': '#C8A349',
+            'rustic-black': '#0A0A0A',
+            'stone-gray': '#2F2F2F',
+            'earth-brown': '#5C4033',
+            'parchment': '#F2E6D0'
+          },
+          fontFamily: {
+            serif: ['"Bodoni Moda"', 'serif'],
+            sans: ['Inter', 'ui-sans-serif', 'system-ui']
+          },
+          boxShadow: { 
+            soft: '0 10px 30px rgba(0,0,0,0.35)',
+            'soft-light': '0 10px 30px rgba(255,255,255,0.1)'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'slide-up': 'slideUp 0.5s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
+            'scale': 'scale 0.2s ease-in-out',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap" media="print" onload="this.media='all'">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/admin.css">
+
+  {% block head_extra %}{% endblock %}
+</head>
+
+<body class="bg-rustic-black text-white min-h-screen" x-data="{ menuOpen: false }">
+  <!-- Top Nav -->
+  <header class="bg-black/50 border-b border-white/10 sticky top-0 z-50 backdrop-blur-sm">
+    <nav class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-8">
+          <a href="/admin" class="text-xl font-serif text-mine-gold">Mine 606 Admin</a>
+          
+          <!-- Desktop Nav -->
+          <div class="hidden md:flex items-center gap-6">
+            <a href="/admin/menu" class="hover:text-mine-gold">Menu</a>
+            <a href="/admin/events" class="hover:text-mine-gold">Events</a>
+            <a href="/admin/rentals" class="hover:text-mine-gold">Rentals</a>
+            <a href="/admin/musician" class="hover:text-mine-gold">Musicians</a>
+            <a href="/admin/site" class="hover:text-mine-gold">Site</a>
+          </div>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button @click="menuOpen = !menuOpen" class="md:hidden p-2 hover:bg-white/10 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path x-show="!menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            <path x-show="menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile menu -->
+      <div x-show="menuOpen" 
+           x-transition:enter="transition ease-out duration-200"
+           x-transition:enter-start="opacity-0 -translate-y-2"
+           x-transition:enter-end="opacity-100 translate-y-0"
+           x-transition:leave="transition ease-in duration-150"
+           x-transition:leave-start="opacity-100 translate-y-0"
+           x-transition:leave-end="opacity-0 -translate-y-2"
+           class="md:hidden pt-4 pb-3 border-t border-white/10 mt-4">
+        <div class="flex flex-col gap-4">
+          <a href="/admin/menu" class="hover:text-mine-gold">Menu</a>
+          <a href="/admin/events" class="hover:text-mine-gold">Events</a>
+          <a href="/admin/rentals" class="hover:text-mine-gold">Rentals</a>
+          <a href="/admin/musician" class="hover:text-mine-gold">Musicians</a>
+          <a href="/admin/site" class="hover:text-mine-gold">Site</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="min-h-[calc(100vh-4rem)]">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Scripts -->
+  {% block body_scripts %}{% endblock %}
+</body>
+</html>

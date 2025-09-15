@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from ...db.session import get_db
 from ...models.menu import MenuItem, MenuCategory, MenuTag, MenuItemTag
 from ...security.auth import admin_required
-from ...services.media import save_upload
+from ...services.media import save_upload, delete_media
 
 router = APIRouter()
 
@@ -91,17 +91,13 @@ async def update_item(
     # Handle image replacement
     if image and image.filename:
         # Clean up old image if it exists
-        if item.image_url and item.image_url.startswith("/static/media/"):
-            old_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", item.image_url[1:])
-            if os.path.exists(old_path):
-                try:
-                    os.remove(old_path)
-                except OSError:
-                    pass  # Don't fail if cleanup fails
+        if item.image_url:
+            delete_media(item.image_url)  # Works for both cloud and local images
         
         # Upload new image
         new_image_url = await save_upload(image, subdir="menu")
-        item.image_url = new_image_url
+        if new_image_url:
+            item.image_url = new_image_url
     
     # Update other fields
     item.name = name.strip()
@@ -121,8 +117,10 @@ async def update_item(
             except ValueError:
                 continue
     
-    # Remove old tag associations
-    db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).delete()
+    # Remove old tag associations (if they exist)
+    tag_count = db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).count()
+    if tag_count > 0:
+        db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).delete(synchronize_session=False)
     
     # Add new tag associations
     if new_tag_ids:
@@ -220,23 +218,28 @@ def toggle_item(request: Request, item_id: int, db: Session = Depends(get_db)):
 @router.post("/menu/delete/{item_id}")
 def delete_item(request: Request, item_id: int, db: Session = Depends(get_db)):
     admin_required(request)
-    item = db.query(MenuItem).get(item_id)
+    item = db.get(MenuItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     
     # Clean up image file if it exists
-    if item.image_url and item.image_url.startswith("/static/media/"):
-        image_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", item.image_url[1:])
-        if os.path.exists(image_path):
-            try:
-                os.remove(image_path)
-            except OSError:
-                pass  # Don't fail if cleanup fails
+    if item.image_url:
+        delete_media(item.image_url)  # Works for both cloud and local images
     
-    # delete tag links first (if not configured cascade)
-    db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).delete()
-    db.delete(item)
-    db.commit()
+    # delete tag links first (delete one by one to avoid SQLAlchemy issues)
+    try:
+        # Get all tag associations and delete them individually
+        tag_associations = db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).all()
+        for tag_assoc in tag_associations:
+            db.delete(tag_assoc)
+        
+        # Delete the menu item
+        db.delete(item)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Error deleting item: {e}")
+        raise HTTPException(status_code=500, detail=f"Could not delete item: {str(e)}")
     return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
 
 # Keep existing category and tag creation routes

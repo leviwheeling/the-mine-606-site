@@ -1,19 +1,31 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin • Events — The Mine 606{% endblock %}
+{% extends "admin/base.html" %}
 
 {% block head_extra %}
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-12 pb-20 admin">
-  <h1 class="font-serif text-4xl mb-6">Events</h1>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Events Manager</h1>
+    <p class="text-white/70">Schedule shows, live music, and special events</p>
+  </div>
 
   <div class="grid lg:grid-cols-2 gap-8">
     <!-- Create/Edit -->
     <div class="space-y-6">
-      <div class="card p-5">
-        <h2 class="font-semibold mb-4">Create Event</h2>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
+        <div class="flex items-center mb-4">
+          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-medium text-mine-gold">Create Event</h2>
+            <p class="text-sm text-white/60">Add a new show or special event</p>
+          </div>
+        </div>
         <form action="/admin/events/create" method="post" class="space-y-4">
           <label class="block">
             <span class="text-sm text-white/70">Title</span>
@@ -40,12 +52,22 @@
             <span class="text-sm text-white/70">Description</span>
             <textarea name="description" class="input mt-1" rows="3" placeholder="Short blurb…"></textarea>
           </label>
-          <button class="btn-primary">Add Event</button>
+          <button class="px-6 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Add Event</button>
         </form>
       </div>
 
-      <div class="card p-5">
-        <h2 class="font-semibold mb-4">All Events</h2>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
+        <div class="flex items-center mb-4">
+          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-medium text-mine-gold">All Events</h2>
+            <p class="text-sm text-white/60">Manage existing events</p>
+          </div>
+        </div>
         {% if events and events|length %}
           <div class="space-y-3">
             {% for e in events %}
@@ -63,9 +85,9 @@
             {% endif %}
           </div>
           <div class="flex gap-2">
-            <a href="/admin/events/edit/{{ e.id }}" class="px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500">Edit</a>
+            <a href="/admin/events/edit/{{ e.id }}" class="px-3 py-2 rounded-lg bg-mine-gold text-black hover:bg-mine-gold/90 transition-colors">Edit</a>
             <input type="hidden" name="event_id" value="{{ e.id }}">
-            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500">Delete</button>
+            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition-colors">Delete</button>
           </div>
         </form>
             {% endfor %}
@@ -78,8 +100,18 @@
 
     <!-- Calendar Preview -->
     <div>
-      <div class="card p-5">
-        <h2 class="font-semibold mb-4">Calendar Preview</h2>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
+        <div class="flex items-center mb-4">
+          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-medium text-mine-gold">Calendar Preview</h2>
+            <p class="text-sm text-white/60">View events on calendar</p>
+          </div>
+        </div>
         <div id="calendar" data-endpoint="/api/events/data" class="bg-white/5 border border-white/10 rounded-xl p-3"></div>
         <div id="event-description" class="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg hidden">
           <div class="text-mine-gold font-medium mb-1">Event Details</div>
@@ -88,7 +120,7 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 {% endblock %}
 
   {% block body_scripts %}

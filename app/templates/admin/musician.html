@@ -1,36 +1,92 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin • Musicians — The Mine 606{% endblock %}
+{% extends "admin/base.html" %}
+
 {% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-12 pb-20">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-4xl">Musician Applications</h1>
-    <a href="/admin" class="text-white/70 hover:text-mine-gold">Dashboard</a>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Musician Applications</h1>
+    <p class="text-white/70">Review and manage artist applications and bookings</p>
   </div>
 
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for m in apps %}
-    <article class="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold">{{ m.name }}</div>
-        <div class="text-white/60 text-xs">{{ m.submitted_at.strftime('%Y-%m-%d %H:%M') if m.submitted_at else '' }}</div>
+    <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h3 class="font-medium text-lg group-hover:text-mine-gold transition-colors">{{ m.name }}</h3>
+          <div class="text-white/60 text-sm">{{ m.submitted_at.strftime('%b %d, %Y') if m.submitted_at else '' }}</div>
+        </div>
+        <div class="px-2 py-1 rounded-full text-xs font-medium
+          {% if m.status == 'new' %}bg-blue-500/20 text-blue-300
+          {% elif m.status == 'contacted' %}bg-yellow-500/20 text-yellow-300
+          {% elif m.status == 'booked' %}bg-green-500/20 text-green-300
+          {% else %}bg-gray-500/20 text-gray-300{% endif %}">
+          {{ m.status|title }}
+        </div>
       </div>
-      <div class="text-white/80 text-sm">{{ m.email }}{% if m.phone %} • {{ m.phone }}{% endif %}</div>
-      {% if m.genre %}<div class="text-white/70 text-sm">Genre: {{ m.genre }}</div>{% endif %}
-      {% if m.link %}<a href="{{ m.link }}" target="_blank" class="text-mine-gold text-sm underline underline-offset-4">Listen/See</a>{% endif %}
-      {% if m.message %}<p class="text-white/80 text-sm">{{ m.message }}</p>{% endif %}
+
+      <div class="space-y-3 mb-4">
+        <div class="flex items-center text-sm text-white/80">
+          <svg class="w-4 h-4 mr-2 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          {{ m.email }}
+        </div>
+        {% if m.phone %}
+        <div class="flex items-center text-sm text-white/80">
+          <svg class="w-4 h-4 mr-2 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+          </svg>
+          {{ m.phone }}
+        </div>
+        {% endif %}
+        {% if m.genre %}
+        <div class="flex items-center text-sm text-white/80">
+          <svg class="w-4 h-4 mr-2 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+          {{ m.genre }}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if m.link %}
+      <div class="mb-4">
+        <a href="{{ m.link }}" target="_blank" class="inline-flex items-center text-mine-gold hover:text-mine-gold/80 text-sm font-medium">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          Listen/View Work
+        </a>
+      </div>
+      {% endif %}
+
+      {% if m.message %}
+      <div class="mb-4 p-3 bg-white/5 border border-white/10 rounded-lg">
+        <p class="text-white/80 text-sm">{{ m.message }}</p>
+      </div>
+      {% endif %}
+
       <form method="post" action="/admin/musician/status" class="flex items-center gap-2">
         <input type="hidden" name="id" value="{{ m.id }}">
-        <select name="status" class="input">
+        <select name="status" class="input flex-1 text-sm">
           {% for s in ['new','contacted','booked','closed'] %}
-          <option value="{{ s }}" {% if m.status==s %}selected{% endif %}>{{ s }}</option>
+          <option value="{{ s }}" {% if m.status==s %}selected{% endif %}>{{ s|title }}</option>
           {% endfor %}
         </select>
-        <button class="btn-secondary">Update</button>
+        <button class="px-3 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium text-sm">Update</button>
       </form>
     </article>
     {% else %}
-    <div class="text-white/60">No applications yet.</div>
+    <div class="col-span-full text-center py-12">
+      <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        </svg>
+      </div>
+      <p class="text-white/60">No musician applications yet.</p>
+      <p class="text-white/40 text-sm mt-1">Applications will appear here when artists submit them.</p>
+    </div>
     {% endfor %}
   </div>
-</section>
+</div>
 {% endblock %}

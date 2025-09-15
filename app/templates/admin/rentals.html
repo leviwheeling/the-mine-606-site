@@ -1,35 +1,135 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin • Rentals — The Mine 606{% endblock %}
-{% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-12 pb-20">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="font-serif text-4xl">Venue Inquiries</h1>
-    <a href="/admin" class="text-white/70 hover:text-mine-gold">Dashboard</a>
-  </div>
+{% extends "admin/base.html" %}
 
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {% for r in rows %}
-    <article class="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold">{{ r.name }}</div>
-        <div class="text-white/60 text-xs">{{ r.date.strftime('%Y-%m-%d') if r.date else '' }}</div>
-      </div>
-      <div class="text-white/80 text-sm">{{ r.email }}{% if r.phone %} • {{ r.phone }}{% endif %}</div>
-      {% if r.party_size %}<div class="text-white/70 text-sm">Party size: {{ r.party_size }}</div>{% endif %}
-      {% if r.message %}<p class="text-white/80 text-sm">{{ r.message }}</p>{% endif %}
-      <form method="post" action="/admin/rentals/status" class="flex items-center gap-2">
-        <input type="hidden" name="id" value="{{ r.id }}">
-        <select name="status" class="input">
-          {% for s in ['new','pending','approved','closed'] %}
-          <option value="{{ s }}" {% if r.status==s %}selected{% endif %}>{{ s }}</option>
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold">Venue Rental Requests</h1>
+    <div class="flex gap-2">
+      <form method="get" class="flex gap-2" hx-boost="true">
+        <select name="status" class="input py-2 px-4 text-sm" onchange="this.form.submit()">
+          <option value="all" {% if active_status == 'all' %}selected{% endif %}>All Status</option>
+          <option value="new" {% if active_status == 'new' %}selected{% endif %}>New</option>
+          <option value="pending" {% if active_status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="approved" {% if active_status == 'approved' %}selected{% endif %}>Approved</option>
+          <option value="closed" {% if active_status == 'closed' %}selected{% endif %}>Closed</option>
+        </select>
+        <select name="area" class="input py-2 px-4 text-sm" onchange="this.form.submit()">
+          <option value="all" {% if active_area == 'all' %}selected{% endif %}>All Areas</option>
+          {% for area in areas %}
+            <option value="{{ area }}" {% if active_area == area %}selected{% endif %}>{{ area }}</option>
           {% endfor %}
         </select>
-        <button class="btn-secondary">Update</button>
       </form>
-    </article>
-    {% else %}
-    <div class="text-white/60">No rental inquiries yet.</div>
-    {% endfor %}
+    </div>
   </div>
-</section>
+
+  <div class="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-white/10 bg-black/20">
+            <th class="py-3 px-4 text-left">Date</th>
+            <th class="py-3 px-4 text-left">Contact</th>
+            <th class="py-3 px-4 text-left">Area</th>
+            <th class="py-3 px-4 text-left">Size</th>
+            <th class="py-3 px-4 text-left">Package</th>
+            <th class="py-3 px-4 text-left">Status</th>
+            <th class="py-3 px-4 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr class="rental-row border-b border-white/10 hover:bg-white/5" 
+              data-status="{{ r.status }}"
+              data-area="{{ r.venue_area }}">
+            <td class="py-3 px-4">
+              <div class="font-medium">{{ r.date.strftime('%b %d, %Y') }}</div>
+              <div class="text-sm text-white/60">{{ r.date.strftime('%I:%M %p') }}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-medium">{{ r.name }}</div>
+              <div class="text-sm text-white/60">
+                <a href="mailto:{{ r.email }}" class="hover:text-mine-gold">{{ r.email }}</a>
+                {% if r.phone %}
+                  <br><a href="tel:{{ r.phone }}" class="hover:text-mine-gold">{{ r.phone }}</a>
+                {% endif %}
+              </div>
+            </td>
+            <td class="py-3 px-4">{{ r.venue_area or 'Not specified' }}</td>
+            <td class="py-3 px-4">{{ r.party_size or 'Not specified' }}</td>
+            <td class="py-3 px-4">{{ r.package or 'Not specified' }}</td>
+            <td class="py-3 px-4">
+              <span class="status-badge status-{{ r.status }}">{{ r.status|title }}</span>
+            </td>
+            <td class="py-3 px-4">
+              <form method="POST" action="/admin/rentals/status" class="flex gap-2">
+                <input type="hidden" name="id" value="{{ r.id }}">
+                <select name="status" class="input py-1 px-2 text-sm" onchange="this.form.submit()">
+                  <option value="new" {% if r.status == 'new' %}selected{% endif %}>New</option>
+                  <option value="pending" {% if r.status == 'pending' %}selected{% endif %}>Pending</option>
+                  <option value="approved" {% if r.status == 'approved' %}selected{% endif %}>Approved</option>
+                  <option value="closed" {% if r.status == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+              </form>
+            </td>
+          </tr>
+          {% if r.message %}
+          <tr class="border-b border-white/10 bg-white/[0.02]">
+            <td colspan="7" class="py-3 px-4">
+              <div class="text-sm text-white/70">{{ r.message }}</div>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+.status-badge {
+  @apply px-2 py-0.5 rounded-full text-sm font-medium;
+}
+.status-new {
+  @apply bg-blue-500/20 text-blue-300;
+}
+.status-pending {
+  @apply bg-yellow-500/20 text-yellow-300;
+}
+.status-approved {
+  @apply bg-green-500/20 text-green-300;
+}
+.status-closed {
+  @apply bg-gray-500/20 text-gray-300;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const statusFilter = document.getElementById('statusFilter');
+  const areaFilter = document.getElementById('areaFilter');
+  const rows = document.querySelectorAll('.rental-row');
+
+  function applyFilters() {
+    const statusValue = statusFilter.value;
+    const areaValue = areaFilter.value;
+
+    rows.forEach(row => {
+      const statusMatch = statusValue === 'all' || row.dataset.status === statusValue;
+      const areaMatch = areaValue === 'all' || row.dataset.area === areaValue;
+      row.style.display = statusMatch && areaMatch ? '' : 'none';
+
+      // Also hide/show the message row if it exists
+      const messageRow = row.nextElementSibling;
+      if (messageRow && !messageRow.classList.contains('rental-row')) {
+        messageRow.style.display = statusMatch && areaMatch ? '' : 'none';
+      }
+    });
+  }
+
+  statusFilter.addEventListener('change', applyFilters);
+  areaFilter.addEventListener('change', applyFilters);
+});
+</script>
 {% endblock %}

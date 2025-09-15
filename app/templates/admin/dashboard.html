@@ -1,33 +1,137 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin • Dashboard — The Mine 606{% endblock %}
+{% extends "admin/base.html" %}
+
 {% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-12 pb-20 space-y-8">
-  <h1 class="font-serif text-4xl">Admin Dashboard</h1>
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    <a href="/admin/menu" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Menu Manager</div>
-      <div class="text-white/60 text-sm">Add items, tags, featured carousel</div>
-    </a>
-    <a href="/admin/events" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Events</div>
-      <div class="text-white/60 text-sm">Create & publish upcoming events</div>
-    </a>
-    <a href="/admin/site" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Site Settings</div>
-      <div class="text-white/60 text-sm">Hours, hero, socials, map</div>
-    </a>
-    <a href="/admin/musician" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Musician Applications</div>
-      <div class="text-white/60 text-sm">Review & update status</div>
-    </a>
-    <a href="/admin/rentals" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Venue Inquiries</div>
-      <div class="text-white/60 text-sm">Manage rental requests</div>
-    </a>
-    <a href="/admin/reviews" class="card p-5 hover:ring-2 hover:ring-mine-gold transition">
-      <div class="font-semibold">Reviews</div>
-      <div class="text-white/60 text-sm">Curate featured & embeds</div>
-    </a>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Admin Dashboard</h1>
+    <p class="text-white/70">Manage your venue, menu, and events</p>
   </div>
-</section>
+  
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+      <div class="text-2xl font-bold text-mine-gold">{{ stats.new_rentals }}</div>
+      <div class="text-sm text-white/60">New Rentals</div>
+    </div>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+      <div class="text-2xl font-bold text-white">{{ stats.total_rentals }}</div>
+      <div class="text-sm text-white/60">Total Rentals</div>
+    </div>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+      <div class="text-2xl font-bold text-white">{{ stats.total_menu_items }}</div>
+      <div class="text-sm text-white/60">Menu Items</div>
+    </div>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+      <div class="text-2xl font-bold text-mine-gold">{{ stats.featured_items }}</div>
+      <div class="text-sm text-white/60">Featured Items</div>
+    </div>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+      <div class="text-2xl font-bold text-white">{{ stats.total_events }}</div>
+      <div class="text-sm text-white/60">Events</div>
+    </div>
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-4">
+          <svg class="w-6 h-6 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium group-hover:text-mine-gold transition-colors">Menu Items</h3>
+          <p class="text-sm text-white/60">Manage food & drink menu</p>
+        </div>
+      </div>
+      <a href="/admin/menu" class="inline-flex items-center px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">
+        Manage Menu
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+    
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-4">
+          <svg class="w-6 h-6 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium group-hover:text-mine-gold transition-colors">Venue Rentals</h3>
+          <p class="text-sm text-white/60">Manage booking requests</p>
+        </div>
+      </div>
+      <a href="/admin/rentals" class="inline-flex items-center px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">
+        View Rentals
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+    
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-4">
+          <svg class="w-6 h-6 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium group-hover:text-mine-gold transition-colors">Events</h3>
+          <p class="text-sm text-white/60">Upcoming shows & bookings</p>
+        </div>
+      </div>
+      <a href="/admin/events" class="inline-flex items-center px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">
+        Manage Events
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+    
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-4">
+          <svg class="w-6 h-6 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium group-hover:text-mine-gold transition-colors">Site Settings</h3>
+          <p class="text-sm text-white/60">Hours, contact info, etc.</p>
+        </div>
+      </div>
+      <a href="/admin/site" class="inline-flex items-center px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">
+        Site Settings
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+    
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-4">
+          <svg class="w-6 h-6 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-medium group-hover:text-mine-gold transition-colors">Musicians</h3>
+          <p class="text-sm text-white/60">Artist applications</p>
+        </div>
+      </div>
+      <a href="/admin/musician" class="inline-flex items-center px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">
+        View Applications
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

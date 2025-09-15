@@ -1,0 +1,99 @@
+/* Calendar Styles */
+:root {
+  color-scheme: light dark;
+}
+.fc {
+  --fc-border-color: rgba(255, 255, 255, 0.1);
+  --fc-button-text-color: #fff;
+  --fc-button-bg-color: rgba(255, 255, 255, 0.1);
+  --fc-button-border-color: rgba(255, 255, 255, 0.1);
+  --fc-button-hover-bg-color: rgba(255, 255, 255, 0.2);
+  --fc-button-hover-border-color: rgba(255, 255, 255, 0.2);
+  --fc-button-active-bg-color: #C8A349;
+  --fc-button-active-border-color: #C8A349;
+  --fc-event-bg-color: #C8A349;
+  --fc-event-border-color: #C8A349;
+  --fc-event-text-color: #000;
+  --fc-today-bg-color: rgba(200, 163, 73, 0.1);
+  --fc-neutral-bg-color: transparent;
+  --fc-page-bg-color: transparent;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid var(--fc-border-color);
+}
+
+.fc .fc-toolbar-title {
+  color: #fff;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  padding: 8px;
+}
+
+.fc .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: var(--fc-today-bg-color);
+}
+
+.fc .fc-button {
+  padding: 6px 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.fc .fc-button:hover {
+  background-color: var(--fc-button-hover-bg-color);
+  border-color: var(--fc-button-hover-border-color);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: var(--fc-button-active-bg-color);
+  border-color: var(--fc-button-active-border-color);
+  color: #000;
+}
+
+.fc-event {
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+}
+
+.fc-popover {
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.fc-popover .fc-popover-title {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+}
+
+.fc-popover .fc-popover-body {
+  padding: 8px;
+}
+
+/* Dark mode support */
+.dark .fc {
+  --fc-border-color: rgba(255, 255, 255, 0.05);
+  --fc-button-bg-color: rgba(255, 255, 255, 0.05);
+  --fc-button-border-color: rgba(255, 255, 255, 0.05);
+  --fc-button-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --fc-button-hover-border-color: rgba(255, 255, 255, 0.1);
+}

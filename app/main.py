@@ -8,9 +8,11 @@ from typing import List
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
+from typing import Optional
 
 from .settings import get_settings
 
@@ -19,7 +21,7 @@ from .db.base import Base
 from .db.session import engine, SessionLocal
 from .models.site import Hours, SiteSetting
 # Import models so SQLAlchemy knows about them before create_all()
-from .models import user, menu, events, reviews, musician, rentals, site  # noqa: F401
+from .models import user, menu, events, musician, rentals, site  # noqa: F401
 
 
 
@@ -56,6 +58,16 @@ app.add_middleware(
 
 # gzip responses for speed
 app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+# Session handling
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.secret_key,
+    session_cookie="mine606_session",
+    max_age=60 * 60 * 24 * 7,  # 1 week
+    same_site="lax",
+    https_only=(settings.environment.lower() == "production")
+)
 
 # ---------- Template globals ----------
 def template_globals(request: Request) -> dict:
@@ -151,9 +163,11 @@ _safe_include("/admin", "app.routers.admin.events", "router")
 _safe_include("/admin", "app.routers.admin.musician", "router")
 _safe_include("/admin", "app.routers.admin.rentals", "router")
 _safe_include("/admin", "app.routers.admin.site", "router")
-_safe_include("/admin", "app.routers.admin.reviews", "router")
 
 # ---------- Basic pages & utilities ----------
+def is_htmx_request(request: Request) -> bool:
+    return "HX-Request" in request.headers
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     from .models.events import Event
@@ -265,7 +279,6 @@ async def sitemap(request: Request) -> Response:
         f"{base}/shopify",
         f"{base}/musician",
         f"{base}/rentals",
-        f"{base}/reviews",
         f"{base}/location",
     ]
     lastmod = datetime.utcnow().strftime("%Y-%m-%d")
