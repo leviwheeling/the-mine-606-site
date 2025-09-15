@@ -5,10 +5,20 @@ from ..settings import get_settings
 
 settings = get_settings()
 
-# Convert postgresql:// to postgresql+psycopg2:// for psycopg2 compatibility
+# Auto-detect and use appropriate PostgreSQL driver
 database_url = settings.database_url
 if database_url.startswith("postgresql://"):
-    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    # Try psycopg3 first (for production), fall back to psycopg2 (for local dev)
+    try:
+        import psycopg
+        database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    except ImportError:
+        try:
+            import psycopg2
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        except ImportError:
+            # Fall back to default PostgreSQL driver
+            pass
 
 engine = create_engine(
     database_url,
