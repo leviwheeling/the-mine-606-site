@@ -3,57 +3,65 @@
 @tailwind utilities;
 
 @layer components {
-  /* Simple gold button styles that actually work */
-  .cat-tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px;
-    background-color: #C8A349;
-    color: #000;
-    border: 2px solid #C8A349;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    min-height: 48px;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+  /* FORCE GOLD BUTTONS - Override everything */
+  button.cat-tab, .cat-tab {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 12px 24px !important;
+    background-color: #C8A349 !important;
+    background: #C8A349 !important;
+    color: #000 !important;
+    border: 2px solid #C8A349 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    min-height: 48px !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
-  .cat-tab:hover {
-    background-color: #D4AF37;
-    border-color: #D4AF37;
-    transform: translateY(-1px);
+  button.cat-tab:hover, .cat-tab:hover {
+    background-color: #D4AF37 !important;
+    background: #D4AF37 !important;
+    border-color: #D4AF37 !important;
+    color: #000 !important;
+    transform: translateY(-1px) !important;
   }
 
-  .cat-tab.active {
-    background-color: #FFD700;
-    border-color: #FFD700;
-    color: #000;
-    box-shadow: 0 4px 12px rgba(200, 163, 73, 0.4);
+  button.cat-tab.active, .cat-tab.active {
+    background-color: #FFD700 !important;
+    background: #FFD700 !important;
+    border-color: #FFD700 !important;
+    color: #000 !important;
+    box-shadow: 0 4px 12px rgba(200, 163, 73, 0.4) !important;
   }
   
   .cat-tab:active {
     transform: scale(0.95);
   }
   
-  /* Responsive sizing */
+  /* Responsive sizing - FORCE GOLD */
   @media (min-width: 640px) {
-    .cat-tab {
-      padding: 12px 32px;
-      font-size: 16px;
-      min-height: 52px;
+    button.cat-tab, .cat-tab {
+      padding: 12px 32px !important;
+      font-size: 16px !important;
+      min-height: 52px !important;
+      background-color: #C8A349 !important;
+      background: #C8A349 !important;
     }
   }
   
   @media (max-width: 639px) {
-    .cat-tab {
-      padding: 8px 16px;
-      font-size: 12px;
-      min-height: 44px;
+    button.cat-tab, .cat-tab {
+      padding: 8px 16px !important;
+      font-size: 12px !important;
+      min-height: 44px !important;
+      background-color: #C8A349 !important;
+      background: #C8A349 !important;
     }
   }
   
