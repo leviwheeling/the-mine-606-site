@@ -4,7 +4,10 @@
 
 @layer components {
   /* FORCE GOLD BUTTONS - Override everything */
-  button.cat-tab, .cat-tab {
+  #catTabs button.cat-tab, 
+  #catTabs .cat-tab,
+  button.cat-tab, 
+  .cat-tab {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -24,7 +27,10 @@
     -webkit-tap-highlight-color: transparent !important;
   }
 
-  button.cat-tab:hover, .cat-tab:hover {
+  #catTabs button.cat-tab:hover, 
+  #catTabs .cat-tab:hover,
+  button.cat-tab:hover, 
+  .cat-tab:hover {
     background-color: #D4AF37 !important;
     background: #D4AF37 !important;
     border-color: #D4AF37 !important;
@@ -32,7 +38,10 @@
     transform: translateY(-1px) !important;
   }
 
-  button.cat-tab.active, .cat-tab.active {
+  #catTabs button.cat-tab.active, 
+  #catTabs .cat-tab.active,
+  button.cat-tab.active, 
+  .cat-tab.active {
     background-color: #FFD700 !important;
     background: #FFD700 !important;
     border-color: #FFD700 !important;
