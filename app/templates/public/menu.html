@@ -99,7 +99,7 @@
 
 {% block body_scripts %}
 <script>
-  // Simple working menu filtering - compromise solution
+  // ULTRA SIMPLE - JUST MAKE BUTTONS WORK, DON'T HIDE ANYTHING ON LOAD
   function initMenuFilters() {
     console.log('Initializing menu filters...'); // Debug
     
@@ -111,6 +111,14 @@
       console.log('Missing grid element'); // Debug
       return;
     }
+    
+    // FIRST - MAKE SURE ALL ITEMS ARE VISIBLE
+    const allCards = grid.querySelectorAll('article[data-cat]');
+    console.log('Making sure all', allCards.length, 'cards are visible'); // Debug
+    allCards.forEach(card => {
+      card.style.display = '';
+      card.style.visibility = 'visible';
+    });
     
     console.log('Found', tabs.length, 'category tabs'); // Debug
 
@@ -125,6 +133,12 @@
       let visibleCount = 0;
       
       console.log('Found', cards.length, 'cards to filter'); // Debug
+      
+      // SAFETY: If no cards found, don't do anything
+      if (cards.length === 0) {
+        console.log('NO CARDS FOUND - ABORTING FILTER'); // Debug
+        return;
+      }
       
       cards.forEach(card => {
         const cardCat = card.getAttribute('data-cat') || '';
@@ -143,6 +157,14 @@
       });
       
       console.log('Showing', visibleCount, 'of', cards.length, 'cards'); // Debug
+      
+      // SAFETY: If nothing is visible and we're on "All", show everything
+      if (visibleCount === 0 && cat === 'all') {
+        console.log('NOTHING VISIBLE - SHOWING ALL CARDS'); // Debug
+        cards.forEach(card => {
+          card.style.display = '';
+        });
+      }
     }
 
     // Simple click handler for category tabs
@@ -169,16 +191,17 @@
       select.addEventListener('change', applyFilters);
     }
 
-    // Initial filter - simple and immediate
-    console.log('Applying initial filters...'); // Debug
-    applyFilters();
+    // DON'T RUN INITIAL FILTER - LEAVE EVERYTHING VISIBLE
+    console.log('NOT running initial filter - leaving all items visible'); // Debug
   }
 
-  // Initialize immediately when script runs
-  initMenuFilters();
+  // Initialize with delay to ensure DOM is ready
+  setTimeout(initMenuFilters, 100);
   
   // Re-initialize after HTMX content swaps
-  document.addEventListener('htmx:afterSettle', initMenuFilters);
+  document.addEventListener('htmx:afterSettle', function() {
+    setTimeout(initMenuFilters, 100);
+  });
 </script>
 
 {% endblock %}
