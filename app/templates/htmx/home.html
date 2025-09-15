@@ -94,7 +94,7 @@
         {% if events and events|length > 0 %}
           {% for e in events[:3] %}
           <article class="card fade-in">
-            <img src="{{ e.image_url or request.url_for('assets', path='images/placeholders/event.jpg') }}" alt="Event poster" class="w-full h-44 object-cover rounded-xl" />
+            <img src="{{ e.image_url or request.url_for('assets', path='images/placeholders/event.jpg') }}" alt="Event poster" class="w-full rounded-xl" />
             <div class="p-4 space-y-1">
               <div class="text-white/60 text-sm">
                 {{ e.start.strftime('%a') }} • {{ e.start.strftime('%I:%M %p') }} • {{ e.venue_area or 'Deck' }}
