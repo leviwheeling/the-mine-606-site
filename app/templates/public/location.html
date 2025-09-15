@@ -46,36 +46,17 @@
 
       <div class="mt-6 font-semibold">Contact</div>
       <div class="text-white/80 text-sm">
-        {{ site.email if site and site.email else 'mine606@example.com' }}
-        •
-        {{ site.phone if site and site.phone else '(555) 555-0606' }}
+        <div><a href="tel:+16064241185" class="text-mine-gold hover:underline">(606) 424-1185</a></div>
+        <div><a href="mailto:info@themine606.com" class="text-mine-gold hover:underline">info@themine606.com</a></div>
       </div>
       {% if site and site.address %}
       <div class="text-white/80 text-sm mt-2">
         {{ site.address }}{% if site.city %}, {{ site.city }}{% endif %}{% if site.state %}, {{ site.state }}{% endif %}{% if site.zip %} {{ site.zip }}{% endif %}
       </div>
       {% endif %}
-
-      <form id="contactForm" class="mt-6 space-y-4">
-        <input name="name" placeholder="Your name" class="input" required>
-        <input type="email" name="email" placeholder="you@example.com" class="input" required>
-        <textarea name="message" placeholder="Message" rows="4" class="input resize-vertical" required></textarea>
-        <button type="submit" class="btn-secondary w-full sm:w-auto">Send Message</button>
-        <div id="contactMsg" class="text-white/70 text-sm"></div>
-      </form>
     </div>
   </div>
 </section>
 
-{% block body_scripts %}
-<script src="/static/js/forms.js"></script>
-<script>
-setupAjaxForm({
-  formId: 'contactForm',
-  endpoint: '/api/contact',
-  successText: 'Thanks! We’ll get back to you soon.',
-  errorText: 'Message failed — please try again.'
-});
-</script>
-{% endblock %}
+{% block body_scripts %}{% endblock %}
 {% endblock %}
