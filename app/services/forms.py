@@ -11,9 +11,9 @@ async def forward_to_formspree(kind: str, payload: Dict) -> Dict:
     payload: flattened dict
     """
     endpoints = {
-        "musician": settings.formspree.musician_endpoint,
-        "rental": settings.formspree.rental_endpoint,
-        "contact": settings.formspree.contact_endpoint,
+        "musician": settings.formspree_musician_endpoint,
+        "rental": settings.formspree_rental_endpoint,
+        "contact": settings.formspree_contact_endpoint,
     }
     url: Optional[str] = endpoints.get(kind)
     if not url:

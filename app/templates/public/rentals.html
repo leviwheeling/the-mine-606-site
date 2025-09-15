@@ -38,8 +38,8 @@
         <input name="party_size" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="e.g., 40">
       </label>
     </div>
-    <label class="block"> <span class="text-sm text-white/70">Message</span>
-      <textarea name="message" rows="4" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold"></textarea>
+    <label class="block"> <span class="text-sm text-white/70">Event Details</span>
+      <textarea name="message" rows="4" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="Tell us about your event..."></textarea>
     </label>
 
     <button class="btn-primary">Request Booking</button>
@@ -52,9 +52,9 @@
 <script>
 setupAjaxForm({
   formId: 'rentalForm',
-  endpoint: '/api/rental',
-  successText: 'Thanks! We received your request and will reply soon.',
-  errorText: 'Couldn’t send right now — please try again.'
+  endpoint: '/api/forms/rental',
+  successText: '✓ Thank you for your venue inquiry! We\'ll get back to you within 24 hours to discuss your event details.',
+  errorText: 'Sorry, there was an issue submitting your request. Please try again or contact us directly.'
 });
 </script>
 {% endblock %}

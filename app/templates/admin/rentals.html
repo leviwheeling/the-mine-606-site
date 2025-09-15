@@ -32,7 +32,7 @@
             <th class="py-3 px-4 text-left">Contact</th>
             <th class="py-3 px-4 text-left">Area</th>
             <th class="py-3 px-4 text-left">Size</th>
-            <th class="py-3 px-4 text-left">Package</th>
+            <th class="py-3 px-4 text-left">Description</th>
             <th class="py-3 px-4 text-left">Status</th>
             <th class="py-3 px-4 text-left">Actions</th>
           </tr>
@@ -57,7 +57,20 @@
             </td>
             <td class="py-3 px-4">{{ r.venue_area or 'Not specified' }}</td>
             <td class="py-3 px-4">{{ r.party_size or 'Not specified' }}</td>
-            <td class="py-3 px-4">{{ r.package or 'Not specified' }}</td>
+            <td class="py-3 px-4 max-w-xs">
+              {% if r.message %}
+                <div class="text-sm text-white/80 truncate" title="{{ r.message }}">
+                  {{ r.message[:60] }}{% if r.message|length > 60 %}...{% endif %}
+                </div>
+                {% if r.message|length > 60 %}
+                  <button class="text-xs text-mine-gold hover:text-mine-gold/80 mt-1" onclick="toggleMessage({{ r.id }})">
+                    Show full
+                  </button>
+                {% endif %}
+              {% else %}
+                <span class="text-white/40 text-sm">No description</span>
+              {% endif %}
+            </td>
             <td class="py-3 px-4">
               <span class="status-badge status-{{ r.status }}">{{ r.status|title }}</span>
             </td>
@@ -73,10 +86,13 @@
               </form>
             </td>
           </tr>
-          {% if r.message %}
-          <tr class="border-b border-white/10 bg-white/[0.02]">
+          {% if r.message and r.message|length > 60 %}
+          <tr id="message-{{ r.id }}" class="border-b border-white/10 bg-white/[0.02] hidden">
             <td colspan="7" class="py-3 px-4">
-              <div class="text-sm text-white/70">{{ r.message }}</div>
+              <div class="text-sm text-white/70">
+                <strong class="text-mine-gold">Full Description:</strong><br>
+                {{ r.message }}
+              </div>
             </td>
           </tr>
           {% endif %}
@@ -106,6 +122,19 @@
 </style>
 
 <script>
+function toggleMessage(rentalId) {
+  const messageRow = document.getElementById(`message-${rentalId}`);
+  const button = event.target;
+  
+  if (messageRow.classList.contains('hidden')) {
+    messageRow.classList.remove('hidden');
+    button.textContent = 'Hide full';
+  } else {
+    messageRow.classList.add('hidden');
+    button.textContent = 'Show full';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const statusFilter = document.getElementById('statusFilter');
   const areaFilter = document.getElementById('areaFilter');
@@ -128,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  statusFilter.addEventListener('change', applyFilters);
-  areaFilter.addEventListener('change', applyFilters);
+  if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+  if (areaFilter) areaFilter.addEventListener('change', applyFilters);
 });
 </script>
 {% endblock %}
