@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 @layer components {
-  /* Enhanced category button styles - consistent across all devices */
+  /* Gold category button styles - consistent across all devices */
   .cat-tab {
-    @apply px-4 py-3 rounded-xl text-sm font-medium border-2 border-white/20 bg-white/5 text-white hover:border-mine-gold hover:bg-mine-gold/10 hover:text-mine-gold transition-all duration-200 touch-manipulation whitespace-nowrap flex-shrink-0 min-h-[48px] flex items-center justify-center cursor-pointer;
+    @apply px-4 py-3 rounded-xl text-sm font-medium border-2 border-mine-gold bg-mine-gold text-black hover:bg-mine-gold/90 hover:border-mine-gold/90 transition-all duration-200 touch-manipulation whitespace-nowrap flex-shrink-0 min-h-[48px] flex items-center justify-center cursor-pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     backdrop-filter: blur(8px);
@@ -13,8 +13,9 @@
   }
 
   .cat-tab.active {
-    @apply bg-mine-gold text-black border-mine-gold shadow-lg;
-    box-shadow: 0 4px 12px rgba(200, 163, 73, 0.3);
+    @apply bg-mine-gold/80 text-black border-mine-gold shadow-lg;
+    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
+    box-shadow: 0 4px 12px rgba(200, 163, 73, 0.4);
   }
   
   .cat-tab:active {
@@ -22,7 +23,8 @@
   }
   
   .cat-tab:hover:not(.active) {
-    @apply border-mine-gold/60 bg-mine-gold/5 text-mine-gold;
+    @apply bg-mine-gold/90 border-mine-gold text-black;
+    transform: translateY(-1px);
   }
   
   /* Desktop enhancements */
@@ -32,12 +34,12 @@
     }
     
     .cat-tab:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(200, 163, 73, 0.3);
     }
     
     .cat-tab.active:hover {
-      box-shadow: 0 6px 16px rgba(200, 163, 73, 0.4);
+      box-shadow: 0 6px 16px rgba(200, 163, 73, 0.5);
+      background: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #FFD700 100%);
     }
   }
   
