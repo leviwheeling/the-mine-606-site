@@ -15,10 +15,10 @@
   <!-- Filters -->
   <div class="flex flex-col gap-4 mb-6 sm:mb-8">
     <!-- Categories -->
-    <div class="flex flex-wrap items-center gap-2 w-full" id="catTabs">
-      <button data-cat="all" class="cat-tab active">All</button>
+    <div class="flex flex-wrap items-center gap-3 w-full" id="catTabs">
+      <button data-cat="all" class="cat-tab active" type="button">All</button>
       {% for c in categories %}
-        <button data-cat="{{ c.id }}" class="cat-tab">{{ c.name }}</button>
+        <button data-cat="{{ c.id }}" class="cat-tab" type="button">{{ c.name }}</button>
       {% endfor %}
     </div>
 
@@ -126,10 +126,18 @@
         const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
         const tag = (select && select.value) ? select.value : '';
 
+        console.log('Applying filters - Category:', cat, 'Tag:', tag); // Debug log
+
         const cards = Array.from(grid.children);
         let visibleCount = 0;
+        let hiddenCount = 0;
         
         cards.forEach((card, index) => {
+          // Skip non-article elements (like loading indicators)
+          if (!card.hasAttribute('data-cat')) {
+            return;
+          }
+          
           const cardCat = card.getAttribute('data-cat') || 'other';
           const cardTags = (card.getAttribute('data-tags') || '').split(',').filter(Boolean);
 
@@ -138,13 +146,18 @@
           const shouldShow = catOK && tagOK;
 
           if (shouldShow) {
-            card.style.display = '';
+            card.style.display = 'block';
             card.style.animationDelay = `${visibleCount * 0.05}s`;
+            card.classList.remove('hidden');
             visibleCount++;
           } else {
             card.style.display = 'none';
+            card.classList.add('hidden');
+            hiddenCount++;
           }
         });
+        
+        console.log(`Filtered: ${visibleCount} visible, ${hiddenCount} hidden`); // Debug log
       });
     }
 
@@ -152,25 +165,50 @@
 
     // Enhanced tab click handling with proper mobile support
     tabs.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      // Primary click handler
+      const handleTabClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // Prevent double-triggering
+        if (btn.classList.contains('active')) {
+          return;
+        }
+        
+        console.log('Tab clicked:', btn.getAttribute('data-cat')); // Debug log
         
         // Remove active from all tabs
         tabs.forEach(b => b.classList.remove('active'));
         // Add active to clicked tab
         btn.classList.add('active');
         
-        // Apply filters with debounce for mobile performance
+        // Apply filters immediately, then debounced
+        applyFilters();
         debouncedApplyFilters();
-      }, { passive: false });
+      };
       
-      // Add touch event handling for better mobile responsiveness
+      // Add click event listener
+      btn.addEventListener('click', handleTabClick, { passive: false });
+      
+      // Add touch event handling for mobile
+      btn.addEventListener('touchstart', (e) => {
+        btn.style.transform = 'scale(0.95)';
+      }, { passive: true });
+      
       btn.addEventListener('touchend', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        btn.click();
+        btn.style.transform = '';
+        
+        // Trigger click after a small delay to ensure touch is processed
+        setTimeout(() => {
+          handleTabClick(e);
+        }, 50);
       }, { passive: false });
+      
+      btn.addEventListener('touchcancel', (e) => {
+        btn.style.transform = '';
+      }, { passive: true });
     });
 
     // Enhanced select handling
