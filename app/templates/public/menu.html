@@ -107,14 +107,27 @@
     const tabs = document.querySelectorAll('.cat-tab');
     const select = document.getElementById('tagFilter');
     
-    if (!grid || !tabs.length) {
-      console.log('Missing grid or tabs'); // Debug
+    if (!grid) {
+      console.log('Missing grid element'); // Debug
+      return;
+    }
+    
+    if (!tabs.length) {
+      console.log('No category tabs found, menu should still show all items'); // Debug
+      // Make sure all items are visible if no tabs
+      const cards = grid.querySelectorAll('article[data-cat]');
+      cards.forEach(card => {
+        card.style.display = '';
+        card.style.visibility = 'visible';
+      });
       return;
     }
     
     console.log('Found', tabs.length, 'category tabs'); // Debug
 
     function applyFilters() {
+      console.log('applyFilters called'); // Debug
+      
       const activeTab = document.querySelector('.cat-tab.active');
       const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
       const tag = select ? select.value : '';
@@ -126,25 +139,42 @@
       
       console.log('Found', cards.length, 'cards to filter'); // Debug
       
+      // If no cards found, don't hide anything
+      if (cards.length === 0) {
+        console.log('No cards found, skipping filter'); // Debug
+        return;
+      }
+      
       cards.forEach(card => {
-        const cardCat = card.getAttribute('data-cat');
+        const cardCat = card.getAttribute('data-cat') || '';
         const cardTags = card.getAttribute('data-tags') || '';
         
         const catMatch = cat === 'all' || cardCat === cat;
-        const tagMatch = !tag || cardTags.includes(tag);
+        const tagMatch = !tag || cardTags.split(',').includes(tag);
         const shouldShow = catMatch && tagMatch;
         
-        console.log('Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Show:', shouldShow); // Debug
+        console.log('Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Tags:', cardTags, 'Show:', shouldShow); // Debug
         
         if (shouldShow) {
-          card.style.display = 'block';
+          card.style.display = '';  // Use empty string instead of 'block'
+          card.style.visibility = 'visible';
           visibleCount++;
         } else {
           card.style.display = 'none';
+          card.style.visibility = 'hidden';
         }
       });
       
       console.log('Showing', visibleCount, 'of', cards.length, 'cards'); // Debug
+      
+      // If no cards are visible, show all cards (fallback)
+      if (visibleCount === 0 && cat === 'all') {
+        console.log('No cards visible, showing all as fallback'); // Debug
+        cards.forEach(card => {
+          card.style.display = '';
+          card.style.visibility = 'visible';
+        });
+      }
     }
 
     // Simple click handler for category tabs
@@ -168,16 +198,21 @@
       select.addEventListener('change', applyFilters);
     }
 
-    // Initial filter application
+    // Initial filter application with delay to ensure DOM is fully ready
     console.log('Applying initial filters...'); // Debug
-    applyFilters();
+    setTimeout(() => {
+      console.log('Running delayed initial filter...'); // Debug
+      applyFilters();
+    }, 100);
   }
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMenuFilters);
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initMenuFilters, 50);
+    });
   } else {
-    initMenuFilters();
+    setTimeout(initMenuFilters, 50);
   }
   
   // Re-initialize after HTMX content swaps
