@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 {% from 'layout/macros.html' import photo %}
 {% block title %}
-Find Us — The Mine 606
+Party locater — The Mine 606
 {% endblock %}
 {% block content %}
 {% set address = (site.address if site and site.address else '121 Main St') %}
@@ -9,7 +9,7 @@ Find Us — The Mine 606
 {% set state = site.state if site and site.state else 'KY' %}
 {% set zip = site.zip if site and site.zip else '41501' %}
 <section class="page-intro">
-<p class="eyebrow">RIGHT WHERE THE GOOD TIMES ARE.</p>
+<p class="eyebrow">PARTY LOCATER / DOWNTOWN PIKEVILLE</p>
 <h1>Meet at<br>
 <em>The Mine.</em>
 </h1>
@@ -21,7 +21,11 @@ Find Us — The Mine 606
 <p class="eyebrow">COME ON OVER</p>
 <h2>{{ address }}</h2>
 <p>{{ city }}, {{ state }} {{ zip }}</p>
-<a class="button primary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query={{ (address ~ ', ' ~ city ~ ', ' ~ state ~ ' ' ~ zip)|urlencode }}">GET DIRECTIONS ↗</a>
+{% set destination = (address ~ ', ' ~ city ~ ', ' ~ state ~ ' ' ~ zip)|urlencode %}
+<div class="map-actions" aria-label="Choose a maps app">
+<a class="button primary" target="_blank" rel="noopener" href="https://maps.apple.com/?daddr={{ destination }}&dirflg=d">APPLE MAPS ↗</a>
+<a class="button secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination={{ destination }}">GOOGLE MAPS ↗</a>
+</div>
 {% if site and site.phone %}
 <a class="contact-link" href="tel:{{ site.phone }}">{{ site.phone }}</a>
 {% endif %}

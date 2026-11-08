@@ -37,7 +37,7 @@
 </span>
 </a>
 <nav class="desktop-nav" aria-label="Main navigation">
-{% for url,label in [('/menu','The food'),('/events','The nights'),('/rentals','Your party')] %}
+{% for url,label in [('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
 <a href="{{ url }}"
 {% if request.url.path == url %}
 aria-current="page"
@@ -56,7 +56,7 @@ aria-current="page"
 </div>
 </header>
 <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" hidden>
-{% for url,label in [('/','Home'),('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/musician','Play The Mine'),('/location','Find us')] %}
+{% for url,label in [('/','Home'),('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
 <a href="{{ url }}"
 {% if request.url.path == url %}
 aria-current="page"
