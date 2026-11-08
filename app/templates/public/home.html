@@ -32,8 +32,8 @@
 <div class="actions">
 <a class="button primary" href="/menu">
 <span class="only-day">COME GET A PLATE</span>
-<span class="only-night">FUEL YOUR NIGHT</span> ↗</a>
-<a class="button secondary" href="/events">MAKE A NIGHT OF IT ↗</a>
+<span class="only-night">FUEL YOUR NIGHT</span></a>
+<a class="button secondary" href="/events">MAKE A NIGHT OF IT</a>
 </div>
 </div>
 <div class="hero-bottom">
@@ -59,7 +59,7 @@
 <div class="intro-copy">
 <p>Some places are for a quick bite. Some are for a big night. This is where both come together.</p>
 <p>Grab a booth, order something good, and settle in. When the lights go low, the good times keep going.</p>
-<a href="/location" class="text-link">TAKE A LOOK AROUND ↗</a>
+<a href="/location" class="text-link">TAKE A LOOK AROUND</a>
 </div>
 <figure class="polaroid">{{ photo('06','Brick walls, warm wood, and purple lights','loading="lazy"') }}<figcaption>BRICK. WOOD. NEON. HOME.</figcaption>
 </figure>
@@ -74,7 +74,7 @@
 </div>
 <div>
 <p>Big flavor. Zero fuss.<br>Something good for your whole crew.</p>
-<a href="/menu" class="text-link">EXPLORE THE MENU ↗</a>
+<a href="/menu" class="text-link">EXPLORE THE MENU</a>
 </div>
 </div>
 <div class="food-grid">
@@ -83,7 +83,7 @@
 <a href="/menu">
 <div class="food-image">
 <img src="{{ it.image_url or '/static/media/menu/placeholder.svg' }}" alt="{{ it.name }}" loading="lazy">
-<span>↗</span>
+
 </div>
 <div class="food-name">
 <h3>{{ it.name }}</h3>
@@ -97,7 +97,7 @@
 {% else %}
 {% for n,title,sub in [('03','Your lunch plans.','Burgers + fries'),('04','A slice of the good life.','Pizza with your people'),('01','The good stuff.','Come hungry. Leave happy.')] %}
 <a href="/menu" class="food-card">
-<div class="food-image">{{ photo(n,title,'loading="lazy"') }}<span>↗</span>
+<div class="food-image">{{ photo(n,title,'loading="lazy"') }}
 </div>
 <div class="food-name">
 <h3>{{ title }}</h3>
@@ -116,7 +116,7 @@
 <em>RIGHT HERE.</em>
 </h2>
 <p>The group chat finally has a plan.<br>Cold drinks, a full room, and nowhere else you need to be.</p>
-<a class="button primary" href="/events">WHAT’S HAPPENING ↗</a>
+<a class="button primary" href="/events">WHAT’S HAPPENING</a>
 </div>
 <span class="vertical-note">THE MINE AFTER DARK / PIKEVILLE, KY</span>
 </section>
@@ -127,7 +127,7 @@
 <h2>Next up<br>at <em>The Mine.</em>
 </h2>
 </div>
-<a href="/events" class="text-link">ALL EVENTS ↗</a>
+<a href="/events" class="text-link">ALL EVENTS</a>
 </div>
 {% include 'public/_events.html' %}
 </section>
@@ -142,7 +142,7 @@
 </div>
 <div class="gallery-grid">
 {% for n,caption in [('08','Your people. Your place.'),('05','Meet you at the bar'),('12','Rack ’em up'),('14','This is the energy')] %}
-<button class="gallery-item" type="button" data-photo="/static/media/venue/{{ n }}.webp" data-caption="{{ caption }}">{{ photo(n,caption,'loading="lazy"') }}<span>{{ caption }} ↗</span>
+<button class="gallery-item" type="button" data-photo="/static/media/venue/{{ n }}.webp" data-caption="{{ caption }}">{{ photo(n,caption,'loading="lazy"') }}<span>{{ caption }}</span>
 </button>
 {% endfor %}
 </div>
@@ -155,8 +155,8 @@
 <div class="visit-details">
 <p>Downtown Pikeville.<br>Across from Appalachian Wireless Arena.</p>
 <div class="actions">
-<a class="button primary" href="/location">FIND THE MINE ↗</a>
-<a class="button secondary" href="/rentals">BRING THE WHOLE CREW ↗</a>
+<a class="button primary" href="/location">FIND THE MINE</a>
+<a class="button secondary" href="/rentals">BRING THE WHOLE CREW</a>
 </div>
 </div>
 </section>

@@ -23,8 +23,8 @@ Party locater — The Mine 606
 <p>{{ city }}, {{ state }} {{ zip }}</p>
 {% set destination = (address ~ ', ' ~ city ~ ', ' ~ state ~ ' ' ~ zip)|urlencode %}
 <div class="map-actions" aria-label="Choose a maps app">
-<a class="button primary" target="_blank" rel="noopener" href="https://maps.apple.com/?daddr={{ destination }}&dirflg=d">APPLE MAPS ↗</a>
-<a class="button secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination={{ destination }}">GOOGLE MAPS ↗</a>
+<a class="button primary" target="_blank" rel="noopener" href="https://maps.apple.com/?daddr={{ destination }}&dirflg=d">APPLE MAPS</a>
+<a class="button secondary" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination={{ destination }}">GOOGLE MAPS</a>
 </div>
 {% if site and site.phone %}
 <a class="contact-link" href="tel:{{ site.phone }}">{{ site.phone }}</a>

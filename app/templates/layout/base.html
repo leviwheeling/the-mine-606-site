@@ -27,7 +27,7 @@
 <div class="announcement">
 <span class="only-day">RUSTIC ROOTS. REALLY GOOD FOOD.</span>
 <span class="only-night">LIGHTS LOW. GOOD TIMES AHEAD.</span>
-<a href="/location">DOWNTOWN PIKEVILLE, KY ↗</a>
+<a href="/location">DOWNTOWN PIKEVILLE, KY</a>
 </div>
 <header class="site-header">
 <a href="/" class="brand" aria-label="The Mine 606 home">
@@ -61,7 +61,7 @@ aria-current="page"
 {% if request.url.path == url %}
 aria-current="page"
 {% endif %}
->{{ label }} <span>↗</span>
+>{{ label }} 
 </a>
 {% endfor %}
 </nav>
@@ -79,7 +79,7 @@ aria-current="page"
 {% if s %}
 {% for key,label in [('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}
 {% if s[key] %}
-<a href="{{ s[key] }}" target="_blank" rel="noopener">{{ label }} ↗</a>
+<a href="{{ s[key] }}" target="_blank" rel="noopener">{{ label }}</a>
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -88,7 +88,7 @@ aria-current="page"
 <div>
 <h3>FIND YOUR WAY HERE</h3>
 <p>{{ s.address if s and s.address else '121 Main St' }}<br>{{ s.city if s and s.city else 'Pikeville' }}, {{ s.state if s and s.state else 'KY' }} {{ s.zip if s and s.zip else '41501' }}</p>
-<a class="text-link" href="/location">GET DIRECTIONS ↗</a>
+<a class="text-link" href="/location">GET DIRECTIONS</a>
 </div>
 <div>
 <h3>COME ON IN</h3>
@@ -109,7 +109,7 @@ aria-current="page"
 <nav aria-label="More links">
 <a href="/musician">Play The Mine</a>
 <a href="/ordering">Order food</a>
-<a href="/admin">Staff login ↗</a>
+<a href="/admin">Staff login</a>
 </nav>
 <span class="only-day">GOOD DAYS START HERE.</span>
 <span class="only-night">GREAT NIGHTS END HERE.</span>
