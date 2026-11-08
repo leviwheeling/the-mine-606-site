@@ -1,8 +1,9 @@
 # app/routers/public.py
 from fastapi import APIRouter, Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 import json
 
@@ -18,9 +19,9 @@ def ctx(request: Request, **kw):
     from ..services.cache import get_cached_hours, get_cached_site_settings
     from ..settings import get_settings
     from datetime import datetime
-    
+
     settings = get_settings()
-    
+
     base = {
         "request": request,
         "page_title": "The Mine 606",
@@ -37,9 +38,7 @@ def ctx(request: Request, **kw):
     return base
 
 def get_template_name(base_name: str, request: Request) -> str:
-    """Return appropriate template based on whether this is an HTMX request."""
-    if request.headers.get('HX-Request'):
-        return f"htmx/{base_name}"
+    """Use one consistent document shell for direct and legacy HTMX requests."""
     return f"public/{base_name}"
 
 @router.get("/", response_class=HTMLResponse)
@@ -47,16 +46,16 @@ async def home(request: Request, db: Session = Depends(get_db)):
     featured = (
         db.query(MenuItem)
         .filter(MenuItem.featured_rank > 0, MenuItem.available == True)  # noqa: E712
-        .order_by(MenuItem.featured_rank.asc()).limit(3).all()
+        .order_by(MenuItem.featured_rank.asc()).limit(6).all()
     )
     events = (
         db.query(Event)
-        .filter(Event.is_published == True, Event.start >= datetime.utcnow())  # noqa: E712
+        .filter(Event.is_published == True, Event.start >= datetime.now(ZoneInfo('America/New_York')).replace(tzinfo=None))  # noqa: E712
         .order_by(Event.start.asc()).limit(3).all()
     )
     site = db.query(SiteSetting).first()
-    lb = json.dumps(local_business(site or SiteSetting()), ensure_ascii=False)
-    ev = json.dumps(events_schema(events), ensure_ascii=False)
+    lb = local_business(site or SiteSetting())
+    ev = events_schema(events)
 
     return request.app.templates.TemplateResponse(
         get_template_name("home.html", request),
@@ -67,7 +66,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
 async def menu(request: Request, db: Session = Depends(get_db)):
     categories = db.query(MenuCategory).order_by(MenuCategory.sort_order.asc(), MenuCategory.name.asc()).all()
     tags = db.query(MenuTag).order_by(MenuTag.type.asc(), MenuTag.name.asc()).all()
-    items = db.query(MenuItem).options(joinedload(MenuItem.tags)).order_by(MenuItem.name.asc()).all()
+    items = db.query(MenuItem).options(joinedload(MenuItem.tags)).filter(MenuItem.available.is_(True)).order_by(MenuItem.name.asc()).all()
 
     cat_payload = [{"id": c.slug or str(c.id), "name": c.name} for c in categories]
     tag_payload = [t.slug for t in tags]
@@ -81,7 +80,8 @@ async def menu(request: Request, db: Session = Depends(get_db)):
             "price": float(it.price),
             "category": cat_slug or "other",
             "tags": [t.slug for t in (getattr(it, "tags", []) or [])],
-            "img": it.image_url or "/assets/images/placeholders/dish-1.jpg",
+            "img": it.image_url or "/static/media/menu/placeholder.svg",
+            "description": it.description or "",
         })
 
     return request.app.templates.TemplateResponse(
@@ -93,9 +93,9 @@ async def menu(request: Request, db: Session = Depends(get_db)):
 async def ordering(request: Request):
     return request.app.templates.TemplateResponse(get_template_name("ordering.html", request), ctx(request))
 
-@router.get("/shopify", response_class=HTMLResponse)
-async def shopify(request: Request):
-    return request.app.templates.TemplateResponse(get_template_name("shopify.html", request), ctx(request))
+@router.get("/shopify", include_in_schema=False)
+async def former_shop():
+    return RedirectResponse("/", status_code=301)
 
 @router.get("/musician", response_class=HTMLResponse)
 async def musician(request: Request):
@@ -109,3 +109,10 @@ async def rentals(request: Request):
 async def location(request: Request, db: Session = Depends(get_db)):
     site = db.query(SiteSetting).first()
     return request.app.templates.TemplateResponse(get_template_name("location.html", request), ctx(request, site=site))
+
+
+@router.get("/events", response_class=HTMLResponse)
+async def event_list(request: Request, db: Session = Depends(get_db)):
+    now = datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
+    events = db.query(Event).filter(Event.is_published.is_(True), Event.start >= now).order_by(Event.start.asc()).all()
+    return request.app.templates.TemplateResponse("public/events.html", ctx(request, events=events))

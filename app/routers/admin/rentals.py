@@ -23,26 +23,26 @@ def ctx(request: Request, **kw):
 async def rentals_list(request: Request, db: Session = Depends(get_db)):
     # Ensure user is authenticated
     admin_required(request)
-    
+
     # Get rentals with sorting and basic filtering
     query = db.query(Rental).order_by(Rental.date.desc())
-    
+
     # Get filter parameters
     status = request.query_params.get("status")
     area = request.query_params.get("area")
-    
+
     if status and status != "all":
         query = query.filter(Rental.status == status)
     if area and area != "all":
         query = query.filter(Rental.venue_area == area)
-    
+
     # Get rentals
     rentals = query.limit(200).all()
-    
+
     # Get unique areas for filter dropdown
     areas = db.query(Rental.venue_area).distinct().all()
     areas = [a[0] for a in areas if a[0]]  # Remove None values
-    
+
     return request.app.templates.TemplateResponse(
         "admin/rentals.html",
         ctx(
@@ -63,22 +63,22 @@ async def update_status(
 ):
     # Ensure user is authenticated
     admin_required(request)
-    
+
     # Validate status
     valid_statuses = ["new", "pending", "approved", "closed"]
     if status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status")
-    
+
     # Update rental status
     rental = db.query(Rental).filter(Rental.id == id).first()
     if not rental:
         raise HTTPException(status_code=404, detail="Rental not found")
-    
+
     rental.status = status
     db.commit()
-    
+
     # Redirect back to rentals page
     return RedirectResponse(
-        url="/admin/rentals",
+        url="/admin/rentals?saved=1",
         status_code=303
     )

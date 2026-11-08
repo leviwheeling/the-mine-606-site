@@ -1,61 +1,38 @@
-{% extends "layout/base.html" %}
-{% block title %}Venue — The Mine 606{% endblock %}
-{% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-14 pb-24">
-  <header class="mb-8">
-    <h1 class="font-serif text-4xl md:text-5xl">Venue & Rentals</h1>
-    <p class="text-white/70 mt-2">Book the deck across from the arena — perfect for pre- and post-show vibes.</p>
-  </header>
-
-  <div class="grid lg:grid-cols-2 gap-6 mb-10">
-    <img src="{{ request.url_for('assets', path='images/placeholders/event.jpg') }}" class="rounded-2xl border border-white/10 w-full h-72 object-cover" alt="Venue photo"/>
-    <div class="card p-5 space-y-2">
-      <div class="font-semibold">Packages</div>
-      <ul class="list-disc list-inside text-white/80 text-sm">
-        <li>Deck Rental (Evening)</li>
-        <li>Private Party Add-ons</li>
-        <li>Live Band Coordination</li>
-      </ul>
-      <div class="text-white/60 text-xs">All packages are customizable.</div>
-    </div>
-  </div>
-
-  <form id="rentalForm" class="card p-5 space-y-4 max-w-3xl">
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"> <span class="text-sm text-white/70">Name</span>
-        <input name="name" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-      </label>
-      <label class="block"> <span class="text-sm text-white/70">Email</span>
-        <input type="email" name="email" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-      </label>
-      <label class="block"> <span class="text-sm text-white/70">Phone</span>
-        <input name="phone" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-      </label>
-      <label class="block"> <span class="text-sm text-white/70">Target Date</span>
-        <input type="date" name="date" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-      </label>
-      <label class="block sm:col-span-2"> <span class="text-sm text-white/70">Party Size</span>
-        <input name="party_size" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="e.g., 40">
-      </label>
-    </div>
-    <label class="block"> <span class="text-sm text-white/70">Event Details</span>
-      <textarea name="message" rows="4" class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold" placeholder="Tell us about your event..."></textarea>
-    </label>
-
-    <button class="btn-primary">Request Booking</button>
-    <p id="rentalMsg" class="text-white/70 text-sm mt-2"></p>
-  </form>
-</section>
-
-{% block body_scripts %}
-<script src="/static/js/forms.js"></script>
-<script>
-setupAjaxForm({
-  formId: 'rentalForm',
-  endpoint: '/api/forms/rental',
-  successText: '✓ Thank you for your venue inquiry! We\'ll get back to you within 24 hours to discuss your event details.',
-  errorText: 'Sorry, there was an issue submitting your request. Please try again or contact us directly.'
-});
-</script>
+{% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import field, textarea, photo %}
+{% block title %}
+Your Party — The Mine 606
 {% endblock %}
+{% block content %}
+<section class="page-intro">
+<p class="eyebrow">THE WHOLE CREW’S INVITED.</p>
+<h1>Your people.<br>
+<em>Your night.</em>
+</h1>
+<p>Birthdays. Get-togethers. A reason to get everyone in the same room. Let’s make it a Mine kind of night.</p>
+</section>
+<section class="section page-body split-layout">
+<div class="form-story">{{ photo('08','Friends gathered at The Mine','loading="lazy"') }}<h2>A place for<br>
+<em>your kind of party.</em>
+</h2>
+<p>Tell us what you have in mind. Our team will follow up about availability and details. Submitting a request doesn’t confirm a booking.</p>
+<a class="text-link" href="/location">EXPLORE THE LOCATION ↗</a>
+</div>
+<form method="post" action="/api/rental" class="panel form-grid" data-async-form data-success="Your request is in. Our team will follow up to plan your event.">
+<div class="full">
+<p class="eyebrow">LET’S GET IT ON THE CALENDAR</p>
+<h2>Plan your party.</h2>
+<p class="form-help">Fields marked * are required.</p>
+</div>{{ field('name','Your name',required=true) }}{{ field('email','Email address',type='email',required=true) }}{{ field('phone','Phone number',type='tel') }}{{ field('date','Preferred date',type='date',required=true) }}{{ field('party_size','Expected guests',type='number',required=true) }}<label class="field">
+<span>Preferred area</span>
+<select name="venue_area">
+<option value="">Let’s talk options</option>
+<option>Deck</option>
+<option>Indoors</option>
+</select>
+</label>{{ textarea('message','Tell us about your event',required=true) }}<div class="full form-status" role="status" aria-live="polite">
+</div>
+<button type="submit" class="button primary full">SEND YOUR REQUEST ↗</button>
+</form>
+</section>
 {% endblock %}

@@ -1,87 +1,56 @@
+"""Short-lived public settings snapshots; admin saves invalidate immediately."""
+from datetime import datetime
 from functools import lru_cache
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from html import escape
+from time import time
+from zoneinfo import ZoneInfo
 
 from ..db.session import SessionLocal
-from ..models.site import Hours, SiteSetting
+from ..models.site import Hours, SiteSetting, HolidayOverride
 
-def convert_to_12hour(time_str: str) -> str:
-    """Convert 24-hour format time to 12-hour format with am/pm"""
-    if not time_str or time_str == '—':
-        return time_str
-    
+
+def convert_to_12hour(value):
+    if not value:
+        return '—'
     try:
-        # Parse the time string (e.g., "11:00" or "22:00")
-        hour, minute = map(int, time_str.split(':'))
-        
-        # Convert to 12-hour format
-        if hour == 0:
-            return f"12:{minute:02d}am"
-        elif hour < 12:
-            return f"{hour}:{minute:02d}am"
-        elif hour == 12:
-            return f"12:{minute:02d}pm"
-        else:
-            return f"{hour - 12}:{minute:02d}pm"
+        hour, minute = map(int, value.split(':'))
+        return f"{hour % 12 or 12}:{minute:02d}{'am' if hour < 12 else 'pm'}"
     except (ValueError, AttributeError):
-        return time_str
+        return value
 
-@lru_cache(maxsize=1)
-def get_cached_hours() -> Optional[str]:
-    """Cache hours HTML for 1 hour since it rarely changes"""
-    try:
-        db = SessionLocal()
-        rows = db.query(Hours).all()
-        if not rows:
-            return None
-        order = ['mon','tue','wed','thu','fri','sat','sun']
-        by = {r.dow: r for r in rows}
+
+def get_cached_hours():
+    return _hours(int(time() // 30))
+
+
+@lru_cache(maxsize=2)
+def _hours(bucket):
+    with SessionLocal() as db:
+        rows = {r.dow: r for r in db.query(Hours).all()}
         parts = []
-        for dow in order:
-            r = by.get(dow)
-            if not r: continue
-            label = {'mon':'Mon','tue':'Tue','wed':'Wed','thu':'Thu','fri':'Fri','sat':'Sat','sun':'Sun'}[dow]
-            if r.closed:
-                parts.append(f"<div>{label}: Closed</div>")
-            else:
-                open_ = convert_to_12hour(r.open) if r.open else '—'
-                close_ = convert_to_12hour(r.close) if r.close else '—'
-                parts.append(f"<div>{label}: {open_}–{close_}</div>")
-        return "".join(parts) if parts else None
-    except Exception:
-        return None
-    finally:
-        db.close()
+        today = datetime.now(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+        override = db.query(HolidayOverride).filter(HolidayOverride.date == today).first()
+        def formatted(row):
+            return 'Closed' if row.closed else escape(f'{convert_to_12hour(row.open)}–{convert_to_12hour(row.close)}')
+        if override:
+            parts.append(f'<div><strong>Today: {formatted(override)}</strong></div>')
+        for dow, label in [('mon','Mon'),('tue','Tue'),('wed','Wed'),('thu','Thu'),('fri','Fri'),('sat','Sat'),('sun','Sun')]:
+            if dow in rows:
+                parts.append(f'<div>{label}: {formatted(rows[dow])}</div>')
+        return ''.join(parts) or None
 
-@lru_cache(maxsize=1)
-def get_cached_site_settings() -> Optional[Dict[str, Any]]:
-    """Cache site settings for 1 hour since they rarely change"""
-    try:
-        db = SessionLocal()
-        site = db.query(SiteSetting).first()
-        if site:
-            # Convert to dict to avoid SQLAlchemy object serialization issues
-            return {
-                'id': site.id,
-                'name': site.name,
-                'tagline': site.tagline,
-                'description': site.description,
-                'address': site.address,
-                'phone': site.phone,
-                'email': site.email,
-                'facebook': site.facebook,
-                'instagram': site.instagram,
-                'twitter': site.twitter,
-                'created_at': site.created_at.isoformat() if site.created_at else None,
-                'updated_at': site.updated_at.isoformat() if site.updated_at else None
-            }
-        return None
-    except Exception:
-        return None
-    finally:
-        db.close()
 
-def clear_caches() -> None:
-    """Clear all cached data - call this when data is updated"""
-    get_cached_hours.cache_clear()
-    get_cached_site_settings.cache_clear()
+def get_cached_site_settings():
+    return _site(int(time() // 30))
+
+
+@lru_cache(maxsize=2)
+def _site(bucket):
+    with SessionLocal() as db:
+        row = db.query(SiteSetting).first()
+        return {col.name: getattr(row, col.name) for col in SiteSetting.__table__.columns} if row else None
+
+
+def clear_caches():
+    _hours.cache_clear()
+    _site.cache_clear()

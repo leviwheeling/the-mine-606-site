@@ -1,436 +1,129 @@
 <!doctype html>
-<html lang="en" 
-      x-data="{ menuOpen: false }">
+<html lang="en" data-mode="day">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}The Mine 606 — What's Mine is Yours{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Modern rustic bar & kitchen across from Appalachian Wireless Arena. Live music, great food, better vibes.{% endblock %}" />
-  <meta name="theme-color" content="#0A0A0A" />
-  
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="{% block og_title %}The Mine 606{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}What's Mine is Yours — events, menu, and more.{% endblock %}">
-  <meta property="og:image" content="{{ request.url_for('assets', path='images/og-card.jpg') }}">
-  <meta property="og:type" content="website">
-
-  <!-- Modern Stack with fallbacks -->
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
-  
-  <!-- Tailwind CSS with fallback -->
-  <script>
-    // Load Tailwind CSS with fallback mechanism and config
-    (function() {
-      const tailwindConfig = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              'mine-gold': '#C8A349',
-              'rustic-black': '#0A0A0A',
-              'stone-gray': '#2F2F2F',
-              'earth-brown': '#5C4033',
-              'parchment': '#F2E6D0'
-            },
-            fontFamily: {
-              serif: ['"Bodoni Moda"', 'serif'],
-              sans: ['Inter', 'ui-sans-serif', 'system-ui']
-            },
-            boxShadow: { 
-              soft: '0 10px 30px rgba(0,0,0,0.35)',
-              'soft-light': '0 10px 30px rgba(255,255,255,0.1)'
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-              'slide-up': 'slideUp 0.5s ease-out',
-              'slide-down': 'slideDown 0.3s ease-out',
-              'scale': 'scale 0.2s ease-in-out',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(10px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              },
-              slideDown: {
-                '0%': { transform: 'translateY(-10px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              },
-              scale: {
-                '0%': { transform: 'scale(0.95)' },
-                '100%': { transform: 'scale(1)' },
-              }
-            }
-          }
-        }
-      };
-
-      const loadTailwind = (src, callback) => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = () => {
-          // Configure Tailwind after it loads successfully
-          if (typeof tailwind !== 'undefined') {
-            tailwind.config = tailwindConfig;
-            console.log('Tailwind CSS loaded and configured successfully');
-            callback(true);
-          } else {
-            console.warn('Tailwind loaded but tailwind object not available');
-            callback(false);
-          }
-        };
-        script.onerror = () => {
-          console.warn('Failed to load Tailwind from:', src);
-          callback(false);
-        };
-        document.head.appendChild(script);
-      };
-      
-      // Try primary CDN first
-      loadTailwind('https://cdn.tailwindcss.com/3.4.17', (success) => {
-        if (!success) {
-          // Try alternative CDN
-          loadTailwind('https://unpkg.com/tailwindcss@3.4.17/lib/index.js', (success2) => {
-            if (!success2) {
-              console.error('All Tailwind CDNs failed, applying emergency styles');
-              document.body.classList.add('emergency-fallback');
-            }
-          });
-        }
-      });
-    })();
-  </script>
-  
-  <!-- Progressive Image Loading -->
-  <script>
-    document.addEventListener('alpine:init', () => {
-      Alpine.data('progressiveImg', (lowQualitySrc, highQualitySrc) => ({
-        init() {
-          this.loadHighQuality()
-        },
-        loaded: false,
-        loadHighQuality() {
-          const img = new Image()
-          img.src = highQualitySrc
-          img.onload = () => {
-            this.loaded = true
-          }
-        }
-      }))
-    })
-  </script>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600;700&family=Inter:wght@400;600&display=swap&display=swap">
-  </noscript>
-
-  <!-- Custom overrides -->
-  <link rel="stylesheet" href="/static/css/custom.css" />
-
-  <style>
-    /* Admin / input styling (CDN-safe) */
-    :root{--gold:#d4af37;--border:rgba(255,255,255,.12);--bg:rgba(255,255,255,.06);
-      --bg-strong:rgba(0,0,0,.4);--text:#fff;--ring:rgba(212,175,55,.28);--radius:12px;}
-    .input,.admin form input[type="text"],.admin form input[type="number"],.admin form input[type="email"],
-    .admin form input[type="password"],.admin form input[type="file"],.admin form select,.admin form textarea{
-      display:block;width:100%;background:var(--bg-strong);color:var(--text);border:1px solid var(--border);
-      border-radius:var(--radius);padding:10px 12px;line-height:1.4;transition:border-color .2s,box-shadow .2s,background .2s;}
-    .admin form textarea{min-height:120px;resize:vertical}
-    .input:focus,.admin form input:focus,.admin form select:focus,.admin form textarea:focus{
-      outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--ring);background:var(--bg)}
-    .admin form input[type="file"]::-webkit-file-upload-button,
-    .admin form input[type="file"]::file-selector-button{
-      background:var(--bg);color:var(--text);border:none;border-right:1px solid var(--border);
-      padding:8px 12px;margin-right:12px;border-radius: var(--radius) 0 0 var(--radius);cursor:pointer}
-    .admin form input[type="checkbox"]{width:18px;height:18px;accent-color:var(--gold)}
-    .admin table th,.admin table td{vertical-align:top}
-
-    /* Navbar gradient + contrast */
-    .navbar-gradient{
-      background:linear-gradient(
-        to right,
-        rgba(26,20,6,.98) 0%,
-        rgba(212,175,55,.92) 12%,
-        rgba(0,0,0,.90) 75%,
-        rgba(0,0,0,1) 100%
-      );
-      backdrop-filter: blur(4px);
-    }
-    .navbar-gradient .nav-link{ text-shadow:0 1px 2px rgba(0,0,0,.6); }
-    .navbar-gradient .nav-link:hover{ text-shadow:0 1px 3px rgba(0,0,0,.85); }
-
-    /* Modern wordmark: gold gradient text with subtle shadow */
-    .brand-wordmark{
-      font-family: "Bodoni Moda", serif;
-      font-weight: 600;
-      letter-spacing: .02em;
-      line-height: 1;
-      background: linear-gradient(90deg,#f5e7b6 0%, #d4af37 30%, #c0952a 60%, #e4c96b 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 1px 1px rgba(0,0,0,.45);
-      white-space: nowrap;
-    }
-  </style>
-
-  {% block head_extra %}{% endblock %}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>
+{% block title %}
+{{ page_title or 'The Mine 606 — Bar & Kitchen, Pikeville' }}
+{% endblock %}
+</title>
+<meta name="description" content="{{ meta_desc or 'Good food. Great nights. The Mine 606, a rustic bar and kitchen in downtown Pikeville, Kentucky.' }}">
+<link rel="icon" href="/static/favicon.svg">
+{% include 'layout/theme_head.html' %}
+{% block head_extra %}
+{% endblock %}
+{% if jsonld_local %}
+<script type="application/ld+json">{{ jsonld_local|tojson }}</script>
+{% endif %}
+{% if jsonld_events %}
+<script type="application/ld+json">{{ jsonld_events|tojson }}</script>
+{% endif %}
 </head>
-
-<body class="bg-rustic-black text-white font-sans antialiased selection:bg-mine-gold/30 overflow-x-hidden">
-  <!-- Top border accent -->
-  <div class="h-1 bg-gradient-to-r from-mine-gold via-yellow-500 to-mine-gold"></div>
-
-  <!-- NAV -->
-  <header class="sticky top-0 z-50 navbar-gradient border-b border-white/10 transition-all duration-300"
-          x-data="{ atTop: true }"
-          x-init="
-            atTop = window.pageYOffset < 50;
-            $nextTick(() => {
-              window.addEventListener('scroll', () => {
-                atTop = window.pageYOffset < 50;
-              }, { passive: true });
-            });
-          "
-          :class="{ 'bg-opacity-95': !atTop }">
-    <nav class="max-w-6xl mx-auto px-4 sm:px-5 py-4 sm:py-5 flex items-center justify-between">
-      <!-- Brand wordmark -->
-      <a href="/" class="shrink-0 group" 
-         hx-boost="true"
-         hx-push-url="true"
-         hx-target="#main-content"
-         hx-swap="innerHTML transition:true">
-        <span class="brand-wordmark block text-xl sm:text-2xl md:text-3xl lg:text-4xl tracking-wide group-hover:scale-[1.02] transition-transform whitespace-nowrap">
-          The&nbsp;Mine&nbsp;606
-        </span>
-      </a>
-
-      <div class="flex items-center gap-2 sm:gap-4">
-        <!-- Mobile toggle -->
-        <button @click="menuOpen = !menuOpen" 
-                class="md:hidden p-2 sm:p-3 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation" 
-                :aria-label="menuOpen ? 'Close menu' : 'Open menu'">
-          <svg x-show="!menuOpen" class="w-6 h-6 sm:w-7 sm:h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-          <svg x-show="menuOpen" class="w-6 h-6 sm:w-7 sm:h-7 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Desktop menu -->
-      <ul class="hidden md:flex items-center gap-6 lg:gap-8 text-[15px] lg:text-[16px]">
-        <li><a href="/" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Home</a></li>
-        <li><a href="/menu" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Menu</a></li>
-        <li><a href="/ordering" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Ordering</a></li>
-        <li><a href="/shopify" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Shop</a></li>
-        <li><a href="/rentals" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Venue</a></li>
-        <li><a href="/musician" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Musicians</a></li>
-        <li><a href="/location" class="nav-link relative overflow-hidden group" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Location</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <!-- MOBILE MENU -->
-  <div class="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm transition-all duration-300 z-50"
-       :class="menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-       @click="menuOpen = false">
-    <div class="absolute right-0 top-0 w-full max-w-sm h-full navbar-gradient border-l border-white/10 shadow-2xl"
-         :class="menuOpen ? 'translate-x-0' : 'translate-x-full'"
-         @click.stop
-         class="transition-transform duration-300 ease-out">
-      
-      <!-- Mobile menu header -->
-      <div class="flex items-center justify-between p-4 sm:p-6 border-b border-white/10">
-        <span class="brand-wordmark text-lg sm:text-xl">The Mine 606</span>
-        <button @click="menuOpen = false" 
-                class="p-2 rounded-lg hover:bg-white/10 transition-colors touch-manipulation">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Mobile menu items -->
-      <div class="p-4 sm:p-6 flex flex-col gap-1">
-        <a href="/" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Home</a>
-        <a href="/menu" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Menu</a>
-        <a href="/ordering" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Ordering</a>
-        <a href="/shopify" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Shop</a>
-        <a href="/rentals" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Venue</a>
-        <a href="/musician" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Musicians</a>
-        <a href="/location" @click="menuOpen = false" class="nav-link block py-4 px-4 rounded-xl text-lg font-medium hover:bg-white/10 hover:text-mine-gold active:bg-white/20 transition-all duration-200 touch-manipulation" hx-boost="true" hx-push-url="true" hx-target="#main-content" hx-swap="innerHTML transition:true">Location</a>
-      </div>
-      
-      <!-- Mobile menu footer -->
-      <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 border-t border-white/10">
-        <div class="text-center text-white/60 text-sm">
-          What's Mine is Yours
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <main id="main-content">
-    {% block content %}{% endblock %}
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="border-t border-white/10 mt-20 sm:mt-28">
-    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10 grid gap-6 sm:gap-8 md:grid-cols-3">
-      <div class="text-center md:text-left">
-        <div class="font-serif text-xl sm:text-2xl text-mine-gold">What's Mine is Yours</div>
-        <p class="text-white/70 mt-2 text-sm sm:text-base">Across from Appalachian Wireless Arena.</p>
-      </div>
-      <div class="text-center md:text-left">
-        <div class="uppercase text-white/60 text-sm tracking-wide">Hours</div>
-        <div class="mt-2 text-white/80 text-sm sm:text-base">
-          {% if template_globals(request).get('HOURS_HTML') %}
-            {{ template_globals(request).get('HOURS_HTML')|safe }}
-          {% else %}
-            Tue–Thu 11am–10pm • Fri–Sat 11am–12am • Sun 11am–9pm
-          {% endif %}
-        </div>
-      </div>
-      <div class="text-center md:text-left">
-        <div class="uppercase text-white/60 text-sm tracking-wide">Find Us</div>
-        <div class="mt-2 text-white/80 text-sm sm:text-base">
-          <div>121 Main St Pikeville, KY 41501</div>
-          <a class="underline underline-offset-4 hover:text-mine-gold" href="/location">Get directions</a>
-        </div>
-        <div class="mt-3 flex justify-center md:justify-start">
-          {% if template_globals(request).get('SITE_OBJ') %}
-            {% set site = template_globals(request).get('SITE_OBJ') %}
-            {% include "layout/components/socials.html" %}
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="text-center text-white/50 text-xs sm:text-sm py-4 border-t border-white/10">
-      © {{ template_globals(request).CURRENT_YEAR }} The Mine 606. All rights reserved.
-    </div>
-  </footer>
-
-  <!-- JS -->
-  <script src="/static/js/transitions.js" defer></script>
-  <script src="/static/js/main.js" defer></script>
-  <script src="/static/js/animations.js" defer></script>
-  
-  <!-- Enhanced fallback detection for mobile -->
-  <script>
-    // Comprehensive Tailwind CSS failure detection and recovery
-    function checkTailwindAndApplyFallback() {
-      // Multiple detection methods for reliability
-      const testElement = document.createElement('div');
-      testElement.className = 'bg-mine-gold text-white p-4 hidden';
-      testElement.style.position = 'absolute';
-      testElement.style.left = '-9999px';
-      document.body.appendChild(testElement);
-      
-      const styles = window.getComputedStyle(testElement);
-      const hasGoldBg = styles.backgroundColor.includes('200, 163, 73') || 
-                       styles.backgroundColor.includes('#C8A349') ||
-                       styles.backgroundColor === 'rgb(200, 163, 73)';
-      const hasHiddenClass = styles.display === 'none';
-      const hasPadding = parseFloat(styles.paddingTop) >= 16;
-      
-      document.body.removeChild(testElement);
-      
-      const tailwindWorking = hasGoldBg && hasHiddenClass && hasPadding;
-      
-      if (!tailwindWorking) {
-        console.warn('Tailwind CSS not working properly, applying emergency styles');
-        document.body.classList.add('emergency-fallback');
-        
-        // Force visibility of critical elements
-        setTimeout(() => {
-          const menuButtons = document.querySelectorAll('.cat-tab');
-          const menuGrid = document.getElementById('menuGrid');
-          
-          menuButtons.forEach(button => {
-            button.style.display = 'inline-flex';
-            button.style.alignItems = 'center';
-            button.style.justifyContent = 'center';
-            button.style.padding = '8px 16px';
-            button.style.backgroundColor = '#C8A349';
-            button.style.color = '#000';
-            button.style.border = '2px solid #C8A349';
-            button.style.borderRadius = '8px';
-            button.style.fontWeight = '600';
-            button.style.cursor = 'pointer';
-            button.style.marginRight = '8px';
-            button.style.marginBottom = '8px';
-            button.style.visibility = 'visible';
-            button.style.opacity = '1';
-          });
-          
-          if (menuGrid) {
-            menuGrid.style.display = 'grid';
-            menuGrid.style.gridTemplateColumns = '1fr';
-            menuGrid.style.gap = '16px';
-            
-            const cards = menuGrid.querySelectorAll('article');
-            cards.forEach(card => {
-              card.style.display = 'block';
-              card.style.visibility = 'visible';
-              card.style.opacity = '1';
-              card.style.backgroundColor = 'rgba(255,255,255,0.05)';
-              card.style.border = '1px solid rgba(255,255,255,0.1)';
-              card.style.borderRadius = '16px';
-              card.style.padding = '16px';
-            });
-          }
-          
-          // Ensure body has dark background
-          document.body.style.backgroundColor = '#0A0A0A';
-          document.body.style.color = '#fff';
-        }, 100);
-      }
-    }
-    
-    // Run checks at multiple points
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(checkTailwindAndApplyFallback, 200);
-      });
-    } else {
-      setTimeout(checkTailwindAndApplyFallback, 200);
-    }
-    
-    // Additional check after full page load
-    window.addEventListener('load', () => {
-      setTimeout(checkTailwindAndApplyFallback, 500);
-    });
-    
-    // Final safety check for mobile
-    setTimeout(() => {
-      checkTailwindAndApplyFallback();
-    }, 2000);
-  </script>
-  
-  {% block body_scripts %}{% endblock %}
-  
-  <!-- Loading indicator -->
-  <div id="loading-bar" 
-       class="fixed top-0 left-0 w-full h-1 bg-mine-gold/20 transform scale-x-0 origin-left transition-transform duration-300"
-       x-data="{ loading: false }"
-       x-show="loading"
-       @htmx:beforeRequest.window="loading = true"
-       @htmx:afterRequest.window="loading = false"
-       :class="{ 'scale-x-100': loading }"></div>
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+{% set globals = template_globals(request) %}
+{% set s = SITE_OBJ if SITE_OBJ is defined else globals.SITE_OBJ %}
+<div class="announcement">
+<span class="only-day">RUSTIC ROOTS. REALLY GOOD FOOD.</span>
+<span class="only-night">LIGHTS LOW. GOOD TIMES AHEAD.</span>
+<a href="/location">DOWNTOWN PIKEVILLE, KY ↗</a>
+</div>
+<header class="site-header">
+<a href="/" class="brand" aria-label="The Mine 606 home">
+<span class="brand-mark">M<small>606</small>
+</span>
+<span>THE MINE<small>BAR & KITCHEN · PIKEVILLE, KY</small>
+</span>
+</a>
+<nav class="desktop-nav" aria-label="Main navigation">
+{% for url,label in [('/menu','The food'),('/events','The nights'),('/rentals','Your party')] %}
+<a href="{{ url }}"
+{% if request.url.path == url %}
+aria-current="page"
+{% endif %}
+>{{ label }}</a>
+{% endfor %}
+</nav>
+<div class="header-actions">
+{% include 'layout/theme_switch.html' %}
+<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open navigation">
+<span>
+</span>
+<span>
+</span>
+</button>
+</div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" hidden>
+{% for url,label in [('/','Home'),('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/musician','Play The Mine'),('/location','Find us')] %}
+<a href="{{ url }}"
+{% if request.url.path == url %}
+aria-current="page"
+{% endif %}
+>{{ label }} <span>↗</span>
+</a>
+{% endfor %}
+</nav>
+<main id="main-content" tabindex="-1">
+{% block content %}
+{% endblock %}
+</main>
+<footer class="site-footer">
+<div class="footer-top">
+<div>
+<a href="/" class="footer-brand">THE MINE <em>606</em>
+</a>
+<p>What’s Mine is Yours.</p>
+<div class="social-links">
+{% if s %}
+{% for key,label in [('facebook','Facebook'),('instagram','Instagram'),('tiktok','TikTok'),('youtube','YouTube')] %}
+{% if s[key] %}
+<a href="{{ s[key] }}" target="_blank" rel="noopener">{{ label }} ↗</a>
+{% endif %}
+{% endfor %}
+{% endif %}
+</div>
+</div>
+<div>
+<h3>FIND YOUR WAY HERE</h3>
+<p>{{ s.address if s and s.address else '121 Main St' }}<br>{{ s.city if s and s.city else 'Pikeville' }}, {{ s.state if s and s.state else 'KY' }} {{ s.zip if s and s.zip else '41501' }}</p>
+<a class="text-link" href="/location">GET DIRECTIONS ↗</a>
+</div>
+<div>
+<h3>COME ON IN</h3>
+<div class="hours-list">
+{% if globals.HOURS_HTML %}
+{{ globals.HOURS_HTML|safe }}
+{% else %}
+<p>Contact us for current hours.</p>
+{% endif %}
+</div>
+{% if s and s.phone %}
+<a href="tel:{{ s.phone }}">{{ s.phone }}</a>
+{% endif %}
+</div>
+</div>
+<div class="footer-bottom">
+<span>© {{ globals.CURRENT_YEAR }} THE MINE 606</span>
+<nav aria-label="More links">
+<a href="/musician">Play The Mine</a>
+<a href="/ordering">Order food</a>
+<a href="/admin">Staff login ↗</a>
+</nav>
+<span class="only-day">GOOD DAYS START HERE.</span>
+<span class="only-night">GREAT NIGHTS END HERE.</span>
+</div>
+</footer>
+<dialog class="photo-dialog" id="photo-dialog">
+<button type="button" data-close-dialog aria-label="Close photo">✕</button>
+<img alt="">
+<p>
+</p>
+</dialog>
+<div class="theme-announcement sr-only" role="status" aria-live="polite">
+</div>
+{% block body_scripts %}
+{% endblock %}
 </body>
 </html>

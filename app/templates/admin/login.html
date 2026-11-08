@@ -1,22 +1,52 @@
-{% extends "layout/base.html" %}
-{% block title %}Admin Login — The Mine 606{% endblock %}
-{% block content %}
-<section class="admin min-h-[70vh] grid place-items-center px-4 pt-10">
-  <form method="post" action="/admin/login" class="w-full max-w-md p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
-    <h1 class="font-serif text-3xl mb-6 text-center">Admin Login</h1>
-    {% if error %}
-      <div class="mb-4 text-sm text-red-400">{{ error }}</div>
-    {% endif %}
-    <label class="block mb-3">
-      <span class="text-sm text-white/70">Username</span>
-      <input name="username" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-    </label>
-    <label class="block mb-6">
-      <span class="text-sm text-white/70">Password</span>
-      <input type="password" name="password" required class="mt-1 w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 outline-none focus:ring-2 focus:ring-mine-gold">
-    </label>
-    <button class="btn-primary w-full justify-center">Sign in</button>
-    <p class="text-center text-white/50 text-xs mt-4">Protected area — authorized staff only.</p>
-  </form>
+<!doctype html>
+<html lang="en" data-mode="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Staff Login — The Mine 606</title>
+<meta name="robots" content="noindex,nofollow">
+{% include 'layout/theme_head.html' %}
+</head>
+<body>
+<main class="login-page">
+<section class="login-story">
+<img src="/static/media/venue/14.webp" alt="The Mine after dark">
+<a href="/" class="brand">
+<span class="brand-mark">M<small>606</small>
+</span>
+<span>THE MINE<small>BAR & KITCHEN · PIKEVILLE, KY</small>
+</span>
+</a>
+<h1>BEHIND<br>THE <em>GOOD TIMES.</em>
+</h1>
+<p>THE MINE 606 / STAFF ACCESS</p>
 </section>
-{% endblock %}
+<section class="login-form-side">
+{% include 'layout/theme_switch.html' %}
+<form method="post" action="/admin/login" class="login-form">
+<div>
+<p class="eyebrow">THE CONTROL ROOM</p>
+<h2>Welcome back.</h2>
+</div>
+<p>Sign in to manage The Mine.</p>
+{% if error %}
+<div class="error-alert" role="alert">{{ error }}</div>
+{% endif %}
+<label class="field">
+<span>Username</span>
+<input name="username" required autocomplete="username" autofocus>
+</label>
+<label class="field">
+<span>Password</span>
+<input type="password" name="password" required autocomplete="current-password">
+</label>
+<button type="submit" class="button primary">SIGN IN ↗</button>
+<p>Authorized staff only. <a href="/" class="text-link">BACK TO THE WEBSITE ↗</a>
+</p>
+</form>
+</section>
+</main>
+<div class="theme-announcement sr-only" role="status" aria-live="polite">
+</div>
+</body>
+</html>

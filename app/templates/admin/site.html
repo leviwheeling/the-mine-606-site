@@ -1,111 +1,61 @@
-{% extends "admin/base.html" %}
-
+{% extends 'admin/base.html' %}
+{% from 'layout/macros.html' import admin_heading, field %}
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <div class="mb-8">
-    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Site Settings</h1>
-    <p class="text-white/70">Configure business details, hours, and contact information</p>
-  </div>
-
-  <!-- Basic Info -->
-  <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 hover:bg-white/10 transition-colors">
-    <div class="flex items-center mb-4">
-      <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
-        <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
-        </svg>
-      </div>
-      <div>
-        <h2 class="text-lg font-medium text-mine-gold">Basic Information & Hero</h2>
-        <p class="text-sm text-white/60">Business details and homepage hero section</p>
-      </div>
-    </div>
-    <form method="post" action="/admin/site/basic" class="grid md:grid-cols-2 gap-4">
-      <input name="site_name" class="input" placeholder="Site Name" value="{{ s.site_name }}">
-      <input name="phone" class="input" placeholder="Phone" value="{{ s.phone }}">
-      <input name="email" class="input" placeholder="Email" value="{{ s.email }}">
-      <input name="address" class="input" placeholder="Address" value="{{ s.address }}">
-      <input name="city" class="input" placeholder="City" value="{{ s.city }}">
-      <input name="state" class="input" placeholder="State" value="{{ s.state }}">
-      <input name="zip" class="input" placeholder="ZIP" value="{{ s.zip }}">
-
-      <input name="hero_title" class="input md:col-span-2" placeholder="Hero Title" value="{{ s.hero_title }}">
-      <input name="hero_sub" class="input md:col-span-2" placeholder="Hero Subtitle" value="{{ s.hero_sub }}">
-
-      <label class="flex items-center gap-2 text-sm text-white/80 md:col-span-2">
-        <input type="checkbox" name="show_weather" {% if s.show_weather %}checked{% endif %}> Show weather widget
-      </label>
-
-      <input name="facebook" class="input" placeholder="Facebook URL" value="{{ s.facebook }}">
-      <input name="instagram" class="input" placeholder="Instagram URL" value="{{ s.instagram }}">
-      <input name="tiktok" class="input" placeholder="TikTok URL" value="{{ s.tiktok }}">
-      <input name="youtube" class="input" placeholder="YouTube URL" value="{{ s.youtube }}">
-
-      <div class="md:col-span-2 flex justify-end">
-        <button class="px-6 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Save</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Weekly Hours -->
-  <div class="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 hover:bg-white/10 transition-colors">
-    <div class="flex items-center mb-4">
-      <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
-        <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </div>
-      <div>
-        <h2 class="text-lg font-medium text-mine-gold">Weekly Hours</h2>
-        <p class="text-sm text-white/60">Set operating hours for each day</p>
-      </div>
-    </div>
-    <div class="grid md:grid-cols-2 gap-4">
-      {% for dow in ['mon','tue','wed','thu','fri','sat','sun'] %}
-      {% set h = (hours | selectattr('dow','equalto',dow) | list | first) %}
-      <form method="post" action="/admin/site/hours" class="grid grid-cols-5 gap-2 items-end">
-        <input type="hidden" name="dow" value="{{ dow }}">
-        <div class="col-span-1 capitalize text-white/80">{{ dow }}</div>
-        <input name="open" class="input col-span-1" placeholder="open" value="{{ h.open if h else '' }}">
-        <input name="close" class="input col-span-1" placeholder="close" value="{{ h.close if h else '' }}">
-        <label class="col-span-1 flex items-center gap-2 text-sm text-white/80">
-          <input type="checkbox" name="closed" {% if h and h.closed %}checked{% endif %}> Closed
-        </label>
-        <button class="px-3 py-1 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors text-sm col-span-1">Save</button>
-      </form>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- Holiday Overrides -->
-  <div class="card p-5">
-    <div class="font-semibold mb-3">Holiday Overrides</div>
-    <form method="post" action="/admin/site/holiday" class="grid md:grid-cols-5 gap-2 items-end">
-      <input type="date" name="date" class="input col-span-2" required>
-      <input name="open" class="input" placeholder="open">
-      <input name="close" class="input" placeholder="close">
-      <label class="flex items-center gap-2 text-sm text-white/80">
-        <input type="checkbox" name="closed"> Closed
-      </label>
-      <button class="px-4 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Add/Update</button>
-    </form>
-
-    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      {% for h in holidays %}
-      <div class="p-3 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between">
-        <div>
-          <div class="font-medium">{{ h.date }}</div>
-          <div class="text-white/60 text-sm">{{ 'Closed' if h.closed else (h.open ~ '–' ~ h.close) }}</div>
-        </div>
-        <form method="post" action="/admin/site/holiday/delete">
-          <input type="hidden" name="date" value="{{ h.date }}">
-          <button class="px-3 py-1 bg-red-600/80 hover:bg-red-600 rounded-lg transition-colors text-sm">Delete</button>
-        </form>
-      </div>
-      {% else %}
-      <div class="text-white/60">No overrides yet.</div>
-      {% endfor %}
-    </div>
-  </div>
+{{ admin_heading('Keep it current.','The details that help people find The Mine and plan their visit.') }}<div class="settings-grid">
+<section class="admin-panel span-all">
+<h2>Out front.</h2>
+<form method="post" action="/admin/site/basic" class="form-grid">{{ field('site_name','Business name',s.site_name,required=true) }}{{ field('phone','Phone',s.phone,type='tel') }}{{ field('email','Email',s.email,type='email') }}{{ field('address','Street address',s.address) }}{{ field('city','City',s.city) }}{{ field('state','State',s.state) }}{{ field('zip','ZIP code',s.zip) }}<div class="full">
+<h3>Make it yours.</h3>
+<p class="form-help">Optional homepage overrides. Leave blank to use the Day / Night headlines and copy.</p>
+</div>
+<div class="full">{{ field('hero_title','Custom headline (both modes)',s.hero_title) }}</div>
+<div class="full">{{ field('hero_sub','Custom introduction (both modes)',s.hero_sub) }}</div>{{ field('facebook','Facebook URL',s.facebook,type='url') }}{{ field('instagram','Instagram URL',s.instagram,type='url') }}{{ field('tiktok','TikTok URL',s.tiktok,type='url') }}{{ field('youtube','YouTube URL',s.youtube,type='url') }}
+{% if s.show_weather %}
+<input type="hidden" name="show_weather" value="on">
+{% endif %}
+<div class="full">
+<button class="button primary">SAVE SITE DETAILS ↗</button>
+</div>
+</form>
+</section>
+<section class="admin-panel span-all">
+<h2>Weekly hours.</h2>
+<p>Times are local to Pikeville. Save each day after editing.</p>
+{% for dow in ['mon','tue','wed','thu','fri','sat','sun'] %}
+{% set h=(hours|selectattr('dow','equalto',dow)|list|first) %}
+<form method="post" action="/admin/site/hours" class="hours-editor">
+<input type="hidden" name="dow" value="{{ dow }}">
+<b>{{ dow }}</b>{{ field('open','Opens',h.open if h else '',type='time') }}{{ field('close','Closes',h.close if h else '',type='time') }}<label class="check">
+<input type="checkbox" name="closed"
+{% if h and h.closed %}
+checked
+{% endif %}
+>Closed</label>
+<button class="small-button" aria-label="Save {{ dow }} hours">SAVE</button>
+</form>
+{% endfor %}
+</section>
+<section class="admin-panel span-all">
+<h2>Holiday changes.</h2>
+<form method="post" action="/admin/site/holiday" class="form-grid">{{ field('date','Date',type='date',required=true) }}{{ field('open','Opens',type='time') }}{{ field('close','Closes',type='time') }}<label class="check">
+<input type="checkbox" name="closed">Closed all day</label>
+<div class="full">
+<button class="button primary">SAVE HOLIDAY HOURS</button>
+</div>
+</form>
+<div class="holiday-list">
+{% for h in holidays %}
+<div>
+<p>{{ h.date }} · {{ 'Closed' if h.closed else (h.open ~ '–' ~ h.close) }}</p>
+<form method="post" action="/admin/site/holiday/delete" data-confirm="Remove the hours override for {{ h.date }}?">
+<input type="hidden" name="date" value="{{ h.date }}">
+<button class="button secondary danger">REMOVE</button>
+</form>
+</div>
+{% else %}
+<p class="form-help">No holiday changes yet.</p>
+{% endfor %}
+</div>
+</section>
 </div>
 {% endblock %}

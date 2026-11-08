@@ -1,5 +1,5 @@
 # app/routers/admin/musician.py
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ...db.session import get_db
@@ -26,8 +26,10 @@ def musician_list(request: Request, db: Session = Depends(get_db)):
 @router.post("/musician/status")
 def musician_status(request: Request, id: int = Form(...), status: str = Form(...), db: Session = Depends(get_db)):
     admin_required(request)
+    if status not in {"new", "contacted", "booked", "closed"}:
+        raise HTTPException(status_code=422, detail="Invalid application status")
     row = db.query(MusicianApp).get(id)
     if row:
         row.status = status
         db.commit()
-    return RedirectResponse("/admin/musician", status_code=303)
+    return RedirectResponse("/admin/musician?saved=1", status_code=303)

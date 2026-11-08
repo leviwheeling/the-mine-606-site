@@ -1,0 +1,25 @@
+{% from 'layout/macros.html' import field, textarea %}
+{{ field('title','Event title',event.title if event else '',required=true) }}{{ field('venue_area','Venue area',event.venue_area if event else 'Deck') }}{{ field('start','Starts (Pikeville local time)',event.start.strftime('%Y-%m-%dT%H:%M') if event else '',type='datetime-local',required=true) }}{{ field('end','Ends (optional)',event.end.strftime('%Y-%m-%dT%H:%M') if event and event.end else '',type='datetime-local') }}{{ textarea('description','The details',event.description if event else '') }}<div class="full">{{ field('ticket_url','Ticket / event info link',event.ticket_url if event else '',type='url',placeholder='https://') }}</div>
+<label class="field full">
+<span>Event poster</span>
+<input type="file" name="image" accept="image/*" data-image-preview="#event-preview">
+<img class="upload-preview" id="event-preview" alt="Poster preview"
+{% if event and event.image_url %}
+src="{{ event.image_url }}"
+{% else %}
+hidden
+{% endif %}
+>
+</label>
+<label class="check full">
+<input type="checkbox" name="is_published"
+{% if not event or event.is_published %}
+checked
+{% endif %}
+>Publish on the website</label>
+<div class="actions full">
+<button class="button primary">SAVE EVENT ↗</button>
+{% if event %}
+<a href="/admin/events" class="button secondary">CANCEL</a>
+{% endif %}
+</div>

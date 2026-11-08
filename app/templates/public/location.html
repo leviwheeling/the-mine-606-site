@@ -1,62 +1,51 @@
-{% extends "layout/base.html" %}
-{% block title %}Location — The Mine 606{% endblock %}
+{% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import photo %}
+{% block title %}
+Find Us — The Mine 606
+{% endblock %}
 {% block content %}
-<section class="max-w-6xl mx-auto px-4 pt-14 pb-24">
-  <header class="mb-6 sm:mb-8">
-    <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl">Find Us</h1>
-    <p class="text-white/70 mt-2 text-sm sm:text-base">Across from Appalachian Wireless Arena.</p>
-  </header>
-
-  <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
-    <div class="card overflow-hidden">
-      {% set lat = site.lat if site else None %}
-      {% set lng = site.lng if site else None %}
-      {% if GOOGLE_MAPS_API_KEY and lat and lng %}
-        <!-- JS map could be added later; for now, embed with coords -->
-        <iframe
-          title="Map"
-          class="w-full h-64 sm:h-80"
-          loading="lazy"
-          src="https://www.google.com/maps/embed/v1/view?key={{ GOOGLE_MAPS_API_KEY }}&center={{ lat }},{{ lng }}&zoom=16&maptype=roadmap">
-        </iframe>
-      {% else %}
-        <!-- Fallback: Mine 606 location -->
-        <iframe
-          title="Map"
-          class="w-full h-64 sm:h-80"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          src="https://www.google.com/maps?q=The%20Mine%20606%2C%20121%20Main%20St%2C%20Pikeville%2C%20KY&output=embed">
-        </iframe>
-      {% endif %}
-    </div>
-
-    <div class="card p-4 sm:p-5">
-      <div class="font-semibold">Hours</div>
-      <div class="mt-2 text-white/80 text-sm">
-        {% if template_globals(request).get('HOURS_HTML') %}
-          {{ template_globals(request).get('HOURS_HTML')|safe }}
-        {% else %}
-          Tue–Thu 11am–10pm<br>
-          Fri–Sat 11am–12am<br>
-          Sun 11am–9pm<br>
-          Mon Closed
-        {% endif %}
-      </div>
-
-      <div class="mt-6 font-semibold">Contact</div>
-      <div class="text-white/80 text-sm">
-        <div><a href="tel:+16064241185" class="text-mine-gold hover:underline">(606) 424-1185</a></div>
-        <div><a href="mailto:info@themine606.com" class="text-mine-gold hover:underline">info@themine606.com</a></div>
-      </div>
-      {% if site and site.address %}
-      <div class="text-white/80 text-sm mt-2">
-        {{ site.address }}{% if site.city %}, {{ site.city }}{% endif %}{% if site.state %}, {{ site.state }}{% endif %}{% if site.zip %} {{ site.zip }}{% endif %}
-      </div>
-      {% endif %}
-    </div>
-  </div>
+{% set address = (site.address if site and site.address else '121 Main St') %}
+{% set city = site.city if site and site.city else 'Pikeville' %}
+{% set state = site.state if site and site.state else 'KY' %}
+{% set zip = site.zip if site and site.zip else '41501' %}
+<section class="page-intro">
+<p class="eyebrow">RIGHT WHERE THE GOOD TIMES ARE.</p>
+<h1>Meet at<br>
+<em>The Mine.</em>
+</h1>
+<p>Downtown Pikeville. Across from Appalachian Wireless Arena.</p>
 </section>
-
-{% block body_scripts %}{% endblock %}
+<section class="section page-body">
+<div class="location-grid">
+<div class="panel">
+<p class="eyebrow">COME ON OVER</p>
+<h2>{{ address }}</h2>
+<p>{{ city }}, {{ state }} {{ zip }}</p>
+<a class="button primary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query={{ (address ~ ', ' ~ city ~ ', ' ~ state ~ ' ' ~ zip)|urlencode }}">GET DIRECTIONS ↗</a>
+{% if site and site.phone %}
+<a class="contact-link" href="tel:{{ site.phone }}">{{ site.phone }}</a>
+{% endif %}
+{% if site and site.email %}
+<a class="contact-link" href="mailto:{{ site.email }}">{{ site.email }}</a>
+{% endif %}
+<h3 class="mini-heading">HOURS</h3>
+<div class="hours-list">
+{% if HOURS_HTML %}
+{{ HOURS_HTML|safe }}
+{% else %}
+<p>Contact us for current hours.</p>
+{% endif %}
+</div>
+</div>
+<iframe class="location-map" title="Map to The Mine 606" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q={{ (address ~ ', ' ~ city ~ ', ' ~ state ~ ' ' ~ zip)|urlencode }}&output=embed">
+</iframe>
+</div>
+<div class="location-photo">{{ photo('12','Pool at The Mine 606','loading="lazy"') }}<div>
+<p class="eyebrow">STAY FOR ONE MORE GAME.</p>
+<h2>Your new<br>
+<em>usual spot.</em>
+</h2>
+</div>
+</div>
+</section>
 {% endblock %}

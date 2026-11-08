@@ -154,7 +154,7 @@ _safe_include("/api", "app.routers.api.events", "router")
 _safe_include("/api", "app.routers.api.uploads", "router")
 _safe_include("/api", "app.routers.api.forms", "router")
 _safe_include("/api", "app.routers.api.weather", "router")
-_safe_include("/api", "app.routers.api.uploads", "router")
+
 # admin (/admin/*)
 _safe_include("/admin", "app.routers.admin.auth", "router")
 _safe_include("/admin", "app.routers.admin.dashboard", "router")
@@ -167,95 +167,6 @@ _safe_include("/admin", "app.routers.admin.site", "router")
 # ---------- Basic pages & utilities ----------
 def is_htmx_request(request: Request) -> bool:
     return "HX-Request" in request.headers
-
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    from .models.events import Event
-    from .models.menu import MenuItem
-    from .services.cache import get_cached_site_settings
-    from datetime import datetime
-    
-    events = []
-    featured = []
-    
-    try:
-        db = SessionLocal()
-        # Use a single transaction for all queries
-        now = datetime.utcnow()
-        
-        # Combine queries using join where possible
-        results = db.execute("""
-            SELECT 
-                'event' as type,
-                e.id,
-                e.title,
-                e.description,
-                e.start,
-                e.end,
-                NULL as price,
-                NULL as featured_rank,
-                NULL as available
-            FROM event e
-            WHERE e.start >= :now
-                AND e.is_published = true
-            ORDER BY e.start ASC
-            LIMIT 3
-            
-            UNION ALL
-            
-            SELECT 
-                'menu' as type,
-                m.id,
-                m.name as title,
-                m.description,
-                NULL as start,
-                NULL as end,
-                m.price,
-                m.featured_rank,
-                m.available
-            FROM menu_item m
-            WHERE m.featured_rank > 0
-                AND m.available = true
-            ORDER BY m.featured_rank ASC
-            LIMIT 9
-        """, {"now": now})
-        
-        # Process results
-        for row in results:
-            if row.type == 'event':
-                events.append({
-                    'id': row.id,
-                    'title': row.title,
-                    'description': row.description,
-                    'start': row.start,
-                    'end': row.end
-                })
-            elif row.type == 'menu':
-                featured.append({
-                    'id': row.id,
-                    'name': row.title,
-                    'description': row.description,
-                    'price': row.price,
-                    'featured_rank': row.featured_rank
-                })
-                
-    except Exception as e:
-        if settings.debug:
-            print(f"Error in home route: {e}")
-        events = []
-        featured = []
-    finally:
-        try:
-            db.close()
-        except Exception:
-            pass
-    
-    # Renders templates/public/home.html with events, featured, and site data
-    context = template_globals(request)
-    context["events"] = events
-    context["featured"] = featured
-    context["site"] = site
-    return templates.TemplateResponse("public/home.html", context)
 
 @app.get("/healthz", response_class=PlainTextResponse)
 async def healthz() -> str:
@@ -275,8 +186,8 @@ async def sitemap(request: Request) -> Response:
     urls: List[str] = [
         f"{base}/",
         f"{base}/menu",
+        f"{base}/events",
         f"{base}/ordering",
-        f"{base}/shopify",
         f"{base}/musician",
         f"{base}/rentals",
         f"{base}/location",

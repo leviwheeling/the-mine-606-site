@@ -1,0 +1,2 @@
+{% from 'layout/macros.html' import field %}
+{{ field('name','Name',row.name if row else '',required=true) }}{{ field('slug','Slug',row.slug if row else '',required=true,placeholder='e.g. shareables') }}{{ field('sort_order','Display order',row.sort_order if row else 0,type='number',required=true) }}

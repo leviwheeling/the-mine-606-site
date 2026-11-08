@@ -1,146 +1,53 @@
-{% extends "admin/base.html" %}
-
-{% block head_extra %}
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
-{% endblock %}
-
+{% extends 'admin/base.html' %}
+{% from 'layout/macros.html' import admin_heading %}
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <div class="mb-8">
-    <h1 class="font-serif text-3xl md:text-4xl text-mine-gold mb-2">Events Manager</h1>
-    <p class="text-white/70">Schedule shows, live music, and special events</p>
-  </div>
-
-  <div class="grid lg:grid-cols-2 gap-8">
-    <!-- Create/Edit -->
-    <div class="space-y-6">
-      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
-        <div class="flex items-center mb-4">
-          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
-            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="text-lg font-medium text-mine-gold">Create Event</h2>
-            <p class="text-sm text-white/60">Add a new show or special event</p>
-          </div>
-        </div>
-        <form action="/admin/events/create" method="post" enctype="multipart/form-data" class="space-y-4">
-          <label class="block">
-            <span class="text-sm text-white/70">Title</span>
-            <input name="title" required class="input mt-1" placeholder="Band Night on the Deck">
-          </label>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <label class="block">
-              <span class="text-sm text-white/70">Start</span>
-              <input type="datetime-local" name="start" required class="input mt-1">
-            </label>
-            <label class="block">
-              <span class="text-sm text-white/70">End (optional)</span>
-              <input type="datetime-local" name="end" class="input mt-1">
-            </label>
-          </div>
-                  <label class="block">
-          <span class="text-sm text-white/70">Event Image (optional)</span>
-          <input type="file" name="image" accept="image/*" class="input mt-1" onchange="previewImage(this)">
-          <div id="image-preview" class="mt-2 hidden">
-            <img id="preview-img" src="" alt="Preview" class="w-32 h-24 object-cover rounded-lg border border-white/20">
-          </div>
-        </label>
-          <label class="block">
-            <span class="text-sm text-white/70">Description</span>
-            <textarea name="description" class="input mt-1" rows="3" placeholder="Short blurb…"></textarea>
-          </label>
-          <button class="px-6 py-2 bg-mine-gold text-black rounded-lg hover:bg-mine-gold/90 transition-colors font-medium">Add Event</button>
-        </form>
-      </div>
-
-      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
-        <div class="flex items-center mb-4">
-          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
-            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="text-lg font-medium text-mine-gold">All Events</h2>
-            <p class="text-sm text-white/60">Manage existing events</p>
-          </div>
-        </div>
-        {% if events and events|length %}
-          <div class="space-y-3">
-            {% for e in events %}
-                      <form action="/admin/events/delete" method="post" class="flex items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-xl p-3">
-          <div class="text-sm flex-1">
-            <div class="font-medium">{{ e.title }}</div>
-            <div class="text-white/60">
-              {{ e.start.strftime('%b %d, %Y %I:%M %p') }}
-              {% if e.end %} – {{ e.end.strftime('%I:%M %p') }}{% endif %}
-            </div>
-            {% if e.image_url %}
-            <div class="mt-2">
-              <img src="{{ e.image_url }}" alt="Event image" class="w-16 h-12 object-cover rounded border border-white/20">
-            </div>
-            {% endif %}
-          </div>
-          <div class="flex gap-2">
-            <a href="/admin/events/edit/{{ e.id }}" class="px-3 py-2 rounded-lg bg-mine-gold text-black hover:bg-mine-gold/90 transition-colors">Edit</a>
-            <input type="hidden" name="event_id" value="{{ e.id }}">
-            <button class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition-colors">Delete</button>
-          </div>
-        </form>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="text-white/60 text-sm">No events yet.</div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Calendar Preview -->
-    <div>
-      <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
-        <div class="flex items-center mb-4">
-          <div class="w-10 h-10 bg-mine-gold/20 rounded-lg flex items-center justify-center mr-3">
-            <svg class="w-5 h-5 text-mine-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <div>
-            <h2 class="text-lg font-medium text-mine-gold">Calendar Preview</h2>
-            <p class="text-sm text-white/60">View events on calendar</p>
-          </div>
-        </div>
-        <div id="calendar" data-endpoint="/api/events/data" class="bg-white/5 border border-white/10 rounded-xl p-3"></div>
-        <div id="event-description" class="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg hidden">
-          <div class="text-mine-gold font-medium mb-1">Event Details</div>
-          <div id="event-desc-text" class="text-white/80 text-sm"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+{{ admin_heading('Make some plans.','The nights worth showing up for. Add, edit, or publish an event.') }}<details class="admin-panel">
+<summary>+ Put a night on the calendar</summary>
+<form method="post" action="/admin/events/create" enctype="multipart/form-data" class="form-grid">
+{% set event=none %}
+{% include 'admin/_event_fields.html' %}
+</form>
+</details>
+<div class="table-wrap">
+<table class="responsive-table">
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+<th>Area</th>
+<th>Visibility</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for event in events %}
+<tr>
+<td data-label="Event">
+<strong>{{ event.title }}</strong>
+</td>
+<td data-label="When">{{ event.start.strftime('%b %d, %Y') }}<br>
+<small>{{ event.start.strftime('%I:%M %p') }}</small>
+</td>
+<td data-label="Area">{{ event.venue_area or 'The Mine' }}</td>
+<td data-label="Visibility">
+<span class="badge">{{ 'Published' if event.is_published else 'Draft' }}</span>
+</td>
+<td data-label="Actions">
+<div class="row-actions">
+<a href="/admin/events/edit/{{ event.id }}">Edit</a>
+<form method="post" action="/admin/events/delete" data-confirm="Delete {{ event.title }} from the calendar?">
+<input type="hidden" name="event_id" value="{{ event.id }}">
+<button class="danger">Delete</button>
+</form>
+</div>
+</td>
+</tr>
+{% else %}
+<tr>
+<td colspan="5" class="table-empty">The calendar is clear. Add the next good night above.</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
 </div>
 {% endblock %}
-
-  {% block body_scripts %}
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-  <script src="/static/js/calendar.js"></script>
-  <script>
-    function previewImage(input) {
-      const preview = document.getElementById('image-preview');
-      const previewImg = document.getElementById('preview-img');
-      
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          previewImg.src = e.target.result;
-          preview.classList.remove('hidden');
-        };
-        reader.readAsDataURL(input.files[0]);
-      } else {
-        preview.classList.add('hidden');
-      }
-    }
-  </script>
-  {% endblock %}

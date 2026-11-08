@@ -3,6 +3,7 @@ from fastapi import APIRouter, Query, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from ...db.session import get_db
 from ...models.events import Event
 
@@ -26,6 +27,7 @@ def events_data(
 
     q = (
         db.query(Event)
+          .filter(Event.is_published.is_(True))
           .filter(Event.start <= end_dt)
           .filter((Event.end == None) | (Event.end >= start_dt))
           .order_by(Event.start.asc())
@@ -47,7 +49,7 @@ def get_events(db: Session = Depends(get_db)):
     """Get all upcoming events for display on public pages."""
     events = (
         db.query(Event)
-        .filter(Event.start >= datetime.now())
+        .filter(Event.is_published.is_(True), Event.start >= datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None))
         .order_by(Event.start.asc())
         .limit(6)
         .all()

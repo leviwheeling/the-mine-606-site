@@ -1,0 +1,55 @@
+{% from 'layout/macros.html' import field, textarea %}
+{{ field('name','Dish / drink name',item.name if item else '',required=true) }}{{ field('price','Price ($)',item.price if item else '',type='number',required=true,step='0.01') }}<label class="field">
+<span>Category *</span>
+<select name="category_id" required>
+<option value="">Choose a category</option>
+{% for c in categories %}
+<option value="{{ c.id }}"
+{% if item and item.category_id == c.id %}
+selected
+{% endif %}
+>{{ c.name }}</option>
+{% endfor %}
+</select>
+</label>
+<label class="field">
+<span>Homepage position (0 = not featured)</span>
+<input type="number" name="featured_rank" min="0" max="9" value="{{ item.featured_rank if item else 0 }}">
+</label>{{ textarea('description','Description',item.description if item else '') }}<label class="field full">
+<span>Photo</span>
+<input type="file" name="image" accept="image/*" data-image-preview="#upload-preview">
+<img id="upload-preview" class="upload-preview"
+{% if item and item.image_url %}
+src="{{ item.image_url }}"
+{% else %}
+hidden
+{% endif %}
+ alt="Dish photo preview">
+</label>
+<div class="full">
+<span class="field-label">Menu tags</span>
+<div class="checkbox-list">
+{% for t in tags %}
+<label class="check">
+<input type="checkbox" name="tag_ids" value="{{ t.id }}"
+{% if item and t.id in current_tag_ids %}
+checked
+{% endif %}
+>{{ t.name }}</label>
+{% else %}
+<p class="form-help">Create tags under Menu tags to add dietary or allergen labels.</p>
+{% endfor %}
+</div>
+</div>
+<label class="check full">
+<input type="checkbox" name="available"
+{% if not item or item.available %}
+checked
+{% endif %}
+>Available on the public menu</label>
+<div class="full actions">
+<button type="submit" class="button primary">SAVE ITEM ↗</button>
+{% if item %}
+<a href="/admin/menu" class="button secondary">CANCEL</a>
+{% endif %}
+</div>

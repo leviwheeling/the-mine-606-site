@@ -1,0 +1,51 @@
+{% macro field(name, label, value='', type='text', required=false, placeholder='', step='1') -%}
+<label class="field">
+<span>{{ label }}
+{% if required %}
+ <small aria-hidden="true">*</small>
+{% endif %}
+</span>
+<input type="{{ type }}" name="{{ name }}" value="{{ value if value is not none else '' }}" placeholder="{{ placeholder }}"
+{% if required %}
+required
+{% endif %}
+
+{% if type == 'number' %}
+step="{{ step }}" min="0"
+{% endif %}
+>
+</label>
+{%- endmacro %}
+{% macro textarea(name,label,value='',required=false) -%}
+<label class="field full">
+<span>{{ label }}
+{% if required %}
+ <small aria-hidden="true">*</small>
+{% endif %}
+</span>
+<textarea name="{{ name }}" rows="5"
+{% if required %}
+required
+{% endif %}
+>{{ value or '' }}</textarea>
+</label>{%- endmacro %}
+{% macro empty(title, text) -%}
+<div class="empty-state">
+<span aria-hidden="true">✦</span>
+<h3>{{ title }}</h3>
+<p>{{ text }}</p>
+</div>{%- endmacro %}
+{% macro admin_heading(title, sub) -%}
+<div class="admin-heading">
+<div>
+<p class="eyebrow">THE MINE / CONTROL ROOM</p>
+<h1>{{ title }}</h1>
+<p>{{ sub }}</p>
+</div>
+<span class="mode-tag">
+<span class="only-day">Day shift ☀</span>
+<span class="only-night">Night shift ☾</span>
+</span>
+</div>{%- endmacro %}
+{% macro photo(number, alt, extra='') -%}
+<img src="/static/media/venue/{{ number }}.webp" srcset="/static/media/venue/{{ number }}-small.webp 800w, /static/media/venue/{{ number }}.webp 1600w" sizes="(max-width: 600px) 100vw, 70vw" alt="{{ alt }}" {{ extra|safe }}>{%- endmacro %}

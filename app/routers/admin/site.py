@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from ...db.session import get_db
 from ...models.site import SiteSetting, Hours, HolidayOverride
 from ...security.auth import admin_required
+from ...services.cache import clear_caches
 
 router = APIRouter()
 
@@ -57,15 +58,16 @@ def update_basic(
     s.city = city or ""
     s.state = state or ""
     s.zip = zip or ""
-    s.hero_title = hero_title or s.hero_title
-    s.hero_sub = hero_sub or s.hero_sub
+    s.hero_title = (hero_title or "").strip()
+    s.hero_sub = (hero_sub or "").strip()
     s.show_weather = bool(show_weather)  # checkbox
     s.facebook = facebook or ""
     s.instagram = instagram or ""
     s.tiktok = tiktok or ""
     s.youtube = youtube or ""
     db.commit()
-    return RedirectResponse("/admin/site", status_code=303)
+    clear_caches()
+    return RedirectResponse("/admin/site?saved=1", status_code=303)
 
 @router.post("/site/hours")
 def set_hours(
@@ -82,7 +84,8 @@ def set_hours(
     row.close = close
     row.closed = bool(closed)
     db.commit()
-    return RedirectResponse("/admin/site", status_code=303)
+    clear_caches()
+    return RedirectResponse("/admin/site?saved=1", status_code=303)
 
 @router.post("/site/holiday")
 def set_holiday(
@@ -99,7 +102,8 @@ def set_holiday(
     row.close = close
     row.closed = bool(closed)
     db.commit()
-    return RedirectResponse("/admin/site", status_code=303)
+    clear_caches()
+    return RedirectResponse("/admin/site?saved=1", status_code=303)
 
 @router.post("/site/holiday/delete")
 def delete_holiday(request: Request, date: str = Form(...), db: Session = Depends(get_db)):
@@ -107,4 +111,5 @@ def delete_holiday(request: Request, date: str = Form(...), db: Session = Depend
     row = db.query(HolidayOverride).filter(HolidayOverride.date==date).first()
     if row:
         db.delete(row); db.commit()
-    return RedirectResponse("/admin/site", status_code=303)
+        clear_caches()
+    return RedirectResponse("/admin/site?saved=1", status_code=303)

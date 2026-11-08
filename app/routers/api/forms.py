@@ -1,5 +1,5 @@
 # app/routers/api/forms.py (updated)
-from fastapi import APIRouter, Form, UploadFile, File, Request, Depends
+from fastapi import APIRouter, Form, UploadFile, File, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -44,6 +44,7 @@ async def rental_submit(
     date: Optional[str] = Form(None),
     event_date: Optional[str] = Form(None),  # Support both field names
     party_size: Optional[str] = Form(None),
+    venue_area: str = Form(""),
     message: Optional[str] = Form(None),
 ):
     # save to DB - use whichever date field was provided
@@ -51,13 +52,15 @@ async def rental_submit(
     dt = None
     try:
         if date_str: dt = datetime.fromisoformat(date_str)
-    except Exception:
-        dt = None
-    
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Please choose a valid event date.")
+    if not dt:
+        raise HTTPException(status_code=422, detail="Please choose an event date.")
+
     row = Rental(
         name=name.strip(), email=email.strip(),
         phone=(phone or "").strip(), party_size=(party_size or "").strip(),
-        date=dt or datetime.utcnow(),
+        date=dt, venue_area=venue_area.strip(),
         message=(message or "").strip() or None,
         submitted_at=datetime.utcnow(),  # Add this missing field
         status="new"

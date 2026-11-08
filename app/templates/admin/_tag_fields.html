@@ -1,0 +1,13 @@
+{% from 'layout/macros.html' import field %}
+{{ field('name','Name',row.name if row else '',required=true) }}{{ field('slug','Slug',row.slug if row else '',required=true,placeholder='e.g. shareables') }}<label class="field">
+<span>Type</span>
+<select name="type">
+{% for type in ['dietary','allergen','spice','other'] %}
+<option value="{{ type }}"
+{% if row and row.type == type %}
+selected
+{% endif %}
+>{{ type|title }}</option>
+{% endfor %}
+</select>
+</label>{{ field('icon','Icon (optional)',row.icon if row else '') }}

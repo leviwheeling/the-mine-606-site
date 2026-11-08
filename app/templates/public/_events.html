@@ -1,0 +1,29 @@
+{% from 'layout/macros.html' import empty %}
+<div class="event-grid">
+{% for e in events %}
+<article class="event-card">
+{% if e.image_url %}
+<button type="button" class="event-photo" data-photo="{{ e.image_url }}" data-caption="{{ e.title }}">
+<img src="{{ e.image_url }}" alt="{{ e.title }}" loading="lazy">
+<span>VIEW POSTER ↗</span>
+</button>
+{% endif %}
+<div class="event-info">
+<time datetime="{{ e.start.isoformat() }}">
+<b>{{ e.start.strftime('%d') }}</b>{{ e.start.strftime('%b') }}</time>
+<div>
+<p class="eyebrow">{{ e.start.strftime('%a · %I:%M %p') }} · {{ e.venue_area or 'The Mine' }}</p>
+<h3>{{ e.title }}</h3>
+{% if e.description %}
+<p>{{ e.description }}</p>
+{% endif %}
+{% if e.ticket_url %}
+<a class="text-link" href="{{ e.ticket_url }}" target="_blank" rel="noopener">EVENT INFO & TICKETS ↗</a>
+{% endif %}
+</div>
+</div>
+</article>
+{% else %}
+{{ empty('Good nights are on the way.','We’re putting the next ones on the calendar. Check back for upcoming events.') }}
+{% endfor %}
+</div>

@@ -49,21 +49,21 @@ def menu_dashboard(request: Request, db: Session = Depends(get_db)):
 @router.get("/menu/edit/{item_id}", response_class=HTMLResponse)
 def edit_item_form(request: Request, item_id: int, db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     item = db.query(MenuItem).options(
         joinedload(MenuItem.tags),
         joinedload(MenuItem.category_rel)
     ).filter(MenuItem.id == item_id).first()
-    
+
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
     categories = db.query(MenuCategory).order_by(MenuCategory.sort_order.asc(), MenuCategory.name.asc()).all()
     tags = db.query(MenuTag).order_by(MenuTag.type.asc(), MenuTag.name.asc()).all()
-    
+
     # Get current tag IDs for pre-selection
     current_tag_ids = [t.id for t in item.tags]
-    
+
     return request.app.templates.TemplateResponse(
         "admin/menu_edit.html",
         ctx(request, item=item, categories=categories, tags=tags, current_tag_ids=current_tag_ids)
@@ -83,22 +83,20 @@ async def update_item(
     image: Optional[UploadFile] = File(None),
 ):
     admin_required(request)
-    
+
     item = db.query(MenuItem).get(item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
     # Handle image replacement
     if image and image.filename:
-        # Clean up old image if it exists
-        if item.image_url:
-            delete_media(item.image_url)  # Works for both cloud and local images
-        
-        # Upload new image
         new_image_url = await save_upload(image, subdir="menu")
         if new_image_url:
+            old_image_url = item.image_url
             item.image_url = new_image_url
-    
+            if old_image_url:
+                delete_media(old_image_url)
+
     # Update other fields
     item.name = name.strip()
     item.price = price
@@ -106,31 +104,31 @@ async def update_item(
     item.description = (description or "").strip() or None
     item.featured_rank = max(0, min(int(featured_rank or 0), 9))
     item.available = bool(available)
-    
+
     # Update tags
     form = await request.form()
     new_tag_ids = []
-    for key, value in form.items():
+    for key, value in form.multi_items():
         if key == "tag_ids":
             try:
                 new_tag_ids.append(int(value))
             except ValueError:
                 continue
-    
+
     # Remove old tag associations (if they exist)
     tag_count = db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).count()
     if tag_count > 0:
         db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).delete(synchronize_session=False)
-    
+
     # Add new tag associations
     if new_tag_ids:
         tag_ids_clean = list({int(t) for t in new_tag_ids})
         existing = db.query(MenuTag).filter(MenuTag.id.in_(tag_ids_clean)).all()
         for t in existing:
             db.add(MenuItemTag(item_id=item.id, tag_id=t.id))
-    
+
     db.commit()
-    return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/admin/menu?saved=1", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/menu/feature")
 async def update_featured(request: Request, db: Session = Depends(get_db)):
@@ -152,7 +150,7 @@ async def update_featured(request: Request, db: Session = Depends(get_db)):
             changed += 1
     if changed:
         db.commit()
-    return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/admin/menu?saved=1", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/menu/create")
 async def create_item(
@@ -188,13 +186,13 @@ async def create_item(
     # attach tags from form data
     form = await request.form()
     tag_ids = []
-    for key, value in form.items():
+    for key, value in form.multi_items():
         if key == "tag_ids":
             try:
                 tag_ids.append(int(value))
             except ValueError:
                 continue
-    
+
     if tag_ids:
         # de-dup and validate
         tag_ids_clean = list({int(t) for t in tag_ids})
@@ -203,7 +201,7 @@ async def create_item(
             db.add(MenuItemTag(item_id=item.id, tag_id=t.id))
 
     db.commit()
-    return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/admin/menu?saved=1", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/menu/toggle/{item_id}")
 def toggle_item(request: Request, item_id: int, db: Session = Depends(get_db)):
@@ -213,7 +211,7 @@ def toggle_item(request: Request, item_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Item not found")
     item.available = not bool(item.available)
     db.commit()
-    return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/admin/menu?saved=1", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/menu/delete/{item_id}")
 def delete_item(request: Request, item_id: int, db: Session = Depends(get_db)):
@@ -221,18 +219,18 @@ def delete_item(request: Request, item_id: int, db: Session = Depends(get_db)):
     item = db.get(MenuItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
     # Clean up image file if it exists
     if item.image_url:
         delete_media(item.image_url)  # Works for both cloud and local images
-    
+
     # delete tag links first (delete one by one to avoid SQLAlchemy issues)
     try:
         # Get all tag associations and delete them individually
         tag_associations = db.query(MenuItemTag).filter(MenuItemTag.item_id == item_id).all()
         for tag_assoc in tag_associations:
             db.delete(tag_assoc)
-        
+
         # Delete the menu item
         db.delete(item)
         db.commit()
@@ -240,7 +238,7 @@ def delete_item(request: Request, item_id: int, db: Session = Depends(get_db)):
         db.rollback()
         print(f"Error deleting item: {e}")
         raise HTTPException(status_code=500, detail=f"Could not delete item: {str(e)}")
-    return RedirectResponse("/admin/menu", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse("/admin/menu?saved=1", status_code=status.HTTP_303_SEE_OTHER)
 
 # Keep existing category and tag creation routes
 @router.post("/menu/category/create")
@@ -252,7 +250,7 @@ def create_category(request: Request,
     admin_required(request)
     c = MenuCategory(name=name.strip(), slug=slug.strip(), sort_order=sort_order)
     db.add(c); db.commit()
-    return RedirectResponse("/admin/menu", status_code=303)
+    return RedirectResponse("/admin/menu?saved=1", status_code=303)
 
 @router.post("/menu/tag/create")
 def create_tag(request: Request,
@@ -263,13 +261,13 @@ def create_tag(request: Request,
     admin_required(request)
     t = MenuTag(name=name.strip(), slug=slug.strip(), type=type)
     db.add(t); db.commit()
-    return RedirectResponse("/admin/menu", status_code=303)
+    return RedirectResponse("/admin/menu?saved=1", status_code=303)
 
 # Dedicated tag management routes
 @router.get("/tags", response_class=HTMLResponse)
 def tags_dashboard(request: Request, db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     tags = db.query(MenuTag).order_by(MenuTag.type.asc(), MenuTag.name.asc()).all()
     return request.app.templates.TemplateResponse(
         "admin/tags.html",
@@ -287,7 +285,7 @@ def create_tag_dedicated(request: Request,
     t = MenuTag(name=name.strip(), slug=slug.strip(), type=type, icon=icon.strip() or None)
     db.add(t)
     db.commit()
-    return RedirectResponse("/admin/tags", status_code=303)
+    return RedirectResponse("/admin/tags?saved=1", status_code=303)
 
 @router.post("/tags/edit/{tag_id}")
 def update_tag(request: Request,
@@ -298,41 +296,41 @@ def update_tag(request: Request,
                icon: str = Form(""),
                db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     tag = db.query(MenuTag).get(tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
-    
+
     tag.name = name.strip()
     tag.slug = slug.strip()
     tag.type = type
     tag.icon = icon.strip() or None
-    
+
     db.commit()
-    return RedirectResponse("/admin/tags", status_code=303)
+    return RedirectResponse("/admin/tags?saved=1", status_code=303)
 
 @router.post("/tags/delete/{tag_id}")
 def delete_tag(request: Request, tag_id: int, db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     tag = db.query(MenuTag).get(tag_id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
-    
+
     # Check if tag is used by any items
     usage_count = db.query(MenuItemTag).filter(MenuItemTag.tag_id == tag_id).count()
     if usage_count > 0:
         raise HTTPException(status_code=400, detail=f"Cannot delete tag used by {usage_count} menu items")
-    
+
     db.delete(tag)
     db.commit()
-    return RedirectResponse("/admin/tags", status_code=303)
+    return RedirectResponse("/admin/tags?saved=1", status_code=303)
 
 # Dedicated category management routes
 @router.get("/categories", response_class=HTMLResponse)
 def categories_dashboard(request: Request, db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     categories = db.query(MenuCategory).order_by(MenuCategory.sort_order.asc(), MenuCategory.name.asc()).all()
     return request.app.templates.TemplateResponse(
         "admin/categories.html",
@@ -349,7 +347,7 @@ def create_category_dedicated(request: Request,
     c = MenuCategory(name=name.strip(), slug=slug.strip(), sort_order=sort_order)
     db.add(c)
     db.commit()
-    return RedirectResponse("/admin/categories", status_code=303)
+    return RedirectResponse("/admin/categories?saved=1", status_code=303)
 
 @router.post("/categories/edit/{category_id}")
 def update_category(request: Request,
@@ -359,31 +357,31 @@ def update_category(request: Request,
                    sort_order: int = Form(0),
                    db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     category = db.query(MenuCategory).get(category_id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    
+
     category.name = name.strip()
     category.slug = slug.strip()
     category.sort_order = sort_order
-    
+
     db.commit()
-    return RedirectResponse("/admin/categories", status_code=303)
+    return RedirectResponse("/admin/categories?saved=1", status_code=303)
 
 @router.post("/categories/delete/{category_id}")
 def delete_category(request: Request, category_id: int, db: Session = Depends(get_db)):
     admin_required(request)
-    
+
     category = db.query(MenuCategory).get(category_id)
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
-    
+
     # Check if category is used by any items
     usage_count = db.query(MenuItem).filter(MenuItem.category_id == category_id).count()
     if usage_count > 0:
         raise HTTPException(status_code=400, detail=f"Cannot delete category used by {usage_count} menu items")
-    
+
     db.delete(category)
     db.commit()
-    return RedirectResponse("/admin/categories", status_code=303)
+    return RedirectResponse("/admin/categories?saved=1", status_code=303)

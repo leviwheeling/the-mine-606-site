@@ -1,0 +1,23 @@
+{% extends 'layout/base.html' %}
+{% block title %}
+The Nights — The Mine 606
+{% endblock %}
+{% block content %}
+<section class="page-intro">
+<p class="eyebrow">
+<span class="only-day">MAKE SOME PLANS.</span>
+<span class="only-night">MAKE SOME MEMORIES.</span>
+</p>
+<h1>Your night.<br>
+<em>Our place.</em>
+</h1>
+<p>What’s coming up at The Mine. Pick your night and bring your people.</p>
+</section>
+<section class="section page-body">
+{% include 'public/_events.html' %}
+<div class="inline-callout">
+<h3>Got a reason to celebrate?</h3>
+<a href="/rentals" class="button primary">MAKE IT YOUR NIGHT ↗</a>
+</div>
+</section>
+{% endblock %}

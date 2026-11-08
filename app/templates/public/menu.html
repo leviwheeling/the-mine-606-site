@@ -1,279 +1,73 @@
-{% extends "layout/base.html" %}
-{% block title %}Menu — The Mine 606{% endblock %}
-
-{% block head_extra %}
-<link rel="stylesheet" href="/static/css/menu.css">
+{% extends 'layout/base.html' %}
+{% from 'layout/macros.html' import empty %}
+{% block title %}
+The Food — The Mine 606
 {% endblock %}
-
 {% block content %}
-<section class="max-w-7xl mx-auto px-4 pt-20 pb-24">
-  <header class="mb-6 sm:mb-8">
-    <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl">Our Menu</h1>
-    <p class="text-white/70 mt-2 text-sm sm:text-base">Filter by category and dietary tags.</p>
-  </header>
-
-  <!-- Filters -->
-  <div class="flex flex-col gap-4 mb-6 sm:mb-8">
-    <!-- Categories -->
-    <div class="flex flex-wrap items-center gap-3 w-full" id="catTabs">
-      <button data-cat="all" class="cat-tab active" type="button">All</button>
-      {% for c in categories %}
-        <button data-cat="{{ c.id }}" class="cat-tab" type="button">{{ c.name }}</button>
-      {% endfor %}
-    </div>
-
-    <!-- Tag filter -->
-    <div class="w-full sm:w-80">
-      <div class="relative">
-        <select id="tagFilter" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white/90 focus:outline-none focus:border-mine-gold touch-manipulation">
-          <option value="">DIETARY (any)</option>
-          {% for t in tags %}
-            <option value="{{ t }}">{{ t|replace('-', ' ')|title }}</option>
-          {% endfor %}
-        </select>
-        <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">▾</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Items Grid -->
-  {% set count = items|length if items is defined else 0 %}
-  <div id="menuGrid" 
-       class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    {% for it in items %}
-      <article
-        class="card overflow-hidden group transition hover:-translate-y-0.5 animate-fade-in"
-        data-cat="{{ it.category }}"
-        data-tags="{{ (it.tags|join(',')) if it.tags else '' }}"
-        data-animation-delay="{{ loop.index * 0.1 }}"
-      >
-        <div class="h-32 sm:h-40 w-full overflow-hidden menu-image-container">
-          <img 
-            src="{{ it.img if it.img else '/static/media/menu/placeholder.svg' }}"
-            alt="{{ it.name }}" 
-            class="menu-image group-hover:scale-[1.03] w-full h-full object-cover"
-            loading="lazy"
-          >
-        </div>
-        <div class="p-4 sm:p-5 space-y-2">
-          <div class="flex items-start justify-between gap-3">
-            <h3 class="font-semibold leading-tight text-sm sm:text-base">{{ it.name }}</h3>
-            <div class="text-mine-gold font-semibold shrink-0 text-sm sm:text-base">${{ '%.2f'|format(it.price) }}</div>
-          </div>
-          {% if it.description %}
-            <p class="text-white/70 text-sm">{{ it.description }}</p>
-          {% endif %}
-
-          {% if it.tags and it.tags|length > 0 %}
-            <div class="flex flex-wrap gap-1.5 pt-1">
-              {% for tag in it.tags %}
-                <span class="px-2 py-0.5 rounded-full text-xs border border-white/10 text-white/70 hover:border-mine-gold hover:text-mine-gold transition-colors">
-                  {{ tag|replace('-', ' ') }}
-                </span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </article>
-    {% endfor %}
-  </div>
-
-  {% if count == 0 %}
-    <div class="text-white/60 mt-10">No menu items yet. Add items in <a class="underline underline-offset-4 text-mine-gold" href="/admin/menu">Admin → Menu</a>.</div>
-  {% endif %}
+<section class="page-intro food-intro">
+<div>
+<p class="eyebrow">BIG FLAVOR. ZERO FUSS.</p>
+<h1>
+<span class="only-day">Come<br>
+<em>hungry.</em>
+</span>
+<span class="only-night">Fuel the<br>
+<em>good times.</em>
+</span>
+</h1>
+<p>Find your usual. Or find your new favorite.</p>
+</div>
+<img src="/static/media/venue/03-small.webp" alt="A burger and fries from The Mine">
 </section>
-{% endblock %}
-
-{% block body_scripts %}
-<script>
-  // Robust menu filter initialization with multiple fallback strategies
-  function initMenuFilters() {
-    console.log('Initializing menu filters...');
-    
-    const grid = document.getElementById('menuGrid');
-    const tabs = document.querySelectorAll('.cat-tab');
-    const select = document.getElementById('tagFilter');
-    
-    if (!grid) {
-      console.warn('Menu grid not found, retrying...');
-      return false;
-    }
-    
-    // Ensure all cards are visible first (critical for mobile)
-    const allCards = grid.querySelectorAll('article[data-cat]');
-    console.log('Ensuring', allCards.length, 'cards are visible');
-    allCards.forEach(card => {
-      card.style.display = '';
-      card.style.visibility = 'visible';
-      card.style.opacity = '1';
-      
-      // Apply animation delay from data attribute
-      const delay = card.getAttribute('data-animation-delay');
-      if (delay) {
-        card.style.animationDelay = delay + 's';
-      }
-    });
-    
-    // Ensure buttons are visible and properly styled
-    tabs.forEach(tab => {
-      tab.style.display = 'inline-flex';
-      tab.style.visibility = 'visible';
-      tab.style.opacity = '1';
-      // Force button styling as fallback
-      if (!tab.style.backgroundColor) {
-        tab.style.backgroundColor = '#C8A349';
-        tab.style.color = '#000';
-        tab.style.padding = '8px 16px';
-        tab.style.borderRadius = '8px';
-        tab.style.border = '2px solid #C8A349';
-        tab.style.fontWeight = '600';
-        tab.style.cursor = 'pointer';
-      }
-    });
-    
-    console.log('Found', tabs.length, 'category tabs');
-
-    function applyFilters() {
-      const activeTab = document.querySelector('.cat-tab.active');
-      const cat = activeTab ? activeTab.getAttribute('data-cat') : 'all';
-      const tag = select ? select.value : '';
-
-      console.log('Filtering - Active category:', cat, 'Tag:', tag); // Debug
-
-      const cards = grid.querySelectorAll('article[data-cat]');
-      let visibleCount = 0;
-      
-      if (cards.length === 0) {
-        console.warn('No menu cards found');
-        return;
-      }
-      
-      cards.forEach(card => {
-        const cardCat = card.getAttribute('data-cat') || '';
-        const cardTags = card.getAttribute('data-tags') || '';
-        
-        console.log('Card:', card.querySelector('h3')?.textContent, 'Category:', cardCat, 'Tags:', cardTags); // Debug
-        
-        const catMatch = cat === 'all' || cardCat === cat;
-        const tagMatch = !tag || cardTags.includes(tag);
-        const shouldShow = catMatch && tagMatch;
-        
-        if (shouldShow) {
-          card.style.display = '';
-          card.style.visibility = 'visible';
-          card.style.opacity = '1';
-          // Preserve animation delay
-          const delay = card.getAttribute('data-animation-delay');
-          if (delay) {
-            card.style.animationDelay = delay + 's';
-          }
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      
-      // Safety fallback: if nothing visible and on "All", show everything
-      if (visibleCount === 0 && cat === 'all') {
-        console.log('Fallback: showing all cards');
-        cards.forEach(card => {
-          card.style.display = '';
-          card.style.visibility = 'visible';
-          card.style.opacity = '1';
-          // Preserve animation delay
-          const delay = card.getAttribute('data-animation-delay');
-          if (delay) {
-            card.style.animationDelay = delay + 's';
-          }
-        });
-      }
-    }
-
-    // Robust event handlers with error handling
-    console.log('Setting up click handlers for', tabs.length, 'tabs'); // Debug
-    
-    tabs.forEach((tab, index) => {
-      console.log(`Tab ${index}:`, tab.textContent, 'data-cat:', tab.getAttribute('data-cat')); // Debug
-      
-      tab.addEventListener('click', function(e) {
-        try {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          console.log('🔥 TAB CLICKED:', this.getAttribute('data-cat'), this.textContent); // Debug
-          
-          // Remove active class from all tabs
-          tabs.forEach(t => {
-            t.classList.remove('active');
-            console.log('Removed active from:', t.textContent); // Debug
-          });
-          
-          // Add active class to clicked tab
-          this.classList.add('active');
-          console.log('Added active to:', this.textContent); // Debug
-          
-          // Apply filters
-          console.log('About to apply filters...'); // Debug
-          applyFilters();
-        } catch (error) {
-          console.error('Error handling tab click:', error);
-        }
-      });
-      
-      // Also add a simple test click handler
-      tab.style.cursor = 'pointer';
-      tab.onclick = function() {
-        console.log('🚨 ONCLICK FIRED:', this.textContent);
-      };
-    });
-
-    // Handle tag filter with error handling
-    if (select) {
-      select.addEventListener('change', function() {
-        try {
-          applyFilters();
-        } catch (error) {
-          console.error('Error handling tag filter:', error);
-        }
-      });
-    }
-
-    console.log('Menu filters initialized successfully');
-    return true;
-  }
-
-  // Single, reliable initialization
-  let menuFiltersInitialized = false;
-  
-  function initializeMenuOnce() {
-    if (menuFiltersInitialized) {
-      console.log('Menu filters already initialized, skipping');
-      return;
-    }
-    
-    console.log('Attempting to initialize menu filters...');
-    
-    if (initMenuFilters()) {
-      menuFiltersInitialized = true;
-      console.log('✅ Menu filters initialized successfully');
-    } else {
-      console.log('⚠️ Menu initialization failed, will retry');
-      setTimeout(initializeMenuOnce, 500);
-    }
-  }
-
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeMenuOnce);
-  } else {
-    setTimeout(initializeMenuOnce, 100);
-  }
-  
-  // Re-initialize after HTMX content swaps (but only if needed)
-  document.addEventListener('htmx:afterSettle', function() {
-    menuFiltersInitialized = false; // Reset flag for new content
-    setTimeout(initializeMenuOnce, 100);
-  });
-</script>
-
+<section class="section page-body" data-menu>
+<div class="menu-toolbar">
+<div class="filter-tabs" role="group" aria-label="Menu categories">
+<button type="button" data-category="all" aria-pressed="true">All the good stuff</button>
+{% for c in categories %}
+<button type="button" data-category="{{ c.id }}" aria-pressed="false">{{ c.name }}</button>
+{% endfor %}
+</div>
+<div class="filter-inputs">
+<label class="field">
+<span>Find a craving</span>
+<input type="search" id="menu-search" placeholder="Search the menu…">
+</label>
+<label class="field">
+<span>Dietary & other tags</span>
+<select id="menu-tag">
+<option value="">All tags</option>
+{% for t in tags %}
+<option value="{{ t }}">{{ t|replace('-',' ')|title }}</option>
+{% endfor %}
+</select>
+</label>
+</div>
+</div>
+<p class="results-count" id="menu-count" role="status" aria-live="polite">{{ items|length }} items</p>
+<div class="menu-grid">
+{% for it in items %}
+<article class="menu-item" data-menu-item data-category="{{ it.category }}" data-tags="{{ it.tags|join(',') }}" data-search="{{ (it.name ~ ' ' ~ (it.description or ''))|lower }}">
+<img src="{{ it.img }}" alt="{{ it.name }}" loading="lazy">
+<div class="menu-item-body">
+<div class="item-title">
+<h2>{{ it.name }}</h2>
+<b>${{ '%.2f'|format(it.price) }}</b>
+</div>
+{% if it.description %}
+<p>{{ it.description }}</p>
+{% endif %}
+<div class="tag-list">
+{% for tag in it.tags %}
+<span>{{ tag|replace('-',' ')|title }}</span>
+{% endfor %}
+</div>
+</div>
+</article>
+{% else %}
+{{ empty('Something good is cooking.','The menu is being updated. Contact us for the latest food and drink options.') }}
+{% endfor %}
+</div>
+<div id="menu-empty" hidden>{{ empty('No matches this time.','Try another category, search, or tag.') }}<button type="button" class="button secondary" data-reset-menu>RESET FILTERS ↺</button>
+</div>
+</section>
 {% endblock %}

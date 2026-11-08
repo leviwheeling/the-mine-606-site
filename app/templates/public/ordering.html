@@ -1,22 +1,27 @@
-{% extends "layout/base.html" %}
-{% block title %}Ordering — The Mine 606{% endblock %}
-
+{% extends 'layout/base.html' %}
+{% block title %}
+Order Food — The Mine 606
+{% endblock %}
 {% block content %}
-<section class="max-w-4xl mx-auto px-4 pt-14 pb-24">
-  <header class="mb-8">
-    <h1 class="font-serif text-4xl md:text-5xl">Order Online</h1>
-    <p class="text-white/70 mt-2">Fast, easy pickup or delivery from our partners.</p>
-  </header>
-
-  <div class="grid sm:grid-cols-2 gap-4">
-    <a class="btn-primary justify-center" href="#" target="_blank" rel="noopener">Order on DoorDash</a>
-    <a class="btn-secondary justify-center" href="#" target="_blank" rel="noopener">Order on Uber Eats</a>
-  </div>
-
-  <div class="mt-8 p-4 rounded-2xl border border-white/10 bg-white/5">
-    <div class="text-white/80">
-      Pro tip: Check today’s specials on our <a href="/menu" class="underline underline-offset-4 text-mine-gold">menu</a>.
-    </div>
-  </div>
+<section class="page-intro">
+<p class="eyebrow">SOMETHING GOOD TO GO.</p>
+<h1>Take a little<br>
+<em>Mine with you.</em>
+</h1>
+<p>Find your favorites on the menu, then contact the kitchen about pickup.</p>
+</section>
+<section class="section page-body">
+<div class="panel order-panel">
+<h2>Let’s get you fed.</h2>
+<p>Browse the food and drink menu. For ordering options and availability, get in touch with The Mine.</p>
+<div class="actions">
+<a href="/menu" class="button primary">SEE THE MENU ↗</a>
+{% if SITE_OBJ and SITE_OBJ.phone %}
+<a href="tel:{{ SITE_OBJ.phone }}" class="button secondary">CALL TO ORDER ↗</a>
+{% else %}
+<a href="/location" class="button secondary">CONTACT & DIRECTIONS ↗</a>
+{% endif %}
+</div>
+</div>
 </section>
 {% endblock %}
