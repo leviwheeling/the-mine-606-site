@@ -1,0 +1,21 @@
+{% extends 'layout/base.html' %}
+{% block title %}{{ policy_title }} — The Mine 606{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">THE MINE 606</p>
+  <h1>{{ policy_title }}</h1>
+  <p>Effective November 9, 2026</p>
+</section>
+<article class="legal-copy">
+  {% block policy_content %}{% endblock %}
+  <h2>Contact us</h2>
+  <p>
+    For questions about this page, contact The Mine 606 through our
+    <a href="/location">location page</a> or write to us at
+    {{ s.address if s and s.address else '121 Main St' }},
+    {{ s.city if s and s.city else 'Pikeville' }},
+    {{ s.state if s and s.state else 'KY' }}
+    {{ s.zip if s and s.zip else '41501' }}.
+  </p>
+</article>
+{% endblock %}

@@ -188,6 +188,8 @@ async def sitemap(request: Request) -> Response:
         f"{base}/menu",
         f"{base}/menu/lunch",
         f"{base}/drinks",
+        f"{base}/privacy",
+        f"{base}/terms",
         f"{base}/events",
         f"{base}/ordering",
         f"{base}/musician",

@@ -174,6 +174,20 @@ async def drinks_menu(request: Request, db: Session = Depends(get_db)):
     return render_menu(request, "drinks", sections)
 
 
+@router.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy(request: Request):
+    return request.app.templates.TemplateResponse(
+        "public/privacy.html", ctx(request, meta_desc="How The Mine 606 handles information submitted through this website.")
+    )
+
+
+@router.get("/terms", response_class=HTMLResponse)
+async def terms_of_service(request: Request):
+    return request.app.templates.TemplateResponse(
+        "public/terms.html", ctx(request, meta_desc="Terms of use for The Mine 606 website.")
+    )
+
+
 @router.get("/ordering", response_class=HTMLResponse)
 async def ordering(request: Request):
     return request.app.templates.TemplateResponse(get_template_name("ordering.html", request), ctx(request))

@@ -2763,3 +2763,19 @@ td form {
     grid-template-columns: 1fr;
   }
 }
+
+.legal-copy {
+  width: min(88%, 72ch);
+  margin: clamp(30px, 6vw, 76px) auto;
+}
+.legal-copy h2 {
+  font: 700 clamp(26px, 4vw, 36px)/1 var(--display);
+  margin: 30px 0 10px;
+}
+.legal-copy p {
+  margin: 0 0 14px;
+}
+.legal-copy a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

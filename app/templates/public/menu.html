@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 {% from 'layout/macros.html' import empty %}
 {% block title %}{{ menu_page.label }} Menu — The Mine 606{% endblock %}
-{% block head_extra %}<link rel="stylesheet" href="/static/css/menu-edition.css?v=1">{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="/static/css/menu-edition.css?v=2">{% endblock %}
 {% block content %}
 <div class="menu-edition menu-edition--{{ menu_type }}">
   <header class="edition-cover">
@@ -114,6 +114,14 @@
       <button type="button" class="button secondary" data-reset-menu>Reset filters</button>
     </div>
   </section>
+  {% if menu_type == 'drinks' %}
+  <aside class="edition-alcohol-note" aria-labelledby="alcohol-notice">
+    <p class="eyebrow">A NOTE FROM THE BAR</p>
+    <h2 id="alcohol-notice">Alcohol health notice</h2>
+    <p>Drinking alcohol during pregnancy can cause birth defects. If you’re pregnant or trying to become pregnant, avoid alcohol. Alcohol can impair driving and the ability to operate machinery and can cause other health problems.</p>
+    <p>Alcohol service is for guests 21 and older. Please drink responsibly and plan a sober ride.</p>
+  </aside>
+  {% endif %}
   <div class="edition-footer">
     <div><p class="eyebrow">121 MAIN ST · PIKEVILLE, KY</p><h2>See you at The Mine.</h2></div>
     <a class="button primary" href="/location">Find The Mine</a>

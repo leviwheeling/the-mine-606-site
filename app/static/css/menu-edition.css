@@ -436,3 +436,22 @@
     flex-direction: column;
   }
 }
+
+.edition-alcohol-note {
+  width: min(92%, 1440px);
+  margin: 0 auto clamp(24px, 4vw, 46px);
+  padding: clamp(20px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--panel);
+}
+.edition-alcohol-note h2 {
+  font: 700 clamp(26px, 4vw, 36px)/1 var(--display);
+  margin-bottom: 12px;
+}
+.edition-alcohol-note p:not(.eyebrow) {
+  max-width: 76ch;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
