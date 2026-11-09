@@ -1836,13 +1836,15 @@ td form {
     height: 290px;
   }
 }
-@media (max-width: 850px) {
+@media (max-width: 920px) {
   .desktop-nav {
     display: none;
   }
-  .nav-toggle {
+  .site-header .nav-toggle {
     display: block;
   }
+}
+@media (max-width: 850px) {
   .hero {
     height: 720px;
     min-height: 650px;

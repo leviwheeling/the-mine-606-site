@@ -4,14 +4,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import os
-import json
 
 from ..db.session import get_db
-from ..models.menu import MenuItem, MenuCategory, MenuTag
+from ..models.menu import MenuItem, MenuCategory
 from ..models.events import Event
 from ..models.site import SiteSetting
 from ..seo.schema import local_business, events as events_schema
+from ..services.menu_edition import EDITION
 
 router = APIRouter()
 
@@ -62,32 +61,118 @@ async def home(request: Request, db: Session = Depends(get_db)):
         ctx(request, featured=featured, events=events, site=site, jsonld_local=lb, jsonld_events=ev)
     )
 
+MENU_PAGES = {
+    "food": {"url": "/menu", "label": "Food", "number": "01", "hero": "03"},
+    "lunch": {"url": "/menu/lunch", "label": "$7 Lunch", "number": "02", "hero": "01"},
+    "drinks": {"url": "/drinks", "label": "Drinks", "number": "03", "hero": "05"},
+}
+
+
+def render_menu(request: Request, menu_type: str, sections: list):
+    page = MENU_PAGES[menu_type]
+    tags = sorted({tag for section in sections for item in section["items"] for tag in item.get("tags", [])})
+    return request.app.templates.TemplateResponse(
+        "public/menu.html",
+        ctx(
+            request,
+            menu_type=menu_type,
+            menu_page=page,
+            menu_pages=MENU_PAGES,
+            sections=sections,
+            tags=tags,
+            item_count=sum(len(section["items"]) for section in sections),
+            meta_desc=f"Explore {page['label'].lower()} at The Mine 606 in Pikeville, Kentucky.",
+        ),
+    )
+
+
 @router.get("/menu", response_class=HTMLResponse)
 async def menu(request: Request, db: Session = Depends(get_db)):
-    categories = db.query(MenuCategory).order_by(MenuCategory.sort_order.asc(), MenuCategory.name.asc()).all()
-    tags = db.query(MenuTag).order_by(MenuTag.type.asc(), MenuTag.name.asc()).all()
-    items = db.query(MenuItem).options(joinedload(MenuItem.tags)).filter(MenuItem.available.is_(True)).order_by(MenuItem.name.asc()).all()
-
-    cat_payload = [{"id": c.slug or str(c.id), "name": c.name} for c in categories]
-    tag_payload = [t.slug for t in tags]
-    item_payload = []
-    for it in items:
-        # use slug for category if present
-        cat_slug = next((c.slug for c in categories if c.id == getattr(it, "category_id", None)), getattr(it, "category", "other"))
-        item_payload.append({
-            "id": it.id,
-            "name": it.name,
-            "price": float(it.price),
-            "category": cat_slug or "other",
-            "tags": [t.slug for t in (getattr(it, "tags", []) or [])],
-            "img": it.image_url or "/static/media/menu/placeholder.svg",
-            "description": it.description or "",
+    items = (
+        db.query(MenuItem)
+        .options(joinedload(MenuItem.category_rel))
+        .filter(MenuItem.available.is_(True))
+        .order_by(MenuItem.name, MenuItem.id)
+        .all()
+    )
+    edition_sections = {section["slug"]: section for section in EDITION["food"]}
+    sections = {}
+    for item in items:
+        category = item.category_rel
+        slug = (category.slug if category else item.category) or "other"
+        if slug in {"drinks", "cocktails", "draft", "bottle-can", "shots", "liquor", "soft-drinks"}:
+            continue
+        entry = edition_sections.get(slug, {})
+        section = sections.setdefault(slug, {
+            **entry,
+            "slug": slug,
+            "title": entry.get("title", category.name if category else "More from the kitchen"),
+            "items": [],
+            "sort_order": category.sort_order if category else 0,
+        })
+        section["items"].append({
+            "name": item.name,
+            "description": item.description or "",
+            "price": item.price,
+            "image": item.image_url if item.image_url and "placeholder" not in item.image_url else None,
+            "tags": [tag.slug for tag in item.tags],
         })
 
-    return request.app.templates.TemplateResponse(
-        get_template_name("menu.html", request),
-        ctx(request, categories=cat_payload, tags=tag_payload, items=item_payload)
+    order = {slug: index for index, slug in enumerate(edition_sections)}
+    for slug, section in sections.items():
+        if slug in edition_sections:
+            item_order = {item["name"]: index for index, item in enumerate(edition_sections[slug]["items"])}
+            section["items"].sort(key=lambda item: item_order.get(item["name"], len(item_order)))
+    return render_menu(request, "food", sorted(sections.values(), key=lambda section: (
+        order.get(section["slug"], len(order)), section["sort_order"] or 0, section["title"],
+    )))
+
+
+@router.get("/menu/lunch", response_class=HTMLResponse)
+async def lunch_menu(request: Request):
+    descriptions = {
+        item["name"]: item.get("description", "")
+        for section in EDITION["food"]
+        for item in section["items"]
+    }
+    sections = [
+        {**section, "items": [{"name": name, "description": descriptions[name]} for name in section["items"]]}
+        for section in EDITION["lunch"]
+    ]
+    return render_menu(request, "lunch", sections)
+
+
+@router.get("/drinks", response_class=HTMLResponse)
+async def drinks_menu(request: Request, db: Session = Depends(get_db)):
+    sections = [
+        {
+            **section,
+            "items": [
+                {"name": name, "description": section.get("descriptions", {}).get(name, "")}
+                for name in section["items"]
+            ],
+        }
+        for section in EDITION["drinks"]
+    ]
+    soft_drinks = sections[-1]
+    extras = (
+        db.query(MenuItem)
+        .join(MenuItem.category_rel)
+        .filter(MenuCategory.slug == "drinks", MenuItem.available.is_(True))
+        .order_by(MenuItem.name)
+        .all()
     )
+    for item in extras:
+        if item.name == soft_drinks["title"]:
+            soft_drinks["price"] = item.price
+        else:
+            soft_drinks["items"].append({
+                "name": item.name,
+                "price": item.price,
+                "description": item.description,
+            })
+    return render_menu(request, "drinks", sections)
+
 
 @router.get("/ordering", response_class=HTMLResponse)
 async def ordering(request: Request):

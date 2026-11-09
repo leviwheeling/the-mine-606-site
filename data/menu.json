@@ -1,0 +1,99 @@
+{
+  "food": [
+    {
+      "slug": "big-eats", "title": "Big Eats", "image": "03",
+      "items": [
+        {"name": "Braveheart Burger", "price": "14.99", "description": "½ short rib or ½ brisket, American or pepper-jack cheese, lettuce, onion, tomato, and pickles."},
+        {"name": "The Western Burger", "price": "14.99", "description": "BBQ sauce, an onion ring, lettuce, tomato, onion, pickles, and American or pepper-jack cheese."},
+        {"name": "Philly Cheesesteak", "price": "13.45", "description": "Steak, peppers, onions, and American or pepper-jack cheese."},
+        {"name": "Turkey Club", "price": "11.99", "description": "Turkey, bacon, lettuce, tomato, mayo, avocado, and American or pepper-jack cheese."},
+        {"name": "BLTA Sammich", "price": "10.99", "description": "Bacon, lettuce, tomato, avocado, and mayo."},
+        {"name": "3 Chicken Strips with Fries", "aliases": ["Chicken Strips"], "price": "11.99"},
+        {"name": "Chicken Sammich", "price": "10.99", "description": "Crispy or grilled chicken with lettuce, tomato, and onion."},
+        {"name": "Cheese Quesadilla", "aliases": ["Quesadilla"], "price": "8.50", "description": "Crispy or grilled chicken, or beef."},
+        {"name": "Loaded Quesadilla", "price": "10.00", "description": "Crispy or grilled chicken, or beef, with mixed veggies."},
+        {"name": "Loaded Nachos", "price": "12.99", "description": "Chicken or beef, mixed veggies, sour cream, and salsa."}
+      ]
+    },
+    {
+      "slug": "appetizers-sides", "title": "Appetizers & Sides", "image": "02",
+      "items": [
+        {"name": "Small Willi Fries", "aliases": ["Small Willie Fries"], "price": "7.99", "description": "Shoestring fries, shredded cheddar, and diced chicken strips drizzled with BBQ, ranch, and Red Hot."},
+        {"name": "Large Willi Fries", "aliases": ["Willie Fries", "Willi Fries", "Large Willie Fries"], "price": "12.99", "description": "Shoestring fries, shredded cheddar, and diced chicken strips drizzled with BBQ, ranch, and Red Hot."},
+        {"name": "Cheese Fries", "price": "10.00", "description": "Shredded or queso cheese, bacon, and ranch."},
+        {"name": "Cheese Tots", "price": "10.00", "description": "Shredded or queso cheese."},
+        {"name": "Nachos", "price": "7.00"},
+        {"name": "Fried Pickles", "price": "6.99"},
+        {"name": "Mozzarella Sticks", "price": "6.99"},
+        {"name": "Shoestring Fries", "price": "5.50"},
+        {"name": "Tater Tots", "aliases": ["Tator Tots"], "price": "5.50"},
+        {"name": "Sweet Potato Fries", "price": "5.50"},
+        {"name": "Curly Fries", "price": "5.50"}
+      ]
+    },
+    {
+      "slug": "coal-miners-breakfast", "title": "Coal Miners Breakfast",
+      "items": [
+        {"name": "Chicken Wrap", "price": "7.00", "description": "Chicken strip, grilled chicken, or crispy chicken with lettuce, tomato, and onion."},
+        {"name": "BLTA with Egg", "price": "7.99"}
+      ]
+    },
+    {
+      "slug": "pizzazz-pizza", "title": "Pizza", "image": "04",
+      "options_title": "Pick your toppings",
+      "options": ["Olives", "Banana Peppers", "Pepperoni", "Ham", "Sausage", "Red Onion", "Pineapple", "Diced Jalapeños", "Mushrooms", "Bacon"],
+      "items": [
+        {"name": "Create Your Own Pizza", "price": "17.45", "description": "12-inch crust with one topping. Extra toppings are $0.50 each."}
+      ]
+    },
+    {
+      "slug": "wangs", "title": "Wings",
+      "options_title": "Choose your sauce",
+      "options": ["Buffalo", "Sweet BBQ", "Goku", "Jalapeño Mango", "Honey Sriracha", "Sweet & Sour", "Moonshine Crema", "Garlic Parmesan"],
+      "items": [
+        {"name": "6-Piece Wings", "aliases": ["6 Piece Wangs", "6 Piece Wings"], "price": "8.99"},
+        {"name": "12-Piece Wings", "aliases": ["12 Piece Wangs", "12 Piece Wings"], "price": "13.99"}
+      ]
+    }
+  ],
+  "lunch": [
+    {
+      "slug": "lunch-big-eats", "title": "Big Eats", "image": "01",
+      "note": "Every Big Eat comes with shoestring fries.",
+      "price": "7.00",
+      "items": ["Philly Cheesesteak", "BLTA Sammich", "Turkey Club", "Braveheart Burger"]
+    },
+    {
+      "slug": "lunch-sides", "title": "Appetizers & Sides", "image": "02",
+      "price": "5.00",
+      "items": ["Small Willi Fries", "Loaded Nachos", "Cheese Fries", "Cheese Tots", "Fried Pickles", "Mozzarella Sticks", "Shoestring Fries", "Tater Tots", "Sweet Potato Fries", "Curly Fries"]
+    }
+  ],
+  "drinks": [
+    {
+      "slug": "cocktails", "title": "Cocktails",
+      "items": ["Tequila Sunrise", "Vodka Sunrise", "Whiskey Sour", "Margarita on the Rocks", "Sex on the Beach", "Amaretto Sour", "Shark Attack", "Long Island", "Malibu Breeze", "Pineapple Upside Down"],
+      "descriptions": {"Margarita on the Rocks": "Strawberry or lime."}
+    },
+    {
+      "slug": "draft", "title": "On Draft",
+      "items": ["Michelob Ultra", "Miller Lite", "Coors Light", "Yuengling", "Angry Orchard", "Cougar Bait"]
+    },
+    {
+      "slug": "bottle-can", "title": "Bottles & Cans",
+      "items": ["Busch Light", "Coors Banquet", "Sierra Nevada Hazy", "Bud Light", "Modelo", "Corona", "Budweiser", "Natural Light", "Twisted Tea", "White Claw"]
+    },
+    {
+      "slug": "shots", "title": "Shots",
+      "items": ["Jägerbomb", "Green Tea", "Lemon Drop", "Vegas Bomb", "The Bear", "Whiskey Sour"]
+    },
+    {
+      "slug": "liquor", "title": "Liquor",
+      "items": ["Maker’s Mark", "Jameson", "Jim Beam", "Crown Royal", "Malibu", "Brothers Wright", "Tito’s", "Patrón", "1800", "Canary", "Weller", "Jack Daniel’s"]
+    },
+    {
+      "slug": "soft-drinks", "title": "Soft Drinks & Tea", "price": "3.20",
+      "items": ["Mr. Pibb", "Cherry Coke", "Coke", "Coke Zero", "Diet Coke", "Root Beer", "Sprite", "Mello Yello", "Sweet Tea", "Tea"]
+    }
+  ]
+}

@@ -186,6 +186,8 @@ async def sitemap(request: Request) -> Response:
     urls: List[str] = [
         f"{base}/",
         f"{base}/menu",
+        f"{base}/menu/lunch",
+        f"{base}/drinks",
         f"{base}/events",
         f"{base}/ordering",
         f"{base}/musician",
@@ -226,3 +228,8 @@ async def startup_event():
     if settings.environment and settings.environment.lower() == "development":
         print("[DEV MODE] Creating database tables if not present...")
         Base.metadata.create_all(bind=engine)
+    if engine.dialect.name == "postgresql":
+        from .services.menu_edition import import_menu_edition
+
+        with SessionLocal.begin() as db:
+            import_menu_edition(db)

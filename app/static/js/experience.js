@@ -94,7 +94,7 @@
   nav?.addEventListener("click", (event) => {
     if (event.target.closest("a")) closeNav();
   });
-  matchMedia("(min-width: 851px)").addEventListener("change", (event) => {
+  matchMedia("(min-width: 921px)").addEventListener("change", (event) => {
     if (event.matches) closeNav();
   });
 
@@ -161,6 +161,7 @@
   if (menu) {
     const tabs = [...menu.querySelectorAll("button[data-category]")];
     const cards = [...menu.querySelectorAll("[data-menu-item]")];
+    const sections = [...menu.querySelectorAll("[data-menu-section]")];
     const search = menu.querySelector("#menu-search");
     const tag = menu.querySelector("#menu-tag");
     let category = "all";
@@ -170,10 +171,15 @@
       cards.forEach((c) => {
         c.hidden = !(
           (category === "all" || c.dataset.category === category) &&
-          (!tag.value || c.dataset.tags.split(",").includes(tag.value)) &&
+          (!tag?.value || c.dataset.tags.split(",").includes(tag.value)) &&
           (!q || c.dataset.search.includes(q))
         );
         if (!c.hidden) count++;
+      });
+      sections.forEach((section) => {
+        section.hidden = !section.querySelector(
+          "[data-menu-item]:not([hidden])",
+        );
       });
       menu.querySelector("#menu-count").textContent =
         `${count} ${count === 1 ? "item" : "items"}`;
@@ -188,10 +194,10 @@
       }),
     );
     search.addEventListener("input", filter);
-    tag.addEventListener("change", filter);
+    tag?.addEventListener("change", filter);
     menu.querySelector("[data-reset-menu]")?.addEventListener("click", () => {
       search.value = "";
-      tag.value = "";
+      if (tag) tag.value = "";
       category = "all";
       tabs.forEach((t) =>
         t.setAttribute("aria-pressed", String(t.dataset.category === "all")),

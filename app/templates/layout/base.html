@@ -37,9 +37,9 @@
 </span>
 </a>
 <nav class="desktop-nav" aria-label="Main navigation">
-{% for url,label in [('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
+{% for url,label in [('/menu','The food'),('/drinks','Drinks'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
 <a href="{{ url }}"
-{% if request.url.path == url %}
+{% if request.url.path == url or (url == '/menu' and request.url.path == '/menu/lunch') %}
 aria-current="page"
 {% endif %}
 >{{ label }}</a>
@@ -56,9 +56,9 @@ aria-current="page"
 </div>
 </header>
 <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" hidden>
-{% for url,label in [('/','Home'),('/menu','The food'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
+{% for url,label in [('/','Home'),('/menu','The food'),('/drinks','Drinks'),('/events','The nights'),('/rentals','Your party'),('/location','Party locater'),('/musician','Play at the Mine!')] %}
 <a href="{{ url }}"
-{% if request.url.path == url %}
+{% if request.url.path == url or (url == '/menu' and request.url.path == '/menu/lunch') %}
 aria-current="page"
 {% endif %}
 >{{ label }}

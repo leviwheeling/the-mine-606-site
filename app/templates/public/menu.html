@@ -1,73 +1,122 @@
 {% extends 'layout/base.html' %}
 {% from 'layout/macros.html' import empty %}
-{% block title %}
-The Food — The Mine 606
-{% endblock %}
+{% block title %}{{ menu_page.label }} Menu — The Mine 606{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="/static/css/menu-edition.css?v=1">{% endblock %}
 {% block content %}
-<section class="page-intro food-intro">
-<div>
-<p class="eyebrow">BIG FLAVOR. ZERO FUSS.</p>
-<h1>
-<span class="only-day">Come<br>
-<em>hungry.</em>
-</span>
-<span class="only-night">Fuel the<br>
-<em>good times.</em>
-</span>
-</h1>
-<p>Find your usual. Or find your new favorite.</p>
+<div class="menu-edition menu-edition--{{ menu_type }}">
+  <header class="edition-cover">
+    <div class="edition-cover-copy">
+      <p class="edition-kicker"><span>THE MINE 606</span><span class="edition-dot"></span><span>PIKEVILLE, KY</span></p>
+      {% if menu_type == 'food' %}
+      <h1>Dig <em>in.</em></h1>
+      <p class="edition-intro">Big burgers, loaded fries, wings, and a pizza just the way you like it.</p>
+      <a class="edition-cta" href="#menu-list">Explore the food menu <span aria-hidden="true">↓</span></a>
+      {% elif menu_type == 'lunch' %}
+      <h1>The <em>$7</em><br>lunch.</h1>
+      <p class="edition-intro">Four Big Eats with shoestring fries. Ten appetizers and sides for $5 each.</p>
+      <a class="edition-cta" href="#menu-list">See the lunch specials <span aria-hidden="true">↓</span></a>
+      {% else %}
+      <h1>Behind<br><em>the bar.</em></h1>
+      <p class="edition-intro">Sunrises, sours, cold drafts, and the good stuff on the shelf.</p>
+      <a class="edition-cta" href="#menu-list">Explore the drinks menu <span aria-hidden="true">↓</span></a>
+      {% endif %}
+    </div>
+    <div class="edition-cover-photo">
+      <img src="/static/media/venue/{{ menu_page.hero }}.webp"
+        srcset="/static/media/venue/{{ menu_page.hero }}-small.webp 800w, /static/media/venue/{{ menu_page.hero }}.webp 1600w"
+        sizes="(max-width: 680px) 100vw, 48vw" fetchpriority="high" alt="">
+      <span class="edition-photo-label">THE MINE 606 <span aria-hidden="true">/</span> PIKEVILLE</span>
+      {% if menu_type == 'lunch' %}
+      <div class="edition-stamp"><strong>$7</strong><span>MON–FRI<br>11 AM–1 PM</span></div>
+      {% else %}
+      <div class="edition-stamp" aria-hidden="true"><strong>606</strong><span>THE MINE</span></div>
+      {% endif %}
+    </div>
+  </header>
+
+  <nav class="edition-books" aria-label="Food and drinks menus">
+    {% for key, page in menu_pages.items() %}
+    <a href="{{ page.url }}" {% if key == menu_type %}aria-current="page"{% endif %}>
+      <span class="edition-book-index">{{ page.number }} /</span>
+      <strong>{{ page.label }}</strong>
+      <span class="edition-book-detail">{{ {'food':'THE KITCHEN','lunch':'MON–FRI · 11 AM–1 PM','drinks':'THE BAR'}[key] }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+
+  <section class="edition-list" id="menu-list" data-menu aria-label="{{ menu_page.label }} listings">
+    <div class="edition-list-heading">
+      <div><p class="eyebrow">{{ 'MONDAY–FRIDAY · 11 AM–1 PM' if menu_type == 'lunch' else 'THE MINE 606 MENU' }}</p>
+        <h2>{{ {'food':'From the kitchen.', 'lunch':'Clock out for lunch.', 'drinks':'What are you having?'}[menu_type] }}</h2>
+      </div>
+      <label class="edition-search">
+        <span>Search {{ 'drinks' if menu_type == 'drinks' else 'the menu' }}</span>
+        <input id="menu-search" type="search" placeholder="{{ 'Try margarita or draft' if menu_type == 'drinks' else 'Try fries or burger' }}">
+      </label>
+    </div>
+    <div class="edition-filters">
+      <div class="filter-tabs" role="group" aria-label="Menu categories">
+        <button type="button" data-category="all" aria-pressed="true">All</button>
+        {% for section in sections %}
+        <button type="button" data-category="{{ section.slug }}" aria-pressed="false">{{ section.title }}</button>
+        {% endfor %}
+      </div>
+      {% if tags %}
+      <label class="edition-tag"><span class="sr-only">Dietary & other tags</span><select id="menu-tag">
+        <option value="">All tags</option>
+        {% for tag in tags %}<option value="{{ tag }}">{{ tag|replace('-', ' ')|title }}</option>{% endfor %}
+      </select></label>
+      {% endif %}
+    </div>
+    <p class="edition-count" id="menu-count" role="status" aria-live="polite">{{ item_count }} {{ 'item' if item_count == 1 else 'items' }}</p>
+
+    <div class="edition-sections">
+      {% for section in sections %}
+      <section class="edition-section" data-menu-section aria-labelledby="section-{{ section.slug }}">
+        <header class="edition-section-head">
+          <span class="edition-index" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span>
+          <h3 id="section-{{ section.slug }}">{{ section.title }}</h3>
+          {% if section.note %}<p>{{ section.note }}</p>{% endif %}
+          {% if section.price %}<strong class="edition-section-price">${{ '%.2f'|format(section.price|float) }} each</strong>{% endif %}
+          {% if section.image %}
+          <img src="/static/media/venue/{{ section.image }}-small.webp" alt="" loading="lazy" width="800" height="600">
+          {% endif %}
+        </header>
+        <div class="edition-section-body">
+          <ul class="edition-rows" role="list">
+            {% for item in section["items"] %}
+            <li class="edition-row" data-menu-item data-category="{{ section.slug }}" data-tags="{{ item.tags|default([])|join(',') }}"
+              data-search="{{ (item.name ~ ' ' ~ (item.description or '') ~ ' ' ~ section.title ~ ' ' ~ (section.options|default([])|join(' ')))|lower }}">
+              {% if item.image %}<img class="edition-item-photo" src="{{ item.image }}" alt="" loading="lazy" width="54" height="54">{% endif %}
+              <div class="edition-row-title">
+                <h4>{{ item.name }}</h4>
+                {% set price = item.price if item.price is defined else section.price %}
+                {% if price is defined %}<span class="edition-price">${{ '%.2f'|format(price|float) }}</span>{% endif %}
+              </div>
+              {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+              {% if item.tags %}<div class="tag-list">{% for tag in item.tags %}<span>{{ tag|replace('-', ' ')|title }}</span>{% endfor %}</div>{% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% if section.options %}
+          <aside class="edition-options"><h4>{{ section.options_title }}</h4><ul role="list">
+            {% for option in section.options %}<li>{{ option }}</li>{% endfor %}
+          </ul></aside>
+          {% endif %}
+        </div>
+      </section>
+      {% else %}
+      {{ empty('Something good is cooking.', 'Check back for the latest food and drink options.') }}
+      {% endfor %}
+    </div>
+    <div id="menu-empty" hidden>
+      {{ empty('No matches this time.', 'Try a different search or category.') }}
+      <button type="button" class="button secondary" data-reset-menu>Reset filters</button>
+    </div>
+  </section>
+  <div class="edition-footer">
+    <div><p class="eyebrow">121 MAIN ST · PIKEVILLE, KY</p><h2>See you at The Mine.</h2></div>
+    <a class="button primary" href="/location">Find The Mine</a>
+  </div>
 </div>
-<img src="/static/media/venue/03-small.webp" alt="A burger and fries from The Mine">
-</section>
-<section class="section page-body" data-menu>
-<div class="menu-toolbar">
-<div class="filter-tabs" role="group" aria-label="Menu categories">
-<button type="button" data-category="all" aria-pressed="true">All the good stuff</button>
-{% for c in categories %}
-<button type="button" data-category="{{ c.id }}" aria-pressed="false">{{ c.name }}</button>
-{% endfor %}
-</div>
-<div class="filter-inputs">
-<label class="field">
-<span>Find a craving</span>
-<input type="search" id="menu-search" placeholder="Search the menu…">
-</label>
-<label class="field">
-<span>Dietary & other tags</span>
-<select id="menu-tag">
-<option value="">All tags</option>
-{% for t in tags %}
-<option value="{{ t }}">{{ t|replace('-',' ')|title }}</option>
-{% endfor %}
-</select>
-</label>
-</div>
-</div>
-<p class="results-count" id="menu-count" role="status" aria-live="polite">{{ items|length }} items</p>
-<div class="menu-grid">
-{% for it in items %}
-<article class="menu-item" data-menu-item data-category="{{ it.category }}" data-tags="{{ it.tags|join(',') }}" data-search="{{ (it.name ~ ' ' ~ (it.description or ''))|lower }}">
-<img src="{{ it.img }}" alt="{{ it.name }}" loading="lazy">
-<div class="menu-item-body">
-<div class="item-title">
-<h2>{{ it.name }}</h2>
-<b>${{ '%.2f'|format(it.price) }}</b>
-</div>
-{% if it.description %}
-<p>{{ it.description }}</p>
-{% endif %}
-<div class="tag-list">
-{% for tag in it.tags %}
-<span>{{ tag|replace('-',' ')|title }}</span>
-{% endfor %}
-</div>
-</div>
-</article>
-{% else %}
-{{ empty('Something good is cooking.','The menu is being updated. Contact us for the latest food and drink options.') }}
-{% endfor %}
-</div>
-<div id="menu-empty" hidden>{{ empty('No matches this time.','Try another category, search, or tag.') }}<button type="button" class="button secondary" data-reset-menu>RESET FILTERS ↺</button>
-</div>
-</section>
 {% endblock %}
